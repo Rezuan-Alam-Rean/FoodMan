@@ -1,6 +1,18 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import {
+  RefreshCw,
+  Database,
+  Server,
+  Activity,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Code2,
+  Clock,
+  Radio,
+} from "lucide-react";
 
 interface ServiceMemory {
   rss: string;
@@ -48,6 +60,11 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [autoRefresh, setAutoRefresh] = useState<boolean>(true);
+  const [mounted, setMounted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // fetch health endpoint
   const fetchHealth = useCallback(async () => {
@@ -95,50 +112,43 @@ export default function Home() {
   const isDegraded = health?.status === "DEGRADED";
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 antialiased font-sans">
-      <header className="border-b border-zinc-800/80 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-50">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+      <header className="border-b border-border bg-surface/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="h-9 w-9 rounded-xl bg-brand-soft border border-brand/20 flex items-center justify-center shadow-sm text-brand">
+              <Activity className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-sm font-semibold text-zinc-100 tracking-tight">
+              <h1 className="text-base font-display font-bold tracking-tight text-foreground">
                 Foodman
               </h1>
-              <p className="text-xs text-zinc-400">Food ordering and delivery platform</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setAutoRefresh((prev) => !prev)}
-              className={`px-2.5 py-1 text-xs rounded-md border transition-colors ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
                 autoRefresh
-                  ? "bg-emerald-950/40 text-emerald-300 border-emerald-800/60"
-                  : "bg-zinc-800/60 text-zinc-400 border-zinc-700/60 hover:text-zinc-200"
+                  ? "bg-success-soft text-success border-success/30"
+                  : "bg-surface-elevated text-foreground-muted border-border hover:text-foreground"
               }`}
             >
-              {autoRefresh ? "Auto-refresh: On (5s)" : "Auto-refresh: Paused"}
+              <Radio className={`w-3.5 h-3.5 ${autoRefresh ? "animate-pulse" : ""}`} />
+              {autoRefresh ? "(5s)" : "Paused"}
             </button>
+
             <button
+              type="button"
               onClick={fetchHealth}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-brand hover:bg-brand-hover text-foreground-on-brand transition-all shadow-sm hover:shadow-brand active:bg-brand-active disabled:opacity-50 cursor-pointer"
             >
-              <svg
+              <RefreshCw
                 className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
+              />
               Refresh
             </button>
           </div>
@@ -149,34 +159,35 @@ export default function Home() {
         <div
           className={`p-6 rounded-2xl border transition-all ${
             error
-              ? "bg-rose-950/20 border-rose-800/40"
+              ? "bg-danger-soft border-danger/30"
               : isHealthy
-              ? "bg-emerald-950/20 border-emerald-800/40"
+              ? "bg-success-soft border-success/30"
               : isDegraded
-              ? "bg-amber-950/20 border-amber-800/40"
-              : "bg-zinc-900/40 border-zinc-800"
+              ? "bg-warning-soft border-warning/30"
+              : "bg-surface-elevated border-border"
           }`}
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-start sm:items-center gap-3">
-              <span
-                className={`mt-1 sm:mt-0 h-3.5 w-3.5 rounded-full ${
-                  error
-                    ? "bg-rose-500"
-                    : isHealthy
-                    ? "bg-emerald-400 animate-pulse"
-                    : "bg-amber-400"
-                }`}
-              />
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div className="mt-0.5 sm:mt-0">
+                {error ? (
+                  <XCircle className="w-5 h-5 text-danger" />
+                ) : isHealthy ? (
+                  <CheckCircle2 className="w-5 h-5 text-success animate-pulse" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-warning" />
+                )}
+              </div>
+
               <div>
-                <h2 className="text-lg font-semibold text-zinc-100">
+                <h2 className="text-lg font-display font-semibold text-foreground">
                   {error
                     ? "Backend Server Unreachable"
                     : isHealthy
                     ? "All Systems Operational"
                     : "System Running in Degraded State"}
                 </h2>
-                <p className="text-xs text-zinc-400 mt-0.5">
+                <p className="text-xs text-foreground-muted mt-0.5">
                   {error
                     ? error
                     : isHealthy
@@ -186,14 +197,15 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-xs text-zinc-400">
-              {lastUpdated && (
-                <span>
-                  Last checked: {lastUpdated.toLocaleTimeString()}
+            <div className="flex items-center gap-3 text-xs text-foreground-muted font-sans">
+              {mounted && lastUpdated && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  {lastUpdated.toLocaleTimeString()}
                 </span>
               )}
               {health?.uptime && (
-                <span className="px-2 py-0.5 rounded bg-zinc-800/80 border border-zinc-700/60 font-mono text-zinc-300">
+                <span className="px-2.5 py-1 rounded-md bg-surface border border-border font-mono text-foreground font-medium">
                   uptime: {health.uptime}
                 </span>
               )}
@@ -202,37 +214,27 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-5">
+          <div className="rounded-2xl border border-border bg-surface p-6 space-y-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-zinc-800/80 border border-zinc-700/60 text-zinc-300">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
-                    />
-                  </svg>
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-accent-soft border border-accent/20 text-accent">
+                  <Database className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-200">
+                  <h3 className="text-base font-display font-semibold text-foreground">
                     MongoDB Database
                   </h3>
-                  <p className="text-xs text-zinc-400">Database ping & status</p>
+                  <p className="text-xs text-foreground-muted">
+                    Database connection & ping latency
+                  </p>
                 </div>
               </div>
 
               <span
-                className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                className={`px-3 py-1 rounded-full text-xs font-semibold border ${
                   health?.services.database.status === "healthy"
-                    ? "bg-emerald-950/40 text-emerald-300 border-emerald-800/60"
-                    : "bg-rose-950/40 text-rose-300 border-rose-800/60"
+                    ? "bg-success-soft text-success border-success/30"
+                    : "bg-danger-soft text-danger border-danger/30"
                 }`}
               >
                 {health?.services.database.status || "offline"}
@@ -240,16 +242,16 @@ export default function Home() {
             </div>
 
             <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-between text-xs py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Connection State</span>
-                <span className="font-mono text-zinc-200">
+              <div className="flex items-center justify-between text-xs py-2 border-b border-border">
+                <span className="text-foreground-muted">Connection State</span>
+                <span className="font-mono font-medium text-foreground">
                   {health?.services.database.state || "disconnected"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between text-xs py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Ping Latency</span>
-                <span className="font-mono font-medium text-emerald-400">
+              <div className="flex items-center justify-between text-xs py-2 border-b border-border">
+                <span className="text-foreground-muted">Ping Latency</span>
+                <span className="font-mono font-semibold text-success">
                   {health?.services.database.latencyMs !== null &&
                   health?.services.database.latencyMs !== undefined
                     ? `${health.services.database.latencyMs} ms`
@@ -257,59 +259,52 @@ export default function Home() {
                 </span>
               </div>
 
-              <div className="flex items-center justify-between text-xs py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Connected Host</span>
-                <span className="font-mono text-zinc-300 truncate max-w-[200px]" title={health?.services.database.host}>
+              <div className="flex items-center justify-between text-xs py-2 border-b border-border">
+                <span className="text-foreground-muted">Connected Host</span>
+                <span
+                  className="font-mono text-foreground truncate max-w-[220px]"
+                  title={health?.services.database.host}
+                >
                   {health?.services.database.host || "n/a"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between text-xs py-1.5">
-                <span className="text-zinc-400">Database Name</span>
-                <span className="font-mono text-zinc-300">
+              <div className="flex items-center justify-between text-xs py-2">
+                <span className="text-foreground-muted">Database Name</span>
+                <span className="font-mono font-medium text-foreground">
                   {health?.services.database.name || "n/a"}
                 </span>
               </div>
 
               {health?.services.database.error && (
-                <div className="p-3 rounded-lg bg-rose-950/30 border border-rose-800/50 text-xs text-rose-300">
+                <div className="p-3 rounded-xl bg-danger-soft border border-danger/30 text-xs text-danger">
                   {health.services.database.error}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-5">
+          <div className="rounded-2xl border border-border bg-surface p-6 space-y-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-zinc-800/80 border border-zinc-700/60 text-zinc-300">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
-                    />
-                  </svg>
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-info-soft border border-info/20 text-info">
+                  <Server className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-200">
+                  <h3 className="text-base font-display font-semibold text-foreground">
                     Express Server
                   </h3>
-                  <p className="text-xs text-zinc-400">Node runtime & memory</p>
+                  <p className="text-xs text-foreground-muted">
+                    Node.js runtime environment & memory
+                  </p>
                 </div>
               </div>
 
               <span
-                className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                className={`px-3 py-1 rounded-full text-xs font-semibold border ${
                   health?.services.server.status === "healthy"
-                    ? "bg-emerald-950/40 text-emerald-300 border-emerald-800/60"
-                    : "bg-rose-950/40 text-rose-300 border-rose-800/60"
+                    ? "bg-success-soft text-success border-success/30"
+                    : "bg-danger-soft text-danger border-danger/30"
                 }`}
               >
                 {health?.services.server.status || "offline"}
@@ -317,32 +312,32 @@ export default function Home() {
             </div>
 
             <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-between text-xs py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Environment</span>
-                <span className="font-mono text-zinc-200">
+              <div className="flex items-center justify-between text-xs py-2 border-b border-border">
+                <span className="text-foreground-muted">Environment</span>
+                <span className="font-mono font-medium text-foreground">
                   {health?.environment || "n/a"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between text-xs py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Node Version</span>
-                <span className="font-mono text-zinc-300">
+              <div className="flex items-center justify-between text-xs py-2 border-b border-border">
+                <span className="text-foreground-muted">Node Version</span>
+                <span className="font-mono font-medium text-foreground">
                   {health?.services.server.nodeVersion || "n/a"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between text-xs py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Heap Used / Total</span>
-                <span className="font-mono text-zinc-300">
+              <div className="flex items-center justify-between text-xs py-2 border-b border-border">
+                <span className="text-foreground-muted">Heap Used / Total</span>
+                <span className="font-mono font-medium text-foreground">
                   {health?.services.server.memoryUsage
                     ? `${health.services.server.memoryUsage.heapUsed} / ${health.services.server.memoryUsage.heapTotal}`
                     : "n/a"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between text-xs py-1.5">
-                <span className="text-zinc-400">RSS Memory</span>
-                <span className="font-mono text-zinc-300">
+              <div className="flex items-center justify-between text-xs py-2">
+                <span className="text-foreground-muted">RSS Memory</span>
+                <span className="font-mono font-medium text-foreground">
                   {health?.services.server.memoryUsage?.rss || "n/a"}
                 </span>
               </div>
@@ -350,17 +345,20 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-6 space-y-3">
+        <div className="rounded-2xl border border-border bg-surface p-6 space-y-3 shadow-sm">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-              Health Endpoint JSON Response
-            </h3>
-            <span className="text-xs text-zinc-400 font-mono">
+            <div className="flex items-center gap-2">
+              <Code2 className="w-4 h-4 text-foreground-subtle" />
+              <h3 className="text-xs font-semibold text-foreground-subtle uppercase tracking-wider">
+                Health Endpoint JSON Response
+              </h3>
+            </div>
+            <span className="text-xs text-foreground-muted font-mono bg-background-subtle px-2 py-0.5 rounded border border-border">
               GET /api/v1/health
             </span>
           </div>
 
-          <pre className="p-4 rounded-xl bg-zinc-950/80 border border-zinc-800 font-mono text-xs text-emerald-400/90 overflow-x-auto">
+          <pre className="p-4 rounded-xl bg-background-subtle border border-border font-mono text-xs text-foreground overflow-x-auto leading-relaxed">
             {health
               ? JSON.stringify(health, null, 2)
               : error

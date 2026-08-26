@@ -1,26 +1,337 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* raw color scales */
+
+  /* chili — primary brand, CTAs, active states */
+  --chili-50:  #fef2f1;
+  --chili-100: #fde1de;
+  --chili-200: #fbc4be;
+  --chili-300: #f79d93;
+  --chili-400: #f06f5f;
+  --chili-500: #e63e2b; /* base */
+  --chili-600: #c92e1d;
+  --chili-700: #a62419;
+  --chili-800: #841d15;
+  --chili-900: #5e140f;
+
+  /* turmeric — secondary accent, ratings, badges, offers */
+  --turmeric-50:  #fff9eb;
+  --turmeric-100: #ffefc2;
+  --turmeric-200: #ffe08f;
+  --turmeric-300: #ffcb4d;
+  --turmeric-400: #fdb515;
+  --turmeric-500: #e89a00; /* base */
+  --turmeric-600: #c17d00;
+  --turmeric-700: #995f00;
+  --turmeric-800: #734600;
+  --turmeric-900: #4d2f00;
+
+  /* basil — fresh/veg cues, success, confirmations */
+  --basil-50:  #f1fbf0;
+  --basil-100: #ddf5d8;
+  --basil-200: #b7e8ac;
+  --basil-300: #8ad478;
+  --basil-400: #5bb847;
+  --basil-500: #3d9a2d; /* base */
+  --basil-600: #2f7c22;
+  --basil-700: #255f1b;
+  --basil-800: #1b4614;
+  --basil-900: #12300d;
+
+  /* ink — warm neutral text scale (not pure gray) */
+  --ink-50:  #f7f6f5;
+  --ink-100: #eeecea;
+  --ink-200: #ddd9d5;
+  --ink-300: #c2bcb5;
+  --ink-400: #9c948a;
+  --ink-500: #766d62;
+  --ink-600: #5b534a;
+  --ink-700: #453f38;
+  --ink-800: #2e2a25;
+  --ink-900: #1c1916;
+  --ink-950: #110f0d;
+
+  /* paper — light surface scale */
+  --paper-0:   #ffffff;
+  --paper-50:  #fdfcfb;
+  --paper-100: #f8f6f3;
+  --paper-200: #f1ede8;
+
+  /* steel — one cool utility hue for info/links (rest of palette is warm) */
+  --steel-100: #dceaf2;
+  --steel-400: #4f8fb3;
+  --steel-500: #3b6e91;
+  --steel-700: #274b63;
+
+  /* semantic tokens (light mode) */
+  --background:        var(--paper-100);
+  --background-subtle: var(--paper-200);
+  --surface:            #ffffff;
+  --surface-elevated:   #ffffff;
+  --border:             var(--ink-200);
+  --border-strong:      var(--ink-300);
+
+  --foreground:         var(--ink-900);
+  --foreground-muted:   var(--ink-600);
+  --foreground-subtle:  var(--ink-500);
+  --foreground-on-brand:#fff8f2;
+
+  --brand:              var(--chili-500);
+  --brand-hover:        var(--chili-600);
+  --brand-active:       var(--chili-700);
+  --brand-soft:         var(--chili-50);
+
+  --accent:             var(--turmeric-500);
+  --accent-soft:        var(--turmeric-50);
+
+  --success:            var(--basil-600);
+  --success-soft:       var(--basil-50);
+  --warning:            var(--turmeric-600);
+  --warning-soft:       var(--turmeric-50);
+  --danger:             var(--chili-700);
+  --danger-soft:        var(--chili-50);
+  --info:               var(--steel-500);
+  --info-soft:          var(--steel-100);
+
+  /* typography */
+  --font-display: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-mono-loaded), "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-black: 900;
+
+  /* radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* shadows (warm-tinted, not pure black) */
+  --shadow-sm: 0 1px 2px rgba(28, 25, 22, 0.06);
+  --shadow-md: 0 4px 10px rgba(28, 25, 22, 0.08), 0 1px 3px rgba(28, 25, 22, 0.06);
+  --shadow-lg: 0 12px 24px rgba(28, 25, 22, 0.10), 0 4px 8px rgba(28, 25, 22, 0.06);
+  --shadow-xl: 0 24px 48px rgba(28, 25, 22, 0.14), 0 8px 16px rgba(28, 25, 22, 0.08);
+  --shadow-brand: 0 8px 20px rgba(230, 62, 43, 0.28);
 }
 
 @theme inline {
+  /* colors — raw scales */
+  --color-chili-50: var(--chili-50);
+  --color-chili-100: var(--chili-100);
+  --color-chili-200: var(--chili-200);
+  --color-chili-300: var(--chili-300);
+  --color-chili-400: var(--chili-400);
+  --color-chili-500: var(--chili-500);
+  --color-chili-600: var(--chili-600);
+  --color-chili-700: var(--chili-700);
+  --color-chili-800: var(--chili-800);
+  --color-chili-900: var(--chili-900);
+
+  --color-turmeric-50: var(--turmeric-50);
+  --color-turmeric-100: var(--turmeric-100);
+  --color-turmeric-200: var(--turmeric-200);
+  --color-turmeric-300: var(--turmeric-300);
+  --color-turmeric-400: var(--turmeric-400);
+  --color-turmeric-500: var(--turmeric-500);
+  --color-turmeric-600: var(--turmeric-600);
+  --color-turmeric-700: var(--turmeric-700);
+  --color-turmeric-800: var(--turmeric-800);
+  --color-turmeric-900: var(--turmeric-900);
+
+  --color-basil-50: var(--basil-50);
+  --color-basil-100: var(--basil-100);
+  --color-basil-200: var(--basil-200);
+  --color-basil-300: var(--basil-300);
+  --color-basil-400: var(--basil-400);
+  --color-basil-500: var(--basil-500);
+  --color-basil-600: var(--basil-600);
+  --color-basil-700: var(--basil-700);
+  --color-basil-800: var(--basil-800);
+  --color-basil-900: var(--basil-900);
+
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+  --color-ink-950: var(--ink-950);
+
+  --color-paper-0: var(--paper-0);
+  --color-paper-50: var(--paper-50);
+  --color-paper-100: var(--paper-100);
+  --color-paper-200: var(--paper-200);
+
+  --color-steel-100: var(--steel-100);
+  --color-steel-400: var(--steel-400);
+  --color-steel-500: var(--steel-500);
+  --color-steel-700: var(--steel-700);
+
+  /* colors — semantic */
   --color-background: var(--background);
+  --color-background-subtle: var(--background-subtle);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
+  --color-foreground-on-brand: var(--foreground-on-brand);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+  --color-brand-soft: var(--brand-soft);
+
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  /* fonts */
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --font-weight-regular: var(--fw-regular);
+  --font-weight-medium: var(--fw-medium);
+  --font-weight-semibold: var(--fw-semibold);
+  --font-weight-bold: var(--fw-bold);
+  --font-weight-black: var(--fw-black);
+
+  /* type scale — pairs of size / line-height / letter-spacing */
+  --text-display-2xl: 4.5rem;
+  --text-display-2xl--line-height: 1.05;
+  --text-display-2xl--letter-spacing: -0.02em;
+
+  --text-display-xl: 3.75rem;
+  --text-display-xl--line-height: 1.08;
+  --text-display-xl--letter-spacing: -0.02em;
+
+  --text-display-lg: 3rem;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -0.015em;
+
+  --text-h1: 2.25rem;
+  --text-h1--line-height: 1.15;
+  --text-h1--letter-spacing: -0.01em;
+
+  --text-h2: 1.875rem;
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: -0.01em;
+
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.25;
+
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.3;
+
+  --text-h5: 1.125rem;
+  --text-h5--line-height: 1.4;
+
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.6;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.5;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+  --text-caption--letter-spacing: 0.01em;
+
+  --text-overline: 0.6875rem;
+  --text-overline--line-height: 1.3;
+  --text-overline--letter-spacing: 0.08em;
+
+  /* radius */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  /* shadows */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-brand: var(--shadow-brand);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  color: var(--foreground);
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: var(--text-h1); line-height: 1.15; }
+h2 { font-size: var(--text-h2); line-height: 1.2; }
+h3 { font-size: var(--text-h3); line-height: 1.25; }
+h4 { font-size: var(--text-h4); line-height: 1.3; }
+h5 { font-size: var(--text-h5); line-height: 1.4; }
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--brand-hover);
+}
+
+/* respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* visible keyboard focus ring everywhere (accessibility floor) */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
