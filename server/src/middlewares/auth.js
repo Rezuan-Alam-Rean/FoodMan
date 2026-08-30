@@ -1,30 +1,82 @@
+// authentication and role-based authorization middlewares
 import { ApiError } from '../utils/apiError.js';
 import { catchAsync } from '../utils/catchAsync.js';
+import { verifyToken } from '../utils/jwt.js';
+import { User } from '../modules/user/user.model.js';
+import { USER_STATUS } from '../constants/index.js';
 
 /**
- * authentication middleware placeholder
+ * verify jwt bearer token and attach authenticated user to request
  */
 export const authenticate = catchAsync(async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw ApiError.unauthorized('Authentication token is missing or invalid');
+    throw ApiError.unauthorized('authentication token is missing or invalid');
   }
 
   const token = authHeader.split(' ')[1];
-  // verify token here when auth logic is added
-  req.user = { token };
+
+  let decoded;
+  try {
+    decoded = verifyToken(token);
+  } catch (error) {
+    throw ApiError.unauthorized('authentication token has expired or is invalid');
+  }
+
+  const user = await User.findById(decoded.id);
+
+  if (!user) {
+    throw ApiError.unauthorized('user belonging to this token no longer exists');
+  }
+
+  if (user.status === USER_STATUS.SUSPENDED) {
+    throw ApiError.forbidden('your account has been suspended by administration');
+  }
+
+  req.user = user;
   next();
 });
 
 /**
- * role-based authorization middleware placeholder
+ * optional authentication middleware (attaches user if token exists, passes through if absent)
+ */
+export const optionalAuthenticate = catchAsync(async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = verifyToken(token);
+    const user = await User.findById(decoded.id);
+    if (user && user.status !== USER_STATUS.SUSPENDED) {
+      req.user = user;
+    }
+  } catch {
+    // proceed without authenticated user on token failure
+  }
+
+  next();
+});
+
+/**
+ * role-based authorization check
+ * @param  {...string} roles 
  */
 export const authorize = (...roles) => {
   return (req, res, next) => {
-    if (!req.user || (roles.length && !roles.includes(req.user.role))) {
-      throw ApiError.forbidden('You do not have permission to perform this action');
+    if (!req.user) {
+      throw ApiError.unauthorized('authentication required');
     }
+
+    if (roles.length && !roles.includes(req.user.role)) {
+      throw ApiError.forbidden('you do not have permission to perform this action');
+    }
+
     next();
   };
 };
