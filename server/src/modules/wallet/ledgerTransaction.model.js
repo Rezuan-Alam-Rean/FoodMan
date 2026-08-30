@@ -35,6 +35,7 @@ const ledgerTransactionSchema = new mongoose.Schema(
     amount: {
       type: Number,
       required: [true, 'amount is required'],
+      min: [0, 'amount cannot be negative'],
     },
     balance_after: {
       type: Number,

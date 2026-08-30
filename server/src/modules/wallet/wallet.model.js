@@ -1,4 +1,4 @@
-// read-only virtual digital wallet model for vendors and riders
+// digital wallet account model for vendors and riders managed via ledger entries
 import mongoose from 'mongoose';
 
 const walletSchema = new mongoose.Schema(

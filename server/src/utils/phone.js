@@ -15,7 +15,7 @@ export const normalizePhoneNumber = (phone) => {
 
   // strip international prefix if present (880)
   if (cleaned.startsWith('880')) {
-    cleaned = cleaned.slice(2);
+    cleaned = cleaned.slice(3);
   }
 
   // prepend leading zero if missing for 10 digit input starting with 1
