@@ -7,7 +7,7 @@ import { UserAddress } from '../address/address.model.js';
 import { normalizePhoneNumber } from '../../utils/phone.js';
 import { signToken } from '../../utils/jwt.js';
 import { ApiError } from '../../utils/apiError.js';
-import { USER_ROLES, USER_STATUS } from '../../constants/index.js';
+import { USER_ROLES } from '../../constants/index.js';
 
 /**
  * resolve or create customer account during guest checkout
@@ -29,10 +29,6 @@ export const resolveGuestCheckoutAuth = async ({
   let user = await User.findOne({ phone_number: normalizedPhone });
 
   if (user) {
-    if (user.status === USER_STATUS.SUSPENDED) {
-      throw ApiError.forbidden('account associated with this phone number is suspended');
-    }
-
     // update customer name if provided
     if (name && name.trim() && user.name !== name.trim()) {
       user.name = name.trim();
@@ -44,26 +40,41 @@ export const resolveGuestCheckoutAuth = async ({
       name: name?.trim() || `Customer-${normalizedPhone.slice(-4)}`,
       phone_number: normalizedPhone,
       role: USER_ROLES.CUSTOMER,
-      status: USER_STATUS.ACTIVE,
     });
   }
 
-  // save address if zone and address details are provided
+  // save address if zone, subzone, and address details are provided
   let address = null;
-  if (zone_id && detailed_address) {
+  if (zone_id && subzone_id && detailed_address) {
     await UserAddress.updateMany(
       { user_id: user._id, is_default: true },
       { $set: { is_default: false } }
     );
-    address = await UserAddress.create({
+
+    const existingAddress = await UserAddress.findOne({
       user_id: user._id,
       zone_id,
-      subzone_id: subzone_id || null,
-      detailed_address: detailed_address.trim(),
-      contact_person_name: user.name,
-      contact_phone: normalizedPhone,
-      is_default: true,
+      subzone_id,
     });
+
+    if (existingAddress) {
+      existingAddress.detailed_address = detailed_address.trim();
+      existingAddress.contact_person_name = user.name;
+      existingAddress.contact_phone = normalizedPhone;
+      existingAddress.is_default = true;
+      await existingAddress.save();
+      address = existingAddress;
+    } else {
+      address = await UserAddress.create({
+        user_id: user._id,
+        zone_id,
+        subzone_id,
+        detailed_address: detailed_address.trim(),
+        contact_person_name: user.name,
+        contact_phone: normalizedPhone,
+        is_default: true,
+      });
+    }
   }
 
   const token = signToken({
@@ -72,15 +83,19 @@ export const resolveGuestCheckoutAuth = async ({
     phone_number: user.phone_number,
   });
 
+  const userWithPassword = await User.findById(user._id).select('+password_hash');
+  const userObj = user.toJSON();
+  userObj.has_password = Boolean(userWithPassword?.password_hash);
+
   return {
-    user,
+    user: userObj,
     token,
     address,
   };
 };
 
 /**
- * register standard user (customer, vendor, rider, or admin)
+ * register standard customer account
  * @param {object} payload
  * @returns {object}
  */
@@ -89,7 +104,6 @@ export const registerUser = async ({
   phone_number,
   email,
   password,
-  role = USER_ROLES.CUSTOMER,
 }) => {
   const normalizedPhone = normalizePhoneNumber(phone_number);
   if (!normalizedPhone) {
@@ -108,11 +122,11 @@ export const registerUser = async ({
     }
   }
 
+  // all public self-registrations are strictly created as CUSTOMER
   const userData = {
     name: name.trim(),
     phone_number: normalizedPhone,
-    role,
-    status: USER_STATUS.ACTIVE,
+    role: USER_ROLES.CUSTOMER,
   };
 
   if (email) {
@@ -126,41 +140,25 @@ export const registerUser = async ({
 
   const user = await User.create(userData);
 
-  // initialize digital wallet for vendors and riders
-  if (role === USER_ROLES.RESTAURANT_OWNER || role === USER_ROLES.RIDER) {
-    await Wallet.create({
-      user_id: user._id,
-      current_balance: 0,
-      lifetime_earnings: 0,
-      total_settled_by_admin: 0,
-    });
-  }
-
-  // initialize rider profile if rider role
-  if (role === USER_ROLES.RIDER) {
-    await Rider.create({
-      user_id: user._id,
-      is_online: false,
-      assigned_zones: [],
-    });
-  }
-
   const token = signToken({
     id: user._id,
     role: user.role,
     phone_number: user.phone_number,
   });
 
+  const userObj = user.toJSON();
+  userObj.has_password = Boolean(password);
+
   return {
-    user,
+    user: userObj,
     token,
   };
 };
 
 /**
  * login user with phone number and password
- * @param {string} phoneNumber
- * @param {string} password
+ * @param {string} payloadOrPhone
+ * @param {string} optionalPassword
  * @returns {object}
  */
 export const loginUser = async (payloadOrPhone, optionalPassword) => {
@@ -175,10 +173,6 @@ export const loginUser = async (payloadOrPhone, optionalPassword) => {
   const user = await User.findOne({ phone_number: normalizedPhone }).select('+password_hash');
   if (!user) {
     throw ApiError.unauthorized('invalid phone number or credentials');
-  }
-
-  if (user.status === USER_STATUS.SUSPENDED) {
-    throw ApiError.forbidden('your account has been suspended');
   }
 
   if (!user.password_hash) {
@@ -200,8 +194,11 @@ export const loginUser = async (payloadOrPhone, optionalPassword) => {
     phone_number: user.phone_number,
   });
 
+  const userObj = user.toJSON();
+  userObj.has_password = true;
+
   return {
-    user,
+    user: userObj,
     token,
   };
 };
@@ -212,7 +209,7 @@ export const loginUser = async (payloadOrPhone, optionalPassword) => {
  * @returns {object}
  */
 export const getCurrentUserProfile = async (userId) => {
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select('+password_hash');
   if (!user) {
     throw ApiError.notFound('user not found');
   }
@@ -228,9 +225,52 @@ export const getCurrentUserProfile = async (userId) => {
     riderProfile = await Rider.findOne({ user_id: user._id }).populate('assigned_zones');
   }
 
+  const hasPassword = Boolean(user.password_hash);
+  const userObj = user.toJSON();
+  userObj.has_password = hasPassword;
+
   return {
-    user,
+    ...userObj,
+    user: userObj,
+    has_password: hasPassword,
     wallet,
     riderProfile,
+  };
+};
+
+/**
+ * set or update password for user account
+ * @param {string} userId
+ * @param {object} payload
+ * @returns {object}
+ */
+export const setUserPassword = async (userId, { current_password, new_password }) => {
+  if (!new_password || typeof new_password !== 'string' || new_password.length < 6) {
+    throw ApiError.badRequest('new password must be at least 6 characters');
+  }
+
+  const user = await User.findById(userId).select('+password_hash');
+  if (!user) {
+    throw ApiError.notFound('user not found');
+  }
+
+  // if user already has a password, verify current password
+  if (user.password_hash) {
+    if (!current_password) {
+      throw ApiError.badRequest('current password is required');
+    }
+    const isMatch = await bcrypt.compare(current_password, user.password_hash);
+    if (!isMatch) {
+      throw ApiError.badRequest('current password is incorrect');
+    }
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  user.password_hash = await bcrypt.hash(new_password, salt);
+  await user.save();
+
+  return {
+    success: true,
+    message: 'password updated successfully',
   };
 };

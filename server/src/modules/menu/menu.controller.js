@@ -1,21 +1,30 @@
 // menu controller handlers
 import {
-  createMenuCategory,
-  updateMenuCategory,
+  getAllCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
   createFoodItem,
   updateFoodItem,
   deleteFoodItem,
+  getAllFoodItems,
 } from './menu.service.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
 import { HTTP_STATUS } from '../../constants/index.js';
 
+export const handleGetAllCategories = catchAsync(async (req, res) => {
+  const categories = await getAllCategories(req.query);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: 'categories retrieved successfully',
+    data: categories,
+  });
+});
+
 export const handleCreateCategory = catchAsync(async (req, res) => {
-  const category = await createMenuCategory(
-    req.params.restaurantId,
-    req.body,
-    req.user
-  );
+  const category = await createCategory(req.body, req.user);
 
   return ApiResponse.success(res, {
     statusCode: HTTP_STATUS.CREATED,
@@ -25,7 +34,7 @@ export const handleCreateCategory = catchAsync(async (req, res) => {
 });
 
 export const handleUpdateCategory = catchAsync(async (req, res) => {
-  const category = await updateMenuCategory(
+  const category = await updateCategory(
     req.params.categoryId,
     req.body,
     req.user
@@ -35,6 +44,16 @@ export const handleUpdateCategory = catchAsync(async (req, res) => {
     statusCode: HTTP_STATUS.OK,
     message: 'category updated successfully',
     data: category,
+  });
+});
+
+export const handleDeleteCategory = catchAsync(async (req, res) => {
+  await deleteCategory(req.params.categoryId, req.user);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: 'category deleted successfully',
+    data: null,
   });
 });
 
@@ -75,3 +94,14 @@ export const handleDeleteFoodItem = catchAsync(async (req, res) => {
     data: null,
   });
 });
+
+export const handleGetAllFoodItems = catchAsync(async (req, res) => {
+  const result = await getAllFoodItems(req.query);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: 'food items retrieved successfully',
+    data: result,
+  });
+});
+

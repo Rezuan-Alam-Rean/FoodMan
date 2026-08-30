@@ -8,8 +8,10 @@ import { Subzone } from '../zone/subzone.model.js';
 import { Rider } from '../rider/rider.model.js';
 import { Wallet } from '../wallet/wallet.model.js';
 import { LedgerTransaction } from '../wallet/ledgerTransaction.model.js';
+import { UserAddress } from '../address/address.model.js';
 import { resolveGuestCheckoutAuth } from '../auth/auth.service.js';
 import { ApiError } from '../../utils/apiError.js';
+import { normalizePhoneNumber } from '../../utils/phone.js';
 import {
   ORDER_STATUS,
   PAYMENT_METHODS,
@@ -42,6 +44,7 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
 
   let customerUser = authenticatedUser;
   let authResult = null;
+  let resolvedAddress = null;
 
   // resolve guest user if not authenticated
   if (!customerUser) {
@@ -53,6 +56,41 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
       detailed_address: payload.delivery_address_text,
     });
     customerUser = authResult.user;
+    resolvedAddress = authResult.address;
+  } else {
+    // for authenticated user: automatically save or update default delivery address
+    if (payload.delivery_zone_id && payload.delivery_subzone_id && payload.delivery_address_text) {
+      await UserAddress.updateMany(
+        { user_id: customerUser._id, is_default: true },
+        { $set: { is_default: false } }
+      );
+
+      // check if combination of zone_id and subzone_id already exists for this user
+      const existingAddress = await UserAddress.findOne({
+        user_id: customerUser._id,
+        zone_id: payload.delivery_zone_id,
+        subzone_id: payload.delivery_subzone_id,
+      });
+
+      if (existingAddress) {
+        existingAddress.detailed_address = payload.delivery_address_text.trim();
+        existingAddress.contact_person_name = payload.customer_name || customerUser.name;
+        existingAddress.contact_phone = payload.customer_phone || customerUser.phone_number;
+        existingAddress.is_default = true;
+        await existingAddress.save();
+        resolvedAddress = existingAddress;
+      } else {
+        resolvedAddress = await UserAddress.create({
+          user_id: customerUser._id,
+          zone_id: payload.delivery_zone_id,
+          subzone_id: payload.delivery_subzone_id,
+          detailed_address: payload.delivery_address_text.trim(),
+          contact_person_name: payload.customer_name || customerUser.name,
+          contact_phone: payload.customer_phone || customerUser.phone_number,
+          is_default: true,
+        });
+      }
+    }
   }
 
   // validate restaurant
@@ -71,13 +109,19 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     throw ApiError.badRequest('selected delivery zone is inactive or invalid');
   }
 
-  let delivery_fee = zone.fixed_delivery_fee;
-  if (payload.delivery_subzone_id) {
-    const subzone = await Subzone.findById(payload.delivery_subzone_id);
-    if (subzone && subzone.custom_fixed_fee !== null) {
-      delivery_fee = subzone.custom_fixed_fee;
-    }
+  if (!payload.delivery_subzone_id) {
+    throw ApiError.badRequest('delivery subzone is required');
   }
+
+  const subzone = await Subzone.findById(payload.delivery_subzone_id);
+  if (!subzone || subzone.zone_id.toString() !== zone._id.toString()) {
+    throw ApiError.badRequest('specified subzone does not belong to selected delivery zone');
+  }
+
+  let delivery_fee =
+    subzone.custom_fixed_fee !== null && subzone.custom_fixed_fee !== undefined
+      ? subzone.custom_fixed_fee
+      : zone.fixed_delivery_fee;
 
   // validate order items and calculate food subtotal securely from database
   if (!payload.items || !Array.isArray(payload.items) || payload.items.length === 0) {
@@ -162,10 +206,19 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
   const grand_total = food_subtotal + delivery_fee + service_fee;
 
   const paymentMethod = payload.payment_method || PAYMENT_METHODS.COD;
-  const initialOrderStatus =
+  // all placed orders start immediately in active looking for rider status
+  const initialOrderStatus = ORDER_STATUS.LOOKING_FOR_RIDER;
+
+  // digital mfs payments are treated as verified immediately
+  const initialPaymentStatus =
     paymentMethod === PAYMENT_METHODS.COD
-      ? ORDER_STATUS.LOOKING_FOR_RIDER
-      : ORDER_STATUS.PENDING_PAYMENT;
+      ? PAYMENT_STATUS.PENDING
+      : PAYMENT_STATUS.VERIFIED;
+
+  const resolvedCustomerName = payload.customer_name?.trim() || customerUser.name;
+  const resolvedCustomerPhone = payload.customer_phone
+    ? normalizePhoneNumber(payload.customer_phone) || payload.customer_phone.trim()
+    : customerUser.phone_number;
 
   // create order
   const order = await Order.create({
@@ -175,14 +228,14 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     rider_id: null,
     delivery_zone_id: zone._id,
     delivery_subzone_id: payload.delivery_subzone_id || null,
-    user_address_id: payload.user_address_id || null,
+    user_address_id: payload.user_address_id || resolvedAddress?._id || null,
     items: processedItems,
     food_subtotal,
     delivery_fee,
     service_fee,
     grand_total,
-    customer_name: customerUser.name,
-    customer_phone: customerUser.phone_number,
+    customer_name: resolvedCustomerName,
+    customer_phone: resolvedCustomerPhone,
     delivery_address_text: payload.delivery_address_text.trim(),
     special_notes: payload.special_notes ? String(payload.special_notes).trim() : '',
     status: initialOrderStatus,
@@ -193,10 +246,10 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
   const payment = await Payment.create({
     order_id: order._id,
     method: paymentMethod,
-    status: PAYMENT_STATUS.PENDING,
+    status: initialPaymentStatus,
     amount: grand_total,
     sender_number: payload.mfs_sender_number || null,
-    transaction_id: payload.mfs_transaction_id || null,
+    transaction_id: payload.mfs_transaction_id || `TRX-${Date.now().toString(36).toUpperCase()}`,
   });
 
   return {
@@ -563,5 +616,51 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
     });
   }
 
-  return deliveredOrder;
+  return {
+    order,
+    payment,
+  };
+};
+
+/**
+ * get all orders for the authenticated customer with pagination
+ * @param {string} userId
+ * @param {object} query
+ * @returns {object}
+ */
+export const getCustomerOrders = async (userId, query = {}) => {
+  const page = Math.max(1, parseInt(query.page, 10) || 1);
+  const limit = Math.max(1, Math.min(50, parseInt(query.limit, 10) || 10));
+  const skip = (page - 1) * limit;
+
+  const filter = { customer_id: userId };
+  const total = await Order.countDocuments(filter);
+  const totalPages = Math.ceil(total / limit) || 1;
+
+  const orders = await Order.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .populate('restaurant_id', 'name slug address phone_number logo_url')
+    .populate('delivery_zone_id', 'name fixed_delivery_fee')
+    .populate('delivery_subzone_id', 'name custom_fixed_fee')
+    .populate({
+      path: 'rider_id',
+      populate: {
+        path: 'user_id',
+        select: 'name phone_number',
+      },
+    });
+
+  return {
+    orders,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
+  };
 };

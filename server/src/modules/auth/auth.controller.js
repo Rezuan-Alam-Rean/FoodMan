@@ -4,6 +4,7 @@ import {
   registerUser,
   loginUser,
   getCurrentUserProfile,
+  setUserPassword,
 } from './auth.service.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
@@ -48,3 +49,14 @@ export const handleGetMe = catchAsync(async (req, res) => {
     data: profile,
   });
 });
+
+export const handleSetPassword = catchAsync(async (req, res) => {
+  const result = await setUserPassword(req.user._id, req.body);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: 'password updated successfully',
+    data: result,
+  });
+});
+

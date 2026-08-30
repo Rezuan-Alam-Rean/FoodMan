@@ -1,19 +1,19 @@
-// menu category model for grouping restaurant food items
+// global catalog category model for food items
 import mongoose from 'mongoose';
 
 const categorySchema = new mongoose.Schema(
   {
-    restaurant_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Restaurant',
-      required: [true, 'restaurant reference is required'],
-      index: true,
-    },
     name: {
       type: String,
       required: [true, 'category name is required'],
+      unique: true,
       trim: true,
       maxlength: [80, 'category name cannot exceed 80 characters'],
+    },
+    image_url: {
+      type: String,
+      default: null,
+      trim: true,
     },
     sort_order: {
       type: Number,
@@ -37,7 +37,8 @@ const categorySchema = new mongoose.Schema(
   }
 );
 
-// compound index for ordering categories within a restaurant
-categorySchema.index({ restaurant_id: 1, sort_order: 1 });
+// index for active ordering
+categorySchema.index({ is_active: 1, sort_order: 1 });
 
 export const Category = mongoose.model('Category', categorySchema);
+

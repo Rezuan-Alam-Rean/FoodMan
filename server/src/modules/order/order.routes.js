@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import {
   handleCreateOrder,
+  handleGetMyOrders,
   handleGetOrderStatus,
   handleCancelOrder,
   handleGetRestaurantLiveOrders,
@@ -19,6 +20,10 @@ import {
 import { USER_ROLES } from '../../constants/index.js';
 
 const router = Router();
+
+// customer order history (accessible to authenticated customers)
+router.get('/me', authenticate, handleGetMyOrders);
+router.get('/', authenticate, handleGetMyOrders);
 
 // place order (accessible to guest customers and logged in users)
 router.post('/', optionalAuthenticate, handleCreateOrder);

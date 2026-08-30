@@ -3,7 +3,6 @@ import { ApiError } from '../utils/apiError.js';
 import { catchAsync } from '../utils/catchAsync.js';
 import { verifyToken } from '../utils/jwt.js';
 import { User } from '../modules/user/user.model.js';
-import { USER_STATUS } from '../constants/index.js';
 
 /**
  * verify jwt bearer token and attach authenticated user to request
@@ -30,10 +29,6 @@ export const authenticate = catchAsync(async (req, res, next) => {
     throw ApiError.unauthorized('user belonging to this token no longer exists');
   }
 
-  if (user.status === USER_STATUS.SUSPENDED) {
-    throw ApiError.forbidden('your account has been suspended by administration');
-  }
-
   req.user = user;
   next();
 });
@@ -53,7 +48,7 @@ export const optionalAuthenticate = catchAsync(async (req, res, next) => {
   try {
     const decoded = verifyToken(token);
     const user = await User.findById(decoded.id);
-    if (user && user.status !== USER_STATUS.SUSPENDED) {
+    if (user) {
       req.user = user;
     }
   } catch {

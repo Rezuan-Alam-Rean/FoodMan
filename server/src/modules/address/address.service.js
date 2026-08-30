@@ -1,5 +1,6 @@
 // user saved delivery address business logic
 import { UserAddress } from './address.model.js';
+import { User } from '../user/user.model.js';
 import { Zone } from '../zone/zone.model.js';
 import { Subzone } from '../zone/subzone.model.js';
 import { ApiError } from '../../utils/apiError.js';
@@ -41,7 +42,18 @@ export const createUserAddress = async (
     throw ApiError.badRequest('detailed_address is required');
   }
 
-  if (!contact_person_name || typeof contact_person_name !== 'string' || !contact_person_name.trim()) {
+  let resolvedName = contact_person_name;
+  let resolvedPhone = contact_phone;
+
+  if (!resolvedName || !resolvedPhone) {
+    const user = await User.findById(userId);
+    if (user) {
+      if (!resolvedName) resolvedName = user.name;
+      if (!resolvedPhone) resolvedPhone = user.phone_number;
+    }
+  }
+
+  if (!resolvedName || typeof resolvedName !== 'string' || !resolvedName.trim()) {
     throw ApiError.badRequest('contact_person_name is required');
   }
 
@@ -50,32 +62,49 @@ export const createUserAddress = async (
     throw ApiError.badRequest('specified delivery zone does not exist');
   }
 
-  if (subzone_id) {
-    const subzone = await Subzone.findById(subzone_id);
-    if (!subzone || subzone.zone_id.toString() !== zone._id.toString()) {
-      throw ApiError.badRequest('specified subzone does not belong to selected zone');
-    }
+  if (!subzone_id) {
+    throw ApiError.badRequest('delivery subzone is required');
   }
 
-  const normalizedPhone = normalizePhoneNumber(contact_phone);
+  const subzone = await Subzone.findById(subzone_id);
+  if (!subzone || subzone.zone_id.toString() !== zone._id.toString()) {
+    throw ApiError.badRequest('specified subzone does not exist or does not belong to selected zone');
+  }
+
+  const normalizedPhone = normalizePhoneNumber(resolvedPhone);
   if (!normalizedPhone) {
     throw ApiError.badRequest('invalid contact phone number');
   }
 
-  // if marked default, reset other addresses default flag
-  if (is_default) {
-    await UserAddress.updateMany({ user_id: userId, is_default: true }, { $set: { is_default: false } });
+  // check if combination of zone_id and subzone_id already exists for this user
+  const existingAddress = await UserAddress.findOne({
+    user_id: userId,
+    zone_id,
+    subzone_id,
+  });
+
+  // set all existing addresses default flag to false
+  await UserAddress.updateMany({ user_id: userId, is_default: true }, { $set: { is_default: false } });
+
+  if (existingAddress) {
+    existingAddress.detailed_address = detailed_address.trim();
+    if (address_label) existingAddress.address_label = address_label;
+    existingAddress.contact_person_name = resolvedName.trim();
+    existingAddress.contact_phone = normalizedPhone;
+    existingAddress.is_default = true;
+    await existingAddress.save();
+    return existingAddress.populate(['zone_id', 'subzone_id']);
   }
 
   const address = await UserAddress.create({
     user_id: userId,
     zone_id,
-    subzone_id: subzone_id || null,
+    subzone_id,
     address_label,
     detailed_address: detailed_address.trim(),
-    contact_person_name: contact_person_name.trim(),
+    contact_person_name: resolvedName.trim(),
     contact_phone: normalizedPhone,
-    is_default: Boolean(is_default),
+    is_default: true,
   });
 
   return address.populate(['zone_id', 'subzone_id']);
@@ -97,6 +126,20 @@ export const updateUserAddress = async (userId, addressId, updates = {}) => {
   if (updates.is_default) {
     await UserAddress.updateMany({ user_id: userId, is_default: true }, { $set: { is_default: false } });
     address.is_default = true;
+  }
+
+  if (updates.zone_id !== undefined || updates.subzone_id !== undefined) {
+    const targetZoneId = updates.zone_id || address.zone_id;
+    const targetSubzoneId = updates.subzone_id || address.subzone_id;
+    if (!targetSubzoneId) {
+      throw ApiError.badRequest('delivery subzone is required');
+    }
+    const subzone = await Subzone.findById(targetSubzoneId);
+    if (!subzone || subzone.zone_id.toString() !== targetZoneId.toString()) {
+      throw ApiError.badRequest('specified subzone does not belong to selected zone');
+    }
+    if (updates.zone_id) address.zone_id = updates.zone_id;
+    if (updates.subzone_id) address.subzone_id = updates.subzone_id;
   }
 
   if (updates.detailed_address !== undefined) {
@@ -137,5 +180,18 @@ export const deleteUserAddress = async (userId, addressId) => {
   if (!address) {
     throw ApiError.notFound('saved address not found');
   }
+
+  // if the deleted address was default, promote the most recently updated remaining address to default
+  if (address.is_default) {
+    const latestAddress = await UserAddress.findOne({ user_id: userId }).sort({
+      updatedAt: -1,
+      createdAt: -1,
+    });
+    if (latestAddress) {
+      latestAddress.is_default = true;
+      await latestAddress.save();
+    }
+  }
+
   return true;
 };

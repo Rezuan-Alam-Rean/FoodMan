@@ -3,6 +3,7 @@ import {
   createNewOrder,
   getLiveOrderStatus,
   cancelOrder,
+  getCustomerOrders,
   getRestaurantLiveOrders,
   riderAcceptOrder,
   restaurantAcceptAndCook,
@@ -20,6 +21,16 @@ export const handleCreateOrder = catchAsync(async (req, res) => {
   return ApiResponse.success(res, {
     statusCode: HTTP_STATUS.CREATED,
     message: 'order placed successfully',
+    data: result,
+  });
+});
+
+export const handleGetMyOrders = catchAsync(async (req, res) => {
+  const result = await getCustomerOrders(req.user._id, req.query);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: 'customer orders retrieved successfully',
     data: result,
   });
 });
