@@ -34,13 +34,7 @@ export const USER_ROLES = Object.freeze({
   RESTAURANT_OWNER: 'RESTAURANT_OWNER',
   RIDER: 'RIDER',
   CUSTOMER: 'CUSTOMER',
-});
-
-// user status constants
-export const USER_STATUS = Object.freeze({
-  ACTIVE: 'ACTIVE',
-  SUSPENDED: 'SUSPENDED',
-  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  GUEST: 'GUEST',
 });
 
 // address label constants

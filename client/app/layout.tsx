@@ -1,22 +1,25 @@
-import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
+// root application layout with Google Sans typography and query provider
+import type { Metadata, Viewport } from 'next';
+import { JetBrains_Mono } from 'next/font/google';
+import './globals.css';
+import { QueryProvider } from '@/components/providers/query-provider';
+import { AuthSplashProvider } from '@/components/providers/auth-splash-provider';
 
 const fontMono = JetBrains_Mono({
-  variable: "--font-mono-loaded",
-  subsets: ["latin"],
-  display: "swap",
+  variable: '--font-mono',
+  subsets: ['latin'],
+  display: 'swap',
 });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#FF4B6E',
+};
+
 export const metadata: Metadata = {
-  title: "Foodman",
-  description: "Food ordering and delivery platform",
+  title: 'FoodMan — Food Delivery in Bangladesh',
+  description: 'Order authentic feast, biryani, burgers, and delicious dishes from top restaurants with fixed zone delivery fees in Dhaka.',
 };
 
 export default function RootLayout({
@@ -27,9 +30,25 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fontMono.variable} h-full antialiased`}
+      className={`${fontMono.variable} h-full antialiased light`}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground font-sans">{children}</body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Google+Sans+Text:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-[#F8F9FA] text-slate-900 font-sans" suppressHydrationWarning>
+        <QueryProvider>
+          <AuthSplashProvider>
+            {children}
+          </AuthSplashProvider>
+        </QueryProvider>
+      </body>
     </html>
   );
 }

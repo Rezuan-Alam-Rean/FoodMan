@@ -13,18 +13,13 @@ const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$
 /**
  * get all restaurants (universal catalog discovery across platform)
  * @param {object} queryParams
- * @returns {Array}
+ * @returns {Array|object}
  */
-export const getAllRestaurants = async ({ search, cuisine, is_open } = {}) => {
+export const getAllRestaurants = async ({ search, is_open, page, limit } = {}) => {
   const filter = {};
 
   if (is_open !== undefined) {
     filter.is_open = is_open === 'true' || is_open === true;
-  }
-
-  if (cuisine && typeof cuisine === 'string' && cuisine.trim()) {
-    const safeCuisine = escapeRegex(cuisine.trim());
-    filter.cuisine_types = { $in: [new RegExp(safeCuisine, 'i')] };
   }
 
   if (search && typeof search === 'string' && search.trim()) {
@@ -32,8 +27,35 @@ export const getAllRestaurants = async ({ search, cuisine, is_open } = {}) => {
     filter.$or = [
       { name: { $regex: safeSearch, $options: 'i' } },
       { description: { $regex: safeSearch, $options: 'i' } },
-      { cuisine_types: { $regex: safeSearch, $options: 'i' } },
+      { address: { $regex: safeSearch, $options: 'i' } },
     ];
+  }
+
+  if (page !== undefined || limit !== undefined) {
+    const p = Math.max(1, parseInt(page, 10) || 1);
+    const l = Math.max(1, Math.min(50, parseInt(limit, 10) || 10));
+    const skip = (p - 1) * l;
+
+    const total = await Restaurant.countDocuments(filter);
+    const totalPages = Math.ceil(total / l) || 1;
+
+    const restaurants = await Restaurant.find(filter)
+      .populate('zone_id', 'name city fixed_delivery_fee')
+      .sort({ is_open: -1, rating_avg: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(l);
+
+    return {
+      restaurants,
+      pagination: {
+        total,
+        page: p,
+        limit: l,
+        totalPages,
+        hasNextPage: p < totalPages,
+        hasPrevPage: p > 1,
+      },
+    };
   }
 
   const restaurants = await Restaurant.find(filter)
@@ -64,24 +86,39 @@ export const getRestaurantDetails = async (restaurantIdOrSlug) => {
     throw ApiError.notFound('restaurant not found');
   }
 
-  const categories = await Category.find({
-    restaurant_id: restaurant._id,
-    is_active: true,
-  }).sort({ sort_order: 1, name: 1 });
-
   const foodItems = await FoodItem.find({
     restaurant_id: restaurant._id,
     is_available: true,
-  }).sort({ name: 1 });
+  })
+    .populate('category_id')
+    .sort({ name: 1 });
 
-  // map items under their respective categories
-  const menu = categories.map((category) => {
-    const catObj = category.toJSON();
-    catObj.items = foodItems.filter(
-      (item) => item.category_id.toString() === category._id.toString()
-    );
-    return catObj;
-  });
+  // dynamically group food items under their respective active global categories
+  const categoryMap = new Map();
+
+  for (const item of foodItems) {
+    const category = item.category_id;
+    if (!category || category.is_active === false) continue;
+
+    const catId = category._id ? category._id.toString() : String(category);
+    if (!categoryMap.has(catId)) {
+      categoryMap.set(catId, {
+        _id: category._id || category,
+        id: category._id || category,
+        name: category.name || 'Uncategorized',
+        image_url: category.image_url || null,
+        sort_order: category.sort_order ?? 0,
+        is_active: category.is_active ?? true,
+        items: [],
+      });
+    }
+
+    categoryMap.get(catId).items.push(item);
+  }
+
+  const menu = Array.from(categoryMap.values()).sort(
+    (a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name)
+  );
 
   return {
     restaurant,
@@ -103,9 +140,7 @@ export const createRestaurant = async ({
   logo_url,
   cover_image_url,
   address,
-  cuisine_types = [],
   commission_rate = 10,
-  estimated_delivery_time = '30-45 mins',
 }) => {
   if (!name || typeof name !== 'string' || !name.trim()) {
     throw ApiError.badRequest('restaurant name is required');
@@ -149,9 +184,7 @@ export const createRestaurant = async ({
     logo_url,
     cover_image_url,
     address: address.trim(),
-    cuisine_types: Array.isArray(cuisine_types) ? cuisine_types : [],
     commission_rate: commRate,
-    estimated_delivery_time: estimated_delivery_time || '30-45 mins',
     is_open: true,
   });
 

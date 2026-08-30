@@ -52,10 +52,6 @@ const restaurantSchema = new mongoose.Schema(
       trim: true,
       maxlength: [300, 'address cannot exceed 300 characters'],
     },
-    cuisine_types: {
-      type: [String],
-      default: [],
-    },
     commission_rate: {
       type: Number,
       default: 10,
@@ -77,11 +73,6 @@ const restaurantSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    estimated_delivery_time: {
-      type: String,
-      default: '30-45 mins',
-      trim: true,
-    },
   },
   {
     timestamps: true,
@@ -95,13 +86,7 @@ const restaurantSchema = new mongoose.Schema(
   }
 );
 
-// virtual populate for categories and food items
-restaurantSchema.virtual('categories', {
-  ref: 'Category',
-  localField: '_id',
-  foreignField: 'restaurant_id',
-});
-
+// virtual populate for food items
 restaurantSchema.virtual('food_items', {
   ref: 'FoodItem',
   localField: '_id',

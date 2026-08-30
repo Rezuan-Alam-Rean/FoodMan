@@ -1,6 +1,6 @@
 // user data model with phone first primary identity
 import mongoose from 'mongoose';
-import { USER_ROLES, USER_STATUS } from '../../constants/index.js';
+import { USER_ROLES } from '../../constants/index.js';
 
 const userSchema = new mongoose.Schema(
   {
@@ -34,12 +34,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(USER_ROLES),
       default: USER_ROLES.CUSTOMER,
-      index: true,
-    },
-    status: {
-      type: String,
-      enum: Object.values(USER_STATUS),
-      default: USER_STATUS.ACTIVE,
       index: true,
     },
   },

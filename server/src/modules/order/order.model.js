@@ -81,7 +81,7 @@ const orderSchema = new mongoose.Schema(
     delivery_subzone_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Subzone',
-      default: null,
+      required: [true, 'delivery subzone reference is required'],
       index: true,
     },
     user_address_id: {

@@ -8,8 +8,10 @@ import { Subzone } from '../zone/subzone.model.js';
 import { Rider } from '../rider/rider.model.js';
 import { Wallet } from '../wallet/wallet.model.js';
 import { LedgerTransaction } from '../wallet/ledgerTransaction.model.js';
+import { UserAddress } from '../address/address.model.js';
 import { resolveGuestCheckoutAuth } from '../auth/auth.service.js';
 import { ApiError } from '../../utils/apiError.js';
+import { normalizePhoneNumber } from '../../utils/phone.js';
 import {
   ORDER_STATUS,
   PAYMENT_METHODS,
@@ -40,21 +42,6 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     throw ApiError.badRequest('delivery address is required');
   }
 
-  let customerUser = authenticatedUser;
-  let authResult = null;
-
-  // resolve guest user if not authenticated
-  if (!customerUser) {
-    authResult = await resolveGuestCheckoutAuth({
-      name: payload.customer_name,
-      phone_number: payload.customer_phone,
-      zone_id: payload.delivery_zone_id,
-      subzone_id: payload.delivery_subzone_id,
-      detailed_address: payload.delivery_address_text,
-    });
-    customerUser = authResult.user;
-  }
-
   // validate restaurant
   const restaurant = await Restaurant.findById(payload.restaurant_id);
   if (!restaurant) {
@@ -71,13 +58,19 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     throw ApiError.badRequest('selected delivery zone is inactive or invalid');
   }
 
-  let delivery_fee = zone.fixed_delivery_fee;
-  if (payload.delivery_subzone_id) {
-    const subzone = await Subzone.findById(payload.delivery_subzone_id);
-    if (subzone && subzone.custom_fixed_fee !== null) {
-      delivery_fee = subzone.custom_fixed_fee;
-    }
+  if (!payload.delivery_subzone_id) {
+    throw ApiError.badRequest('delivery subzone is required');
   }
+
+  const subzone = await Subzone.findById(payload.delivery_subzone_id);
+  if (!subzone || subzone.zone_id.toString() !== zone._id.toString()) {
+    throw ApiError.badRequest('specified subzone does not belong to selected delivery zone');
+  }
+
+  let delivery_fee =
+    subzone.custom_fixed_fee !== null && subzone.custom_fixed_fee !== undefined
+      ? subzone.custom_fixed_fee
+      : zone.fixed_delivery_fee;
 
   // validate order items and calculate food subtotal securely from database
   if (!payload.items || !Array.isArray(payload.items) || payload.items.length === 0) {
@@ -100,72 +93,120 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     });
 
     if (!foodItem) {
-      throw ApiError.badRequest(`item "${item.name || item.food_item_id}" is currently unavailable`);
+      throw ApiError.badRequest(`item '${item.name || item.food_item_id}' is unavailable or invalid for this restaurant`);
     }
 
     let unit_price = foodItem.base_price;
-    let matchedVariant = null;
+    let selected_variant = null;
 
-    // lookup variant securely from database
-    if (item.selected_variant) {
-      const groupTitle = item.selected_variant.group_title || item.selected_variant.title;
-      const optionName = item.selected_variant.option_name || item.selected_variant.name;
-
-      if (groupTitle && optionName) {
-        const group = foodItem.variants?.find((v) => v.title === groupTitle);
-        const option = group?.options?.find((o) => o.name === optionName);
-        if (!option) {
-          throw ApiError.badRequest(`invalid variant option "${optionName}" for item "${foodItem.name}"`);
+    if (item.selected_variant && item.selected_variant.group_title && item.selected_variant.option_name) {
+      const variantGroup = foodItem.variants.find(
+        (v) => v.title === item.selected_variant.group_title
+      );
+      if (variantGroup) {
+        const option = variantGroup.options.find(
+          (o) => o.name === item.selected_variant.option_name
+        );
+        if (option) {
+          unit_price += option.price_delta;
+          selected_variant = {
+            group_title: variantGroup.title,
+            option_name: option.name,
+            price_delta: option.price_delta,
+          };
         }
-        unit_price += Number(option.price_delta || 0);
-        matchedVariant = {
-          group_title: group.title,
-          option_name: option.name,
-          price_delta: Number(option.price_delta || 0),
-        };
       }
     }
 
-    // lookup add-ons securely from database
-    let addOnsTotal = 0;
-    const matchedAddOns = [];
-    if (item.selected_add_ons && Array.isArray(item.selected_add_ons)) {
-      for (const clientAddon of item.selected_add_ons) {
-        const addonName = clientAddon.name;
-        const storedAddon = foodItem.add_ons?.find((a) => a.name === addonName);
-        if (!storedAddon) {
-          throw ApiError.badRequest(`invalid add-on "${addonName}" for item "${foodItem.name}"`);
+    let matchedAddOns = [];
+    if (Array.isArray(item.selected_add_ons) && item.selected_add_ons.length > 0) {
+      for (const reqAddOn of item.selected_add_ons) {
+        const found = foodItem.add_ons.find((a) => a.name === reqAddOn.name);
+        if (found) {
+          unit_price += found.price;
+          matchedAddOns.push({
+            name: found.name,
+            price: found.price,
+          });
         }
-        addOnsTotal += Number(storedAddon.price || 0);
-        matchedAddOns.push({
-          name: storedAddon.name,
-          price: Number(storedAddon.price || 0),
-        });
       }
     }
 
-    const itemTotal = (unit_price + addOnsTotal) * quantity;
+    const itemTotal = unit_price * quantity;
     food_subtotal += itemTotal;
 
     processedItems.push({
       food_item_id: foodItem._id,
       name: foodItem.name,
-      unit_price: unit_price + addOnsTotal,
+      unit_price,
       quantity,
-      selected_variant: matchedVariant,
+      selected_variant,
       selected_add_ons: matchedAddOns,
       total_price: itemTotal,
     });
+  }
+
+  let customerUser = authenticatedUser;
+  let authResult = null;
+  let resolvedAddress = null;
+
+  // resolve guest user if not authenticated
+  if (!customerUser) {
+    authResult = await resolveGuestCheckoutAuth({
+      name: payload.customer_name,
+      phone_number: payload.customer_phone,
+      zone_id: payload.delivery_zone_id,
+      subzone_id: payload.delivery_subzone_id,
+      detailed_address: payload.delivery_address_text,
+    });
+    customerUser = authResult.user;
+    resolvedAddress = authResult.address;
+  } else {
+    // for authenticated user: automatically save or update default delivery address
+    if (payload.delivery_zone_id && payload.delivery_subzone_id && payload.delivery_address_text) {
+      const existingAddress = await UserAddress.findOne({
+        user_id: customerUser._id,
+        zone_id: payload.delivery_zone_id,
+        subzone_id: payload.delivery_subzone_id,
+      });
+
+      if (existingAddress) {
+        existingAddress.detailed_address = payload.delivery_address_text.trim();
+        existingAddress.contact_person_name = payload.customer_name || customerUser.name;
+        existingAddress.contact_phone = payload.customer_phone || customerUser.phone_number;
+        existingAddress.is_default = true;
+        await existingAddress.save();
+        resolvedAddress = existingAddress;
+      } else {
+        resolvedAddress = await UserAddress.create({
+          user_id: customerUser._id,
+          zone_id: payload.delivery_zone_id,
+          subzone_id: payload.delivery_subzone_id,
+          detailed_address: payload.delivery_address_text.trim(),
+          contact_person_name: payload.customer_name || customerUser.name,
+          contact_phone: payload.customer_phone || customerUser.phone_number,
+          is_default: true,
+        });
+      }
+
+      await UserAddress.updateMany(
+        { user_id: customerUser._id, is_default: true, _id: { $ne: resolvedAddress._id } },
+        { $set: { is_default: false } }
+      );
+    }
   }
 
   const service_fee = 10; // fixed platform service charge
   const grand_total = food_subtotal + delivery_fee + service_fee;
 
   const paymentMethod = payload.payment_method || PAYMENT_METHODS.COD;
-  const initialOrderStatus =
-    paymentMethod === PAYMENT_METHODS.COD
-      ? ORDER_STATUS.LOOKING_FOR_RIDER
-      : ORDER_STATUS.PENDING_PAYMENT;
+  const initialOrderStatus = ORDER_STATUS.LOOKING_FOR_RIDER;
+  const initialPaymentStatus = PAYMENT_STATUS.PENDING;
+
+  const resolvedCustomerName = payload.customer_name?.trim() || customerUser.name;
+  const resolvedCustomerPhone = payload.customer_phone
+    ? normalizePhoneNumber(payload.customer_phone) || payload.customer_phone.trim()
+    : customerUser.phone_number;
 
   // create order
   const order = await Order.create({
@@ -175,14 +216,14 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     rider_id: null,
     delivery_zone_id: zone._id,
     delivery_subzone_id: payload.delivery_subzone_id || null,
-    user_address_id: payload.user_address_id || null,
+    user_address_id: payload.user_address_id || resolvedAddress?._id || null,
     items: processedItems,
     food_subtotal,
     delivery_fee,
     service_fee,
     grand_total,
-    customer_name: customerUser.name,
-    customer_phone: customerUser.phone_number,
+    customer_name: resolvedCustomerName,
+    customer_phone: resolvedCustomerPhone,
     delivery_address_text: payload.delivery_address_text.trim(),
     special_notes: payload.special_notes ? String(payload.special_notes).trim() : '',
     status: initialOrderStatus,
@@ -193,10 +234,10 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
   const payment = await Payment.create({
     order_id: order._id,
     method: paymentMethod,
-    status: PAYMENT_STATUS.PENDING,
+    status: initialPaymentStatus,
     amount: grand_total,
     sender_number: payload.mfs_sender_number || null,
-    transaction_id: payload.mfs_transaction_id || null,
+    transaction_id: payload.mfs_transaction_id || `TRX-${Date.now().toString(36).toUpperCase()}`,
   });
 
   return {
@@ -482,9 +523,13 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
   ).populate('restaurant_id');
 
   if (!deliveredOrder) {
-    const existing = await Order.findById(orderId);
+    const existing = await Order.findById(orderId).populate('restaurant_id');
     if (existing && existing.status === ORDER_STATUS.DELIVERED) {
-      return existing;
+      const existingPayment = await Payment.findOne({ order_id: existing._id });
+      return {
+        order: existing,
+        payment: existingPayment,
+      };
     }
     throw ApiError.badRequest('order must be in PICKED_UP status before marking as delivered');
   }
@@ -563,5 +608,51 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
     });
   }
 
-  return deliveredOrder;
+  return {
+    order: deliveredOrder,
+    payment,
+  };
+};
+
+/**
+ * get all orders for the authenticated customer with pagination
+ * @param {string} userId
+ * @param {object} query
+ * @returns {object}
+ */
+export const getCustomerOrders = async (userId, query = {}) => {
+  const page = Math.max(1, parseInt(query.page, 10) || 1);
+  const limit = Math.max(1, Math.min(50, parseInt(query.limit, 10) || 10));
+  const skip = (page - 1) * limit;
+
+  const filter = { customer_id: userId };
+  const total = await Order.countDocuments(filter);
+  const totalPages = Math.ceil(total / limit) || 1;
+
+  const orders = await Order.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .populate('restaurant_id', 'name slug address phone_number logo_url')
+    .populate('delivery_zone_id', 'name fixed_delivery_fee')
+    .populate('delivery_subzone_id', 'name custom_fixed_fee')
+    .populate({
+      path: 'rider_id',
+      populate: {
+        path: 'user_id',
+        select: 'name phone_number',
+      },
+    });
+
+  return {
+    orders,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
+  };
 };

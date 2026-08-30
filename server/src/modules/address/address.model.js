@@ -19,7 +19,7 @@ const addressSchema = new mongoose.Schema(
     subzone_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Subzone',
-      default: null,
+      required: [true, 'delivery subzone reference is required'],
       index: true,
     },
     address_label: {
