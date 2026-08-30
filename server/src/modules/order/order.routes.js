@@ -24,7 +24,7 @@ const router = Router();
 router.post('/', optionalAuthenticate, handleCreateOrder);
 
 // live order status tracking (http short polling for customer)
-router.get('/:id/status', handleGetOrderStatus);
+router.get('/:id/status', optionalAuthenticate, handleGetOrderStatus);
 
 // cancel order (locked once cooking begins)
 router.post('/:id/cancel', authenticate, handleCancelOrder);

@@ -8,7 +8,7 @@ import {
 } from './restaurant.service.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
-import { HTTP_STATUS } from '../../constants/index.js';
+import { HTTP_STATUS, USER_ROLES } from '../../constants/index.js';
 
 export const handleGetRestaurants = catchAsync(async (req, res) => {
   const restaurants = await getAllRestaurants(req.query);
@@ -42,7 +42,7 @@ export const handleGetMyRestaurant = catchAsync(async (req, res) => {
 
 export const handleCreateRestaurant = catchAsync(async (req, res) => {
   const payload = { ...req.body };
-  if (req.user.role === 'RESTAURANT_OWNER') {
+  if (req.user.role === USER_ROLES.RESTAURANT_OWNER) {
     payload.owner_id = req.user._id;
   }
   const restaurant = await createRestaurant(payload);

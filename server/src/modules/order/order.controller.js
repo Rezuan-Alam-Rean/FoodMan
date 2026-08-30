@@ -25,7 +25,7 @@ export const handleCreateOrder = catchAsync(async (req, res) => {
 });
 
 export const handleGetOrderStatus = catchAsync(async (req, res) => {
-  const result = await getLiveOrderStatus(req.params.id);
+  const result = await getLiveOrderStatus(req.params.id, req.user || null);
 
   return ApiResponse.success(res, {
     statusCode: HTTP_STATUS.OK,

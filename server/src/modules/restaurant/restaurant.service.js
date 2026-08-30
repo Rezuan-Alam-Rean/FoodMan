@@ -7,27 +7,32 @@ import { Zone } from '../zone/zone.model.js';
 import { ApiError } from '../../utils/apiError.js';
 import { USER_ROLES } from '../../constants/index.js';
 
+// helper to safely escape regex special characters
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /**
  * get all restaurants (universal catalog discovery across platform)
  * @param {object} queryParams
  * @returns {Array}
  */
-export const getAllRestaurants = async ({ search, cuisine, is_open }) => {
+export const getAllRestaurants = async ({ search, cuisine, is_open } = {}) => {
   const filter = {};
 
   if (is_open !== undefined) {
     filter.is_open = is_open === 'true' || is_open === true;
   }
 
-  if (cuisine) {
-    filter.cuisine_types = { $in: [new RegExp(cuisine, 'i')] };
+  if (cuisine && typeof cuisine === 'string' && cuisine.trim()) {
+    const safeCuisine = escapeRegex(cuisine.trim());
+    filter.cuisine_types = { $in: [new RegExp(safeCuisine, 'i')] };
   }
 
-  if (search) {
+  if (search && typeof search === 'string' && search.trim()) {
+    const safeSearch = escapeRegex(search.trim());
     filter.$or = [
-      { name: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-      { cuisine_types: { $regex: search, $options: 'i' } },
+      { name: { $regex: safeSearch, $options: 'i' } },
+      { description: { $regex: safeSearch, $options: 'i' } },
+      { cuisine_types: { $regex: safeSearch, $options: 'i' } },
     ];
   }
 
@@ -44,11 +49,15 @@ export const getAllRestaurants = async ({ search, cuisine, is_open }) => {
  * @returns {object}
  */
 export const getRestaurantDetails = async (restaurantIdOrSlug) => {
+  if (!restaurantIdOrSlug || typeof restaurantIdOrSlug !== 'string') {
+    throw ApiError.badRequest('valid restaurant id or slug is required');
+  }
+
   let restaurant;
   if (restaurantIdOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
     restaurant = await Restaurant.findById(restaurantIdOrSlug).populate('zone_id');
   } else {
-    restaurant = await Restaurant.findOne({ slug: restaurantIdOrSlug.toLowerCase() }).populate('zone_id');
+    restaurant = await Restaurant.findOne({ slug: restaurantIdOrSlug.toLowerCase().trim() }).populate('zone_id');
   }
 
   if (!restaurant) {
@@ -63,24 +72,25 @@ export const getRestaurantDetails = async (restaurantIdOrSlug) => {
   const foodItems = await FoodItem.find({
     restaurant_id: restaurant._id,
     is_available: true,
-  }).sort({ base_price: 1 });
+  }).sort({ name: 1 });
 
-  const menu = categories.map((cat) => {
-    const catObj = cat.toJSON();
+  // map items under their respective categories
+  const menu = categories.map((category) => {
+    const catObj = category.toJSON();
     catObj.items = foodItems.filter(
-      (item) => item.category_id.toString() === cat._id.toString()
+      (item) => item.category_id.toString() === category._id.toString()
     );
     return catObj;
   });
 
-  const restObj = restaurant.toJSON();
-  restObj.menu = menu;
-
-  return restObj;
+  return {
+    restaurant,
+    menu,
+  };
 };
 
 /**
- * onboard a new restaurant (admin or vendor)
+ * create/onboard a new restaurant (admin or vendor)
  * @param {object} payload
  * @returns {object}
  */
@@ -97,6 +107,18 @@ export const createRestaurant = async ({
   commission_rate = 10,
   estimated_delivery_time = '30-45 mins',
 }) => {
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    throw ApiError.badRequest('restaurant name is required');
+  }
+
+  if (!slug || typeof slug !== 'string' || !slug.trim()) {
+    throw ApiError.badRequest('restaurant slug is required');
+  }
+
+  if (!address || typeof address !== 'string' || !address.trim()) {
+    throw ApiError.badRequest('restaurant address is required');
+  }
+
   const owner = await User.findById(owner_id);
   if (!owner) {
     throw ApiError.badRequest('owner user does not exist');
@@ -107,23 +129,29 @@ export const createRestaurant = async ({
     throw ApiError.badRequest('primary zone does not exist');
   }
 
-  const existingSlug = await Restaurant.findOne({ slug: slug.toLowerCase().trim() });
+  const cleanSlug = slug.toLowerCase().trim();
+  const existingSlug = await Restaurant.findOne({ slug: cleanSlug });
   if (existingSlug) {
     throw ApiError.conflict('a restaurant with this slug already exists');
+  }
+
+  const commRate = Number(commission_rate);
+  if (!Number.isFinite(commRate) || commRate < 0 || commRate > 100) {
+    throw ApiError.badRequest('commission_rate must be a valid percentage between 0 and 100');
   }
 
   const restaurant = await Restaurant.create({
     owner_id,
     zone_id,
     name: name.trim(),
-    slug: slug.toLowerCase().trim(),
-    description: description ? description.trim() : '',
+    slug: cleanSlug,
+    description: description && typeof description === 'string' ? description.trim() : '',
     logo_url,
     cover_image_url,
     address: address.trim(),
     cuisine_types: Array.isArray(cuisine_types) ? cuisine_types : [],
-    commission_rate: Number(commission_rate),
-    estimated_delivery_time,
+    commission_rate: commRate,
+    estimated_delivery_time: estimated_delivery_time || '30-45 mins',
     is_open: true,
   });
 
@@ -140,38 +168,42 @@ export const createRestaurant = async ({
  * toggle restaurant open/closed status (vendor or admin)
  * @param {string} restaurantId
  * @param {boolean} isOpen
- * @param {object} authenticatedUser
+ * @param {object} user
  * @returns {object}
  */
-export const toggleRestaurantStatus = async (restaurantId, isOpen, authenticatedUser) => {
+export const toggleRestaurantStatus = async (restaurantId, isOpen, user) => {
   const restaurant = await Restaurant.findById(restaurantId);
   if (!restaurant) {
     throw ApiError.notFound('restaurant not found');
   }
 
-  // verify ownership if vendor
+  // verify ownership or admin role
   if (
-    authenticatedUser.role === USER_ROLES.RESTAURANT_OWNER &&
-    restaurant.owner_id.toString() !== authenticatedUser._id.toString()
+    user.role !== USER_ROLES.ADMIN &&
+    restaurant.owner_id.toString() !== user._id.toString()
   ) {
-    throw ApiError.forbidden('you can only modify your own restaurant');
+    throw ApiError.forbidden('you do not have permission to manage this restaurant');
   }
 
-  restaurant.is_open = Boolean(isOpen);
+  if (typeof isOpen !== 'boolean') {
+    throw ApiError.badRequest('is_open must be a boolean (true or false)');
+  }
+
+  restaurant.is_open = isOpen;
   await restaurant.save();
 
   return restaurant;
 };
 
 /**
- * get restaurant profile for authenticated vendor owner
+ * get restaurant managed by authenticated owner
  * @param {string} ownerId
  * @returns {object}
  */
 export const getMyRestaurant = async (ownerId) => {
   const restaurant = await Restaurant.findOne({ owner_id: ownerId }).populate('zone_id');
   if (!restaurant) {
-    throw ApiError.notFound('no restaurant profile associated with this account');
+    throw ApiError.notFound('no restaurant found for this owner account');
   }
   return restaurant;
 };

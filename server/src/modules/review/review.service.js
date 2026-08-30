@@ -7,6 +7,21 @@ import { ApiError } from '../../utils/apiError.js';
 import { ORDER_STATUS } from '../../constants/index.js';
 
 /**
+ * helper to validate and parse rating values (integers 1 to 5)
+ * @param {any} value
+ * @param {string} fieldName
+ * @returns {number|null}
+ */
+const parseRating = (value, fieldName) => {
+  if (value === undefined || value === null || value === '') return null;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 5) {
+    throw ApiError.badRequest(`${fieldName} must be an integer between 1 and 5`);
+  }
+  return parsed;
+};
+
+/**
  * submit order review for food and rider
  * @param {string} customerUserId
  * @param {object} payload
@@ -20,8 +35,15 @@ export const createOrderReview = async (
     food_review = '',
     rider_rating,
     rider_review = '',
-  }
+  } = {}
 ) => {
+  if (!order_id) {
+    throw ApiError.badRequest('order_id is required');
+  }
+
+  const parsedFoodRating = parseRating(food_rating, 'food_rating');
+  const parsedRiderRating = parseRating(rider_rating, 'rider_rating');
+
   const order = await Order.findById(order_id);
   if (!order) {
     throw ApiError.notFound('order not found');
@@ -40,37 +62,49 @@ export const createOrderReview = async (
     throw ApiError.conflict('a review has already been submitted for this order');
   }
 
-  const review = await Review.create({
-    order_id: order._id,
-    customer_id: customerUserId,
-    restaurant_id: order.restaurant_id,
-    rider_id: order.rider_id || null,
-    food_rating: food_rating ? Number(food_rating) : null,
-    food_review: food_review ? food_review.trim() : '',
-    rider_rating: rider_rating ? Number(rider_rating) : null,
-    rider_review: rider_review ? rider_review.trim() : '',
-  });
+  let review;
+  try {
+    review = await Review.create({
+      order_id: order._id,
+      customer_id: customerUserId,
+      restaurant_id: order.restaurant_id,
+      rider_id: order.rider_id || null,
+      food_rating: parsedFoodRating,
+      food_review: food_review && typeof food_review === 'string' ? food_review.trim() : '',
+      rider_rating: parsedRiderRating,
+      rider_review: rider_review && typeof rider_review === 'string' ? rider_review.trim() : '',
+    });
+  } catch (err) {
+    if (err.code === 11000) {
+      throw ApiError.conflict('a review has already been submitted for this order');
+    }
+    throw err;
+  }
 
   // update restaurant average rating
-  if (food_rating) {
+  if (parsedFoodRating) {
     const restaurant = await Restaurant.findById(order.restaurant_id);
     if (restaurant) {
       const newTotal = (restaurant.total_ratings || 0) + 1;
       const currentAvg = restaurant.rating_avg || 0;
       restaurant.rating_avg = Number(
-        ((currentAvg * (restaurant.total_ratings || 0) + Number(food_rating)) / newTotal).toFixed(1)
+        ((currentAvg * (restaurant.total_ratings || 0) + parsedFoodRating) / newTotal).toFixed(1)
       );
       restaurant.total_ratings = newTotal;
       await restaurant.save();
     }
   }
 
-  // update rider average rating
-  if (rider_rating && order.rider_id) {
+  // update rider average rating with incremental weighted mean
+  if (parsedRiderRating && order.rider_id) {
     const rider = await Rider.findById(order.rider_id);
     if (rider) {
+      const newTotal = (rider.total_ratings || 0) + 1;
       const currentAvg = rider.rating_avg || 0;
-      rider.rating_avg = currentAvg === 0 ? Number(rider_rating) : Number(((currentAvg + Number(rider_rating)) / 2).toFixed(1));
+      rider.rating_avg = Number(
+        ((currentAvg * (rider.total_ratings || 0) + parsedRiderRating) / newTotal).toFixed(1)
+      );
+      rider.total_ratings = newTotal;
       await rider.save();
     }
   }

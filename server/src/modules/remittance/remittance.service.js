@@ -16,12 +16,28 @@ export const submitRiderRemittance = async (
   riderUserId,
   {
     amount,
-    payment_method,
+    payment_method = 'BKASH',
     sender_account_no,
     transaction_reference,
     order_ids = [],
-  }
+  } = {}
 ) => {
+  const parsedAmount = Number(amount);
+  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    throw ApiError.badRequest('amount must be a positive number');
+  }
+
+  if (
+    !sender_account_no ||
+    typeof sender_account_no !== 'string' ||
+    !sender_account_no.trim() ||
+    !transaction_reference ||
+    typeof transaction_reference !== 'string' ||
+    !transaction_reference.trim()
+  ) {
+    throw ApiError.badRequest('sender_account_no and transaction_reference are required');
+  }
+
   const rider = await Rider.findOne({ user_id: riderUserId });
   if (!rider) {
     throw ApiError.notFound('rider profile not found');
@@ -29,11 +45,11 @@ export const submitRiderRemittance = async (
 
   const remittance = await RiderRemittance.create({
     rider_id: rider._id,
-    amount: Number(amount),
+    amount: parsedAmount,
     payment_method,
     sender_account_no: sender_account_no.trim(),
     transaction_reference: transaction_reference.trim(),
-    order_ids,
+    order_ids: Array.isArray(order_ids) ? order_ids : [],
     status: REMITTANCE_STATUS.PENDING_VERIFICATION,
   });
 
@@ -96,6 +112,13 @@ export const verifyRiderRemittance = async (
   adminNotes,
   adminUserId
 ) => {
+  if (
+    status !== REMITTANCE_STATUS.APPROVED &&
+    status !== REMITTANCE_STATUS.REJECTED
+  ) {
+    throw ApiError.badRequest('status must be either APPROVED or REJECTED');
+  }
+
   const remittance = await RiderRemittance.findById(remittanceId).populate('rider_id');
   if (!remittance) {
     throw ApiError.notFound('remittance submission not found');
@@ -106,7 +129,7 @@ export const verifyRiderRemittance = async (
   }
 
   remittance.status = status;
-  remittance.admin_notes = adminNotes ? adminNotes.trim() : '';
+  remittance.admin_notes = adminNotes && typeof adminNotes === 'string' ? adminNotes.trim() : '';
   remittance.verified_by_admin_id = adminUserId;
   remittance.verified_at = new Date();
   await remittance.save();

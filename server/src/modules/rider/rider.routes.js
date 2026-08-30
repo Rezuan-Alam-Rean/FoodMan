@@ -11,8 +11,8 @@ import { USER_ROLES } from '../../constants/index.js';
 
 const router = Router();
 
-// all rider routes require rider role
-router.use(authenticate, authorize(USER_ROLES.RIDER, USER_ROLES.ADMIN));
+// all rider self-service routes require rider role
+router.use(authenticate, authorize(USER_ROLES.RIDER));
 
 router.get('/me', handleGetRiderProfile);
 router.put('/status', handleToggleOnlineStatus);

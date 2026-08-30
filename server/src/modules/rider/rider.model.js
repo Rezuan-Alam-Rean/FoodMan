@@ -50,6 +50,11 @@ const riderSchema = new mongoose.Schema(
       min: 0,
       max: 5,
     },
+    total_ratings: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     assigned_zones: [
       {
         type: mongoose.Schema.Types.ObjectId,

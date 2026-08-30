@@ -31,6 +31,10 @@ const verifyRestaurantAccess = async (restaurantId, user) => {
  * @returns {object}
  */
 export const createMenuCategory = async (restaurantId, { name, sort_order = 0 }, user) => {
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    throw ApiError.badRequest('category name is required');
+  }
+
   await verifyRestaurantAccess(restaurantId, user);
 
   const existing = await Category.findOne({
@@ -44,7 +48,7 @@ export const createMenuCategory = async (restaurantId, { name, sort_order = 0 },
   const category = await Category.create({
     restaurant_id: restaurantId,
     name: name.trim(),
-    sort_order: Number(sort_order),
+    sort_order: Number(sort_order) || 0,
     is_active: true,
   });
 
@@ -58,7 +62,7 @@ export const createMenuCategory = async (restaurantId, { name, sort_order = 0 },
  * @param {object} user
  * @returns {object}
  */
-export const updateMenuCategory = async (categoryId, updates, user) => {
+export const updateMenuCategory = async (categoryId, updates = {}, user) => {
   const category = await Category.findById(categoryId);
   if (!category) {
     throw ApiError.notFound('category not found');
@@ -66,18 +70,23 @@ export const updateMenuCategory = async (categoryId, updates, user) => {
 
   await verifyRestaurantAccess(category.restaurant_id, user);
 
-  if (updates.name && updates.name.trim() !== category.name) {
-    const existing = await Category.findOne({
-      restaurant_id: category.restaurant_id,
-      name: updates.name.trim(),
-    });
-    if (existing && existing._id.toString() !== categoryId) {
-      throw ApiError.conflict('a category with this name already exists');
+  if (updates.name !== undefined) {
+    if (!updates.name || typeof updates.name !== 'string' || !updates.name.trim()) {
+      throw ApiError.badRequest('category name cannot be empty');
     }
-    category.name = updates.name.trim();
+    if (updates.name.trim() !== category.name) {
+      const existing = await Category.findOne({
+        restaurant_id: category.restaurant_id,
+        name: updates.name.trim(),
+      });
+      if (existing && existing._id.toString() !== categoryId) {
+        throw ApiError.conflict('a category with this name already exists');
+      }
+      category.name = updates.name.trim();
+    }
   }
 
-  if (updates.sort_order !== undefined) category.sort_order = Number(updates.sort_order);
+  if (updates.sort_order !== undefined) category.sort_order = Number(updates.sort_order) || 0;
   if (updates.is_active !== undefined) category.is_active = Boolean(updates.is_active);
 
   await category.save();
@@ -105,6 +114,15 @@ export const createFoodItem = async (
   },
   user
 ) => {
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    throw ApiError.badRequest('food item name is required');
+  }
+
+  const price = Number(base_price);
+  if (!Number.isFinite(price) || price < 0) {
+    throw ApiError.badRequest('base_price must be a non-negative number');
+  }
+
   await verifyRestaurantAccess(restaurantId, user);
 
   const category = await Category.findOne({ _id: category_id, restaurant_id: restaurantId });
@@ -116,11 +134,11 @@ export const createFoodItem = async (
     restaurant_id: restaurantId,
     category_id,
     name: name.trim(),
-    description: description ? description.trim() : '',
+    description: description && typeof description === 'string' ? description.trim() : '',
     image_url,
-    base_price: Number(base_price),
-    variants,
-    add_ons,
+    base_price: price,
+    variants: Array.isArray(variants) ? variants : [],
+    add_ons: Array.isArray(add_ons) ? add_ons : [],
     is_vegetarian: Boolean(is_vegetarian),
     is_available: true,
   });
@@ -135,7 +153,7 @@ export const createFoodItem = async (
  * @param {object} user
  * @returns {object}
  */
-export const updateFoodItem = async (foodItemId, updates, user) => {
+export const updateFoodItem = async (foodItemId, updates = {}, user) => {
   const foodItem = await FoodItem.findById(foodItemId);
   if (!foodItem) {
     throw ApiError.notFound('food item not found');
@@ -143,12 +161,29 @@ export const updateFoodItem = async (foodItemId, updates, user) => {
 
   await verifyRestaurantAccess(foodItem.restaurant_id, user);
 
-  if (updates.name) foodItem.name = updates.name.trim();
-  if (updates.description !== undefined) foodItem.description = updates.description.trim();
+  if (updates.name !== undefined) {
+    if (!updates.name || typeof updates.name !== 'string' || !updates.name.trim()) {
+      throw ApiError.badRequest('food item name cannot be empty');
+    }
+    foodItem.name = updates.name.trim();
+  }
+
+  if (updates.description !== undefined) {
+    foodItem.description = updates.description && typeof updates.description === 'string' ? updates.description.trim() : '';
+  }
+
   if (updates.image_url !== undefined) foodItem.image_url = updates.image_url;
-  if (updates.base_price !== undefined) foodItem.base_price = Number(updates.base_price);
-  if (updates.variants !== undefined) foodItem.variants = updates.variants;
-  if (updates.add_ons !== undefined) foodItem.add_ons = updates.add_ons;
+
+  if (updates.base_price !== undefined) {
+    const price = Number(updates.base_price);
+    if (!Number.isFinite(price) || price < 0) {
+      throw ApiError.badRequest('base_price must be a non-negative number');
+    }
+    foodItem.base_price = price;
+  }
+
+  if (updates.variants !== undefined) foodItem.variants = Array.isArray(updates.variants) ? updates.variants : [];
+  if (updates.add_ons !== undefined) foodItem.add_ons = Array.isArray(updates.add_ons) ? updates.add_ons : [];
   if (updates.is_vegetarian !== undefined) foodItem.is_vegetarian = Boolean(updates.is_vegetarian);
   if (updates.is_available !== undefined) foodItem.is_available = Boolean(updates.is_available);
 

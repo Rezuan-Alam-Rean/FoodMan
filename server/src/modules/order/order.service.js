@@ -19,13 +19,14 @@ import {
 } from '../../constants/index.js';
 
 /**
- * generate human-readable unique order number
+ * generate human-readable unique collision-resistant order number
  * @returns {string}
  */
 const generateOrderNumber = () => {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const timeEntropy = Date.now().toString(36).slice(-4).toUpperCase();
   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  return `FM-${dateStr}-${randomSuffix}`;
+  return `FM-${dateStr}-${timeEntropy}-${randomSuffix}`;
 };
 
 /**
@@ -34,7 +35,11 @@ const generateOrderNumber = () => {
  * @param {object|null} authenticatedUser
  * @returns {object}
  */
-export const createNewOrder = async (payload, authenticatedUser = null) => {
+export const createNewOrder = async (payload = {}, authenticatedUser = null) => {
+  if (!payload.delivery_address_text || typeof payload.delivery_address_text !== 'string' || !payload.delivery_address_text.trim()) {
+    throw ApiError.badRequest('delivery address is required');
+  }
+
   let customerUser = authenticatedUser;
   let authResult = null;
 
@@ -83,6 +88,11 @@ export const createNewOrder = async (payload, authenticatedUser = null) => {
   const processedItems = [];
 
   for (const item of payload.items) {
+    const quantity = Number(item.quantity);
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      throw ApiError.badRequest('item quantity must be a positive integer');
+    }
+
     const foodItem = await FoodItem.findOne({
       _id: item.food_item_id,
       restaurant_id: restaurant._id,
@@ -94,30 +104,56 @@ export const createNewOrder = async (payload, authenticatedUser = null) => {
     }
 
     let unit_price = foodItem.base_price;
+    let matchedVariant = null;
 
-    // add variant delta
-    if (item.selected_variant && item.selected_variant.price_delta) {
-      unit_price += Number(item.selected_variant.price_delta);
-    }
+    // lookup variant securely from database
+    if (item.selected_variant) {
+      const groupTitle = item.selected_variant.group_title || item.selected_variant.title;
+      const optionName = item.selected_variant.option_name || item.selected_variant.name;
 
-    // add add-ons
-    let addOnsTotal = 0;
-    if (item.selected_add_ons && Array.isArray(item.selected_add_ons)) {
-      for (const addon of item.selected_add_ons) {
-        addOnsTotal += Number(addon.price || 0);
+      if (groupTitle && optionName) {
+        const group = foodItem.variants?.find((v) => v.title === groupTitle);
+        const option = group?.options?.find((o) => o.name === optionName);
+        if (!option) {
+          throw ApiError.badRequest(`invalid variant option "${optionName}" for item "${foodItem.name}"`);
+        }
+        unit_price += Number(option.price_delta || 0);
+        matchedVariant = {
+          group_title: group.title,
+          option_name: option.name,
+          price_delta: Number(option.price_delta || 0),
+        };
       }
     }
 
-    const itemTotal = (unit_price + addOnsTotal) * Number(item.quantity);
+    // lookup add-ons securely from database
+    let addOnsTotal = 0;
+    const matchedAddOns = [];
+    if (item.selected_add_ons && Array.isArray(item.selected_add_ons)) {
+      for (const clientAddon of item.selected_add_ons) {
+        const addonName = clientAddon.name;
+        const storedAddon = foodItem.add_ons?.find((a) => a.name === addonName);
+        if (!storedAddon) {
+          throw ApiError.badRequest(`invalid add-on "${addonName}" for item "${foodItem.name}"`);
+        }
+        addOnsTotal += Number(storedAddon.price || 0);
+        matchedAddOns.push({
+          name: storedAddon.name,
+          price: Number(storedAddon.price || 0),
+        });
+      }
+    }
+
+    const itemTotal = (unit_price + addOnsTotal) * quantity;
     food_subtotal += itemTotal;
 
     processedItems.push({
       food_item_id: foodItem._id,
       name: foodItem.name,
       unit_price: unit_price + addOnsTotal,
-      quantity: Number(item.quantity),
-      selected_variant: item.selected_variant || null,
-      selected_add_ons: item.selected_add_ons || [],
+      quantity,
+      selected_variant: matchedVariant,
+      selected_add_ons: matchedAddOns,
       total_price: itemTotal,
     });
   }
@@ -148,7 +184,7 @@ export const createNewOrder = async (payload, authenticatedUser = null) => {
     customer_name: customerUser.name,
     customer_phone: customerUser.phone_number,
     delivery_address_text: payload.delivery_address_text.trim(),
-    special_notes: payload.special_notes ? payload.special_notes.trim() : '',
+    special_notes: payload.special_notes ? String(payload.special_notes).trim() : '',
     status: initialOrderStatus,
     cancellation_locked: false,
   });
@@ -171,13 +207,14 @@ export const createNewOrder = async (payload, authenticatedUser = null) => {
 };
 
 /**
- * get live order status for customer tracking (http short polling)
+ * get live order status for tracking (http short polling)
  * @param {string} orderId
+ * @param {object|null} user
  * @returns {object}
  */
-export const getLiveOrderStatus = async (orderId) => {
+export const getLiveOrderStatus = async (orderId, user = null) => {
   const order = await Order.findById(orderId)
-    .populate('restaurant_id', 'name address phone_number logo_url')
+    .populate('restaurant_id', 'name address phone_number logo_url owner_id')
     .populate('delivery_zone_id', 'name fixed_delivery_fee')
     .populate('delivery_subzone_id', 'name custom_fixed_fee')
     .populate({
@@ -190,6 +227,16 @@ export const getLiveOrderStatus = async (orderId) => {
 
   if (!order) {
     throw ApiError.notFound('order not found');
+  }
+
+  // authorize caller if user is authenticated
+  if (user && user.role !== USER_ROLES.ADMIN) {
+    const isCustomer = order.customer_id.toString() === user._id.toString();
+    const isRestaurant = order.restaurant_id?.owner_id?.toString() === user._id.toString();
+    const isRider = order.rider_id?.user_id?._id?.toString() === user._id.toString();
+    if (!isCustomer && !isRestaurant && !isRider) {
+      throw ApiError.forbidden('you do not have permission to view this order');
+    }
   }
 
   const payment = await Payment.findOne({ order_id: order._id });
@@ -208,12 +255,19 @@ export const getLiveOrderStatus = async (orderId) => {
  * @returns {object}
  */
 export const cancelOrder = async (orderId, reason, user) => {
-  const order = await Order.findById(orderId);
+  const order = await Order.findById(orderId).populate('restaurant_id');
   if (!order) {
     throw ApiError.notFound('order not found');
   }
 
-  // strictly forbid cancellation once dual acceptance is complete or food is in preparation
+  // authorize caller
+  const isOwner = order.customer_id.toString() === user._id.toString();
+  const isRestaurant = order.restaurant_id?.owner_id?.toString() === user._id.toString();
+  if (user.role !== USER_ROLES.ADMIN && !isOwner && !isRestaurant) {
+    throw ApiError.forbidden('you do not have permission to cancel this order');
+  }
+
+  // strictly forbid cancellation once food is in preparation or dual acceptance is locked
   if (
     order.cancellation_locked ||
     order.status === ORDER_STATUS.PREPARING ||
@@ -273,13 +327,13 @@ export const getRestaurantLiveOrders = async (restaurantId, user) => {
         select: 'name phone_number',
       },
     })
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: 1 });
 
   return orders;
 };
 
 /**
- * rider accepts delivery task
+ * rider accepts delivery task (atomic claim)
  * @param {string} orderId
  * @param {string} riderUserId
  * @returns {object}
@@ -290,21 +344,24 @@ export const riderAcceptOrder = async (orderId, riderUserId) => {
     throw ApiError.notFound('rider profile not found');
   }
 
-  const order = await Order.findById(orderId);
-  if (!order) {
-    throw ApiError.notFound('order not found');
-  }
+  // atomic claim condition
+  const claimedOrder = await Order.findOneAndUpdate(
+    { _id: orderId, status: ORDER_STATUS.LOOKING_FOR_RIDER, rider_id: null },
+    {
+      $set: {
+        rider_id: rider._id,
+        rider_accepted_at: new Date(),
+        status: ORDER_STATUS.RIDER_ACCEPTED,
+      },
+    },
+    { new: true }
+  );
 
-  if (order.status !== ORDER_STATUS.LOOKING_FOR_RIDER || order.rider_id) {
+  if (!claimedOrder) {
     throw ApiError.badRequest('order is no longer available or already claimed by another rider');
   }
 
-  order.rider_id = rider._id;
-  order.rider_accepted_at = new Date();
-  order.status = ORDER_STATUS.RIDER_ACCEPTED;
-  await order.save();
-
-  return order.populate(['restaurant_id', 'delivery_zone_id']);
+  return claimedOrder.populate(['restaurant_id', 'delivery_zone_id']);
 };
 
 /**
@@ -324,6 +381,13 @@ export const restaurantAcceptAndCook = async (orderId, user) => {
     order.restaurant_id.owner_id.toString() !== user._id.toString()
   ) {
     throw ApiError.forbidden('unauthorized to accept order for this restaurant');
+  }
+
+  if (
+    order.status !== ORDER_STATUS.LOOKING_FOR_RIDER &&
+    order.status !== ORDER_STATUS.RIDER_ACCEPTED
+  ) {
+    throw ApiError.badRequest(`order cannot start preparation from status "${order.status}"`);
   }
 
   order.status = ORDER_STATUS.PREPARING;
@@ -353,6 +417,10 @@ export const restaurantFoodReady = async (orderId, user) => {
     throw ApiError.forbidden('unauthorized to update order for this restaurant');
   }
 
+  if (order.status !== ORDER_STATUS.PREPARING) {
+    throw ApiError.badRequest(`order cannot be marked ready from status "${order.status}"`);
+  }
+
   order.status = ORDER_STATUS.READY_FOR_PICKUP;
   await order.save();
 
@@ -369,8 +437,15 @@ export const riderPickupOrder = async (orderId, riderUserId) => {
   const rider = await Rider.findOne({ user_id: riderUserId });
   const order = await Order.findById(orderId);
 
-  if (!order || !rider || order.rider_id.toString() !== rider._id.toString()) {
+  if (!order || !rider || !order.rider_id || order.rider_id.toString() !== rider._id.toString()) {
     throw ApiError.forbidden('you are not assigned to this delivery');
+  }
+
+  if (
+    order.status !== ORDER_STATUS.READY_FOR_PICKUP &&
+    order.status !== ORDER_STATUS.PREPARING
+  ) {
+    throw ApiError.badRequest(`order cannot be picked up from status "${order.status}"`);
   }
 
   order.status = ORDER_STATUS.PICKED_UP;
@@ -381,7 +456,7 @@ export const riderPickupOrder = async (orderId, riderUserId) => {
 };
 
 /**
- * rider marks order as delivered and settles financial ledgers
+ * rider marks order as delivered and settles financial ledgers atomically
  * @param {string} orderId
  * @param {string} riderUserId
  * @returns {object}
@@ -390,17 +465,29 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
   const rider = await Rider.findOne({ user_id: riderUserId });
   const order = await Order.findById(orderId).populate('restaurant_id');
 
-  if (!order || !rider || order.rider_id.toString() !== rider._id.toString()) {
+  if (!order || !rider || !order.rider_id || order.rider_id.toString() !== rider._id.toString()) {
     throw ApiError.forbidden('you are not assigned to this delivery');
   }
 
-  if (order.status === ORDER_STATUS.DELIVERED) {
-    return order;
-  }
+  // atomic status transition to delivered
+  const deliveredOrder = await Order.findOneAndUpdate(
+    { _id: orderId, status: ORDER_STATUS.PICKED_UP },
+    {
+      $set: {
+        status: ORDER_STATUS.DELIVERED,
+        delivered_at: new Date(),
+      },
+    },
+    { new: true }
+  ).populate('restaurant_id');
 
-  order.status = ORDER_STATUS.DELIVERED;
-  order.delivered_at = new Date();
-  await order.save();
+  if (!deliveredOrder) {
+    const existing = await Order.findById(orderId);
+    if (existing && existing.status === ORDER_STATUS.DELIVERED) {
+      return existing;
+    }
+    throw ApiError.badRequest('order must be in PICKED_UP status before marking as delivered');
+  }
 
   // update payment status
   const payment = await Payment.findOne({ order_id: order._id });
@@ -451,17 +538,20 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
 
   await riderWallet.save();
 
-  // create rider delivery fee ledger entry
+  // create rider delivery fee credit ledger
   await LedgerTransaction.create({
     wallet_id: riderWallet._id,
     order_id: order._id,
     type: LEDGER_TRANSACTION_TYPES.CREDIT_DELIVERY_FEE,
     amount: order.delivery_fee,
-    balance_after: riderWallet.current_balance + (payment?.method === PAYMENT_METHODS.COD ? order.grand_total : 0),
+    balance_after:
+      payment && payment.method === PAYMENT_METHODS.COD
+        ? riderWallet.current_balance + order.grand_total
+        : riderWallet.current_balance,
     notes: `delivery fee earned for order ${order.order_number}`,
   });
 
-  // create rider cod liability ledger entry if cod
+  // if COD, create debit ledger for cash-in-hand liability
   if (payment && payment.method === PAYMENT_METHODS.COD) {
     await LedgerTransaction.create({
       wallet_id: riderWallet._id,
@@ -469,9 +559,9 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
       type: LEDGER_TRANSACTION_TYPES.DEBIT_COD_LIABILITY,
       amount: order.grand_total,
       balance_after: riderWallet.current_balance,
-      notes: `cash collected from customer for cod order ${order.order_number}`,
+      notes: `collected cod cash liability for order ${order.order_number}`,
     });
   }
 
-  return order;
+  return deliveredOrder;
 };

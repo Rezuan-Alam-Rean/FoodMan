@@ -49,7 +49,7 @@ export const handleVerifyRemittance = catchAsync(async (req, res) => {
 
   return ApiResponse.success(res, {
     statusCode: HTTP_STATUS.OK,
-    message: `remittance ${req.body.status.toLowerCase()} successfully`,
+    message: `remittance ${String(remittance.status).toLowerCase()} successfully`,
     data: remittance,
   });
 });

@@ -1,29 +1,30 @@
-// rider courier profile and operational zone business logic
+// delivery rider profile and zone assignment business logic
 import { Rider } from './rider.model.js';
-import { Zone } from '../zone/zone.model.js';
 import { Order } from '../order/order.model.js';
-import { Wallet } from '../wallet/wallet.model.js';
+import { Zone } from '../zone/zone.model.js';
 import { ApiError } from '../../utils/apiError.js';
 import { ORDER_STATUS } from '../../constants/index.js';
 
 /**
- * get authenticated rider profile with assigned zones and wallet
+ * get rider profile for authenticated user
  * @param {string} userId
  * @returns {object}
  */
 export const getRiderProfile = async (userId) => {
-  let rider = await Rider.findOne({ user_id: userId }).populate('assigned_zones');
+  let rider = await Rider.findOne({ user_id: userId })
+    .populate('user_id', 'name phone_number email status')
+    .populate('assigned_zones');
+
   if (!rider) {
     rider = await Rider.create({
       user_id: userId,
       is_online: false,
       assigned_zones: [],
     });
+    rider = await rider.populate(['user_id', 'assigned_zones']);
   }
 
-  const wallet = await Wallet.findOne({ user_id: userId });
-
-  // find any active delivery in progress for this rider
+  // check if rider has any active delivery in progress
   const activeOrder = await Order.findOne({
     rider_id: rider._id,
     status: {
@@ -35,19 +36,19 @@ export const getRiderProfile = async (userId) => {
       ],
     },
   })
-    .populate('restaurant_id')
+    .populate('restaurant_id', 'name address phone_number')
+    .populate('customer_id', 'name phone_number')
     .populate('delivery_zone_id')
     .populate('delivery_subzone_id');
 
   return {
     rider,
-    wallet,
-    activeOrder,
+    active_delivery: activeOrder,
   };
 };
 
 /**
- * toggle rider online availability status
+ * toggle online/offline availability for rider
  * @param {string} userId
  * @param {boolean} isOnline
  * @returns {object}
@@ -58,7 +59,11 @@ export const toggleRiderOnlineStatus = async (userId, isOnline) => {
     throw ApiError.notFound('rider profile not found');
   }
 
-  rider.is_online = Boolean(isOnline);
+  if (typeof isOnline !== 'boolean') {
+    throw ApiError.badRequest('is_online must be a boolean (true or false)');
+  }
+
+  rider.is_online = isOnline;
   await rider.save();
 
   return rider.populate('assigned_zones');
@@ -71,6 +76,10 @@ export const toggleRiderOnlineStatus = async (userId, isOnline) => {
  * @returns {object}
  */
 export const updateRiderAssignedZones = async (userId, zoneIds) => {
+  if (!Array.isArray(zoneIds) || zoneIds.length === 0) {
+    throw ApiError.badRequest('zone_ids must be a non-empty array');
+  }
+
   const rider = await Rider.findOne({ user_id: userId });
   if (!rider) {
     throw ApiError.notFound('rider profile not found');
@@ -78,9 +87,13 @@ export const updateRiderAssignedZones = async (userId, zoneIds) => {
 
   // validate zone ids
   const validZones = await Zone.find({ _id: { $in: zoneIds }, is_active: true });
-  rider.assigned_zones = validZones.map((z) => z._id);
+  if (validZones.length !== zoneIds.length) {
+    throw ApiError.badRequest('one or more zone ids are invalid or inactive');
+  }
 
+  rider.assigned_zones = validZones.map((z) => z._id);
   await rider.save();
+
   return rider.populate('assigned_zones');
 };
 
@@ -99,7 +112,7 @@ export const getAvailableZoneOrders = async (userId) => {
     return [];
   }
 
-  // query orders looking for rider in rider's assigned operational zones
+  // query orders looking for rider in rider's assigned operational zones (fifo oldest first)
   const orders = await Order.find({
     status: ORDER_STATUS.LOOKING_FOR_RIDER,
     delivery_zone_id: { $in: rider.assigned_zones },
@@ -108,7 +121,7 @@ export const getAvailableZoneOrders = async (userId) => {
     .populate('restaurant_id', 'name address logo_url')
     .populate('delivery_zone_id', 'name fixed_delivery_fee')
     .populate('delivery_subzone_id', 'name custom_fixed_fee')
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: 1 })
     .limit(20);
 
   return orders;

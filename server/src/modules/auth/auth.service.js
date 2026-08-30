@@ -51,6 +51,10 @@ export const resolveGuestCheckoutAuth = async ({
   // save address if zone and address details are provided
   let address = null;
   if (zone_id && detailed_address) {
+    await UserAddress.updateMany(
+      { user_id: user._id, is_default: true },
+      { $set: { is_default: false } }
+    );
     address = await UserAddress.create({
       user_id: user._id,
       zone_id,
@@ -100,23 +104,27 @@ export const registerUser = async ({
   if (email) {
     const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
     if (existingEmail) {
-      throw ApiError.conflict('a user with this email address already exists');
+      throw ApiError.conflict('a user with this email already exists');
     }
   }
 
-  let password_hash = null;
-  if (password) {
-    password_hash = await bcrypt.hash(password, 10);
-  }
-
-  const user = await User.create({
+  const userData = {
     name: name.trim(),
     phone_number: normalizedPhone,
-    email: email ? email.toLowerCase().trim() : undefined,
-    password_hash,
     role,
     status: USER_STATUS.ACTIVE,
-  });
+  };
+
+  if (email) {
+    userData.email = email.toLowerCase().trim();
+  }
+
+  if (password) {
+    const salt = await bcrypt.genSalt(10);
+    userData.password_hash = await bcrypt.hash(password, salt);
+  }
+
+  const user = await User.create(userData);
 
   // initialize digital wallet for vendors and riders
   if (role === USER_ROLES.RESTAURANT_OWNER || role === USER_ROLES.RIDER) {
@@ -151,11 +159,15 @@ export const registerUser = async ({
 
 /**
  * login user with phone number and password
- * @param {object} payload
+ * @param {string} phoneNumber
+ * @param {string} password
  * @returns {object}
  */
-export const loginUser = async ({ phone_number, password }) => {
-  const normalizedPhone = normalizePhoneNumber(phone_number);
+export const loginUser = async (payloadOrPhone, optionalPassword) => {
+  const phone = typeof payloadOrPhone === 'object' ? payloadOrPhone.phone_number : payloadOrPhone;
+  const password = typeof payloadOrPhone === 'object' ? payloadOrPhone.password : optionalPassword;
+
+  const normalizedPhone = normalizePhoneNumber(phone);
   if (!normalizedPhone) {
     throw ApiError.badRequest('invalid bangladesh mobile number format');
   }
@@ -169,14 +181,17 @@ export const loginUser = async ({ phone_number, password }) => {
     throw ApiError.forbidden('your account has been suspended');
   }
 
-  if (user.password_hash) {
-    if (!password) {
-      throw ApiError.badRequest('password is required for this account');
-    }
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
-      throw ApiError.unauthorized('invalid phone number or credentials');
-    }
+  if (!user.password_hash) {
+    throw ApiError.unauthorized('password login is not configured for this account; please use guest checkout or set a password');
+  }
+
+  if (!password) {
+    throw ApiError.badRequest('password is required');
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password_hash);
+  if (!isMatch) {
+    throw ApiError.unauthorized('invalid phone number or credentials');
   }
 
   const token = signToken({

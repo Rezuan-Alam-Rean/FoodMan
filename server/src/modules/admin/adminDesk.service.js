@@ -80,20 +80,31 @@ export const verifyManualMfsPayment = async (
   adminUserId,
   notes = ''
 ) => {
-  const payment = await Payment.findById(paymentId);
-  if (!payment) {
-    throw ApiError.notFound('payment record not found');
+  if (![PAYMENT_STATUS.VERIFIED, PAYMENT_STATUS.FAILED].includes(status)) {
+    throw ApiError.badRequest('status must be either VERIFIED or FAILED');
   }
 
-  if (payment.status !== PAYMENT_STATUS.PENDING) {
+  // atomic conditional transition for pending payment
+  const payment = await Payment.findOneAndUpdate(
+    { _id: paymentId, status: PAYMENT_STATUS.PENDING },
+    {
+      $set: {
+        status,
+        verified_by_admin_id: adminUserId,
+        verified_at: new Date(),
+        notes: notes && typeof notes === 'string' ? notes.trim() : '',
+      },
+    },
+    { new: true }
+  );
+
+  if (!payment) {
+    const existing = await Payment.findById(paymentId);
+    if (!existing) {
+      throw ApiError.notFound('payment record not found');
+    }
     throw ApiError.badRequest('payment has already been processed');
   }
-
-  payment.status = status;
-  payment.verified_by_admin_id = adminUserId;
-  payment.verified_at = new Date();
-  if (notes) payment.notes = notes.trim();
-  await payment.save();
 
   // update associated order status
   const order = await Order.findById(payment.order_id);

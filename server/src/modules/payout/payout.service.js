@@ -16,12 +16,25 @@ export const disburseManualPayout = async (
   {
     recipient_user_id,
     amount,
-    payout_channel,
+    payout_channel = 'BANK_TRANSFER',
     reference_txn_id,
     notes = '',
-  },
+  } = {},
   adminUserId
 ) => {
+  const payoutAmount = Number(amount);
+  if (!Number.isFinite(payoutAmount) || payoutAmount <= 0) {
+    throw ApiError.badRequest('payout amount must be greater than zero');
+  }
+
+  if (
+    !reference_txn_id ||
+    typeof reference_txn_id !== 'string' ||
+    !reference_txn_id.trim()
+  ) {
+    throw ApiError.badRequest('reference transaction id is required');
+  }
+
   const recipient = await User.findById(recipient_user_id);
   if (!recipient) {
     throw ApiError.notFound('recipient user not found');
@@ -32,21 +45,23 @@ export const disburseManualPayout = async (
     throw ApiError.notFound('recipient wallet not found');
   }
 
-  const payoutAmount = Number(amount);
-  if (payoutAmount <= 0) {
-    throw ApiError.badRequest('payout amount must be greater than zero');
-  }
+  // atomic conditional debit to prevent race condition or negative balances
+  const debitedWallet = await Wallet.findOneAndUpdate(
+    { _id: wallet._id, current_balance: { $gte: payoutAmount } },
+    {
+      $inc: {
+        current_balance: -payoutAmount,
+        total_settled_by_admin: payoutAmount,
+      },
+    },
+    { new: true }
+  );
 
-  if (wallet.current_balance < payoutAmount) {
+  if (!debitedWallet) {
     throw ApiError.badRequest(
       `insufficient wallet balance (available: ${wallet.current_balance} bdt)`
     );
   }
-
-  // debit wallet balance
-  wallet.current_balance -= payoutAmount;
-  wallet.total_settled_by_admin += payoutAmount;
-  await wallet.save();
 
   // record payout settlement
   const payout = await PayoutSettlement.create({
@@ -56,7 +71,7 @@ export const disburseManualPayout = async (
     payout_channel,
     reference_txn_id: reference_txn_id.trim(),
     disbursed_by_admin_id: adminUserId,
-    notes: notes ? notes.trim() : '',
+    notes: notes && typeof notes === 'string' ? notes.trim() : '',
   });
 
   // record ledger debit transaction
@@ -65,8 +80,8 @@ export const disburseManualPayout = async (
     payout_id: payout._id,
     type: LEDGER_TRANSACTION_TYPES.DEBIT_ADMIN_PAYOUT,
     amount: payoutAmount,
-    balance_after: wallet.current_balance,
-    notes: `admin payout settlement via ${payout_channel} (ref: ${reference_txn_id})`,
+    balance_after: debitedWallet.current_balance,
+    notes: `admin payout settlement via ${payout_channel} (ref: ${reference_txn_id.trim()})`,
   });
 
   return payout;

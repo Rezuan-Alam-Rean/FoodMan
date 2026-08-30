@@ -15,7 +15,10 @@ const envSchema = z.object({
     .min(1, 'MONGO_URI is required')
     .default('mongodb://localhost:27017/foodman'),
   CORS_ORIGIN: z.string().default('*'),
-  JWT_SECRET: z.string().default('foodman-super-secret-jwt-key-2026'),
+  JWT_SECRET: z
+    .string()
+    .min(32, 'JWT_SECRET must be at least 32 characters')
+    .default('foodman-super-secret-jwt-key-2026-production-ready'),
   JWT_EXPIRES_IN: z.string().default('30d'),
 });
 
