@@ -9,6 +9,11 @@ export const CATEGORY_KEYS = {
   list: (params?: { is_active?: boolean }) => ['categories', 'list', params] as const,
 };
 
+export const FOOD_ITEM_KEYS = {
+  all: ['food-items'] as const,
+  infinite: (params?: any) => ['food-items', params] as const,
+};
+
 export function useInfiniteFoodItemsQuery(params?: {
   category_id?: string;
   search?: string;
@@ -16,7 +21,7 @@ export function useInfiniteFoodItemsQuery(params?: {
   is_open?: boolean;
 }) {
   return useInfiniteQuery({
-    queryKey: ['food-items', params],
+    queryKey: FOOD_ITEM_KEYS.infinite(params),
     queryFn: async ({ pageParam = 1 }) => {
       const data = await apiClient.get<any, {
         items: FoodItem[];
@@ -110,6 +115,7 @@ export function useDeleteCategoryMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CATEGORY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: FOOD_ITEM_KEYS.all });
     },
   });
 }
@@ -135,6 +141,7 @@ export function useCreateFoodItemMutation(restaurantId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.detail(restaurantId) });
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
+      queryClient.invalidateQueries({ queryKey: FOOD_ITEM_KEYS.all });
     },
   });
 }
@@ -158,6 +165,7 @@ export function useUpdateFoodItemMutation(restaurantId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.detail(restaurantId) });
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
+      queryClient.invalidateQueries({ queryKey: FOOD_ITEM_KEYS.all });
     },
   });
 }
@@ -172,6 +180,7 @@ export function useDeleteFoodItemMutation(restaurantId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.detail(restaurantId) });
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
+      queryClient.invalidateQueries({ queryKey: FOOD_ITEM_KEYS.all });
     },
   });
 }

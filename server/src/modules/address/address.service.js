@@ -83,31 +83,39 @@ export const createUserAddress = async (
     subzone_id,
   });
 
-  // set all existing addresses default flag to false
-  await UserAddress.updateMany({ user_id: userId, is_default: true }, { $set: { is_default: false } });
+  const existingCount = await UserAddress.countDocuments({ user_id: userId });
+  const shouldBeDefault = is_default === true || existingCount === 0;
 
+  let savedAddress;
   if (existingAddress) {
     existingAddress.detailed_address = detailed_address.trim();
     if (address_label) existingAddress.address_label = address_label;
     existingAddress.contact_person_name = resolvedName.trim();
     existingAddress.contact_phone = normalizedPhone;
-    existingAddress.is_default = true;
+    existingAddress.is_default = shouldBeDefault;
     await existingAddress.save();
-    return existingAddress.populate(['zone_id', 'subzone_id']);
+    savedAddress = existingAddress;
+  } else {
+    savedAddress = await UserAddress.create({
+      user_id: userId,
+      zone_id,
+      subzone_id,
+      address_label,
+      detailed_address: detailed_address.trim(),
+      contact_person_name: resolvedName.trim(),
+      contact_phone: normalizedPhone,
+      is_default: shouldBeDefault,
+    });
   }
 
-  const address = await UserAddress.create({
-    user_id: userId,
-    zone_id,
-    subzone_id,
-    address_label,
-    detailed_address: detailed_address.trim(),
-    contact_person_name: resolvedName.trim(),
-    contact_phone: normalizedPhone,
-    is_default: true,
-  });
+  if (shouldBeDefault) {
+    await UserAddress.updateMany(
+      { user_id: userId, is_default: true, _id: { $ne: savedAddress._id } },
+      { $set: { is_default: false } }
+    );
+  }
 
-  return address.populate(['zone_id', 'subzone_id']);
+  return savedAddress.populate(['zone_id', 'subzone_id']);
 };
 
 /**

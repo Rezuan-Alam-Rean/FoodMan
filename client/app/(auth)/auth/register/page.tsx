@@ -86,9 +86,10 @@ export default function RegisterPage() {
 
   const handleSaveAddress = async () => {
     const activeZ = zones.find((z) => (z.id || z._id) === selectedZoneId) || zones[0];
+    const effectiveZoneId = selectedZoneId || (activeZ ? String(activeZ.id || activeZ._id) : '');
     const subId = selectedSubzoneId || (activeZ?.subzones?.[0]?.id || activeZ?.subzones?.[0]?._id);
 
-    if (!selectedZoneId || !subId || !detailedAddress.trim()) {
+    if (!effectiveZoneId || !subId || !detailedAddress.trim()) {
       router.push('/');
       return;
     }
@@ -98,7 +99,7 @@ export default function RegisterPage() {
 
     try {
       await createAddressMutation.mutateAsync({
-        zone_id: selectedZoneId,
+        zone_id: effectiveZoneId,
         subzone_id: subId,
         detailed_address: detailedAddress.trim(),
         address_label: addressLabel,

@@ -27,6 +27,11 @@ export function Navbar() {
   const { itemCount, setIsCartOpen } = useCart();
   const { selectedZone, setSelectedZone } = useZoneStore();
   const { data: zones = [] } = useZonesQuery();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 transition">
@@ -116,7 +121,7 @@ export function Navbar() {
           >
             <ShoppingBag className="w-4 h-4" />
             <span className="hidden sm:inline">Cart</span>
-            {itemCount > 0 && (
+            {mounted && itemCount > 0 && (
               <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[11px] font-extrabold flex items-center justify-center shadow-xs">
                 {itemCount}
               </span>

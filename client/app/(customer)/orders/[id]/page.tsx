@@ -240,7 +240,7 @@ export default function OrderTrackingPage() {
           <div className="space-y-5 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
             {TRACKING_STEPS.map((step, idx) => {
               const stepNum = idx + 1;
-              const isPassed = currentStep >= stepNum;
+              const isPassed = currentStep > stepNum;
               const isCurrent = currentStep === stepNum;
 
               return (
@@ -493,6 +493,37 @@ export default function OrderTrackingPage() {
                 placeholder="Share a short note about food taste..."
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs focus:outline-hidden"
               />
+
+              {order.rider_id && (
+                <div className="pt-2 border-t border-slate-100 space-y-2">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Rider Delivery Rating (1-5 Stars)</label>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRiderRating(star)}
+                          className="p-1 text-amber-400 hover:scale-110 transition"
+                        >
+                          <Star
+                            className={`w-5 h-5 ${
+                              star <= riderRating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <input
+                    type="text"
+                    {...registerReview('rider_review')}
+                    placeholder="Share feedback on delivery speed and rider behavior..."
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs focus:outline-hidden"
+                  />
+                </div>
+              )}
 
               <button
                 type="submit"

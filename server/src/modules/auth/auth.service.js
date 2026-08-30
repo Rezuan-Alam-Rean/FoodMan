@@ -4,6 +4,7 @@ import { User } from '../user/user.model.js';
 import { Wallet } from '../wallet/wallet.model.js';
 import { Rider } from '../rider/rider.model.js';
 import { UserAddress } from '../address/address.model.js';
+import { Subzone } from '../zone/subzone.model.js';
 import { normalizePhoneNumber } from '../../utils/phone.js';
 import { signToken } from '../../utils/jwt.js';
 import { ApiError } from '../../utils/apiError.js';
@@ -46,10 +47,10 @@ export const resolveGuestCheckoutAuth = async ({
   // save address if zone, subzone, and address details are provided
   let address = null;
   if (zone_id && subzone_id && detailed_address) {
-    await UserAddress.updateMany(
-      { user_id: user._id, is_default: true },
-      { $set: { is_default: false } }
-    );
+    const subzone = await Subzone.findById(subzone_id);
+    if (!subzone || subzone.zone_id.toString() !== zone_id.toString()) {
+      throw ApiError.badRequest('specified subzone does not belong to selected delivery zone');
+    }
 
     const existingAddress = await UserAddress.findOne({
       user_id: user._id,
@@ -75,6 +76,11 @@ export const resolveGuestCheckoutAuth = async ({
         is_default: true,
       });
     }
+
+    await UserAddress.updateMany(
+      { user_id: user._id, is_default: true, _id: { $ne: address._id } },
+      { $set: { is_default: false } }
+    );
   }
 
   const token = signToken({

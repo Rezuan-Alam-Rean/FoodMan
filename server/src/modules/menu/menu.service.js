@@ -45,7 +45,7 @@ export const getAllCategories = async ({ is_active } = {}) => {
  * @returns {object}
  */
 export const createCategory = async ({ name, image_url = null, sort_order = 0 }, user) => {
-  if (user && user.role !== USER_ROLES.ADMIN) {
+  if (!user || user.role !== USER_ROLES.ADMIN) {
     throw ApiError.forbidden('only administrators can create categories');
   }
 
@@ -79,7 +79,7 @@ export const createCategory = async ({ name, image_url = null, sort_order = 0 },
  * @returns {object}
  */
 export const updateCategory = async (categoryId, updates = {}, user) => {
-  if (user && user.role !== USER_ROLES.ADMIN) {
+  if (!user || user.role !== USER_ROLES.ADMIN) {
     throw ApiError.forbidden('only administrators can update categories');
   }
 
@@ -121,7 +121,7 @@ export const updateCategory = async (categoryId, updates = {}, user) => {
  * @returns {boolean}
  */
 export const deleteCategory = async (categoryId, user) => {
-  if (user && user.role !== USER_ROLES.ADMIN) {
+  if (!user || user.role !== USER_ROLES.ADMIN) {
     throw ApiError.forbidden('only administrators can delete categories');
   }
 
@@ -319,8 +319,28 @@ export const getAllFoodItems = async ({
     filter.restaurant_id = restaurant_id;
   }
 
+  // filter by active categories
+  const activeCategories = await Category.find({ is_active: true }).select('_id');
+  const activeCategoryIds = activeCategories.map((c) => c._id);
+
   if (category_id && category_id !== 'all') {
-    filter.category_id = category_id;
+    if (activeCategoryIds.some((id) => id.toString() === category_id.toString())) {
+      filter.category_id = category_id;
+    } else {
+      return {
+        items: [],
+        pagination: {
+          total: 0,
+          page: p,
+          limit: l,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    }
+  } else {
+    filter.category_id = { $in: activeCategoryIds };
   }
 
   if (search && typeof search === 'string' && search.trim()) {

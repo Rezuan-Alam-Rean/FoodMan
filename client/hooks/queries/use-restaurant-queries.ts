@@ -107,6 +107,7 @@ export function useToggleRestaurantStatusMutation() {
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.detail(variables.restaurantId) });
       queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants-infinite'] });
     },
   });
 }
@@ -120,6 +121,7 @@ export function useCreateRestaurantMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants-infinite'] });
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
     },
   });

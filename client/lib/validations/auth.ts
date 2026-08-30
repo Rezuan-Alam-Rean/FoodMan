@@ -6,7 +6,7 @@ export const loginSchema = z.object({
     .string()
     .min(11, 'mobile number must be at least 11 digits')
     .max(15, 'mobile number too long')
-    .regex(/^[0-9+]+$/, 'mobile number must contain valid digits'),
+    .regex(/^\+?[0-9]{11,15}$/, 'mobile number must contain valid digits'),
   password: z.string().min(6, 'password must be at least 6 characters'),
 });
 
@@ -18,7 +18,7 @@ export const registerSchema = z.object({
     .string()
     .min(11, 'mobile number must be at least 11 digits')
     .max(15, 'mobile number too long')
-    .regex(/^[0-9+]+$/, 'mobile number must contain valid digits'),
+    .regex(/^\+?[0-9]{11,15}$/, 'mobile number must contain valid digits'),
   email: z.string().email('invalid email address').optional().or(z.literal('')),
   password: z.string().min(6, 'password must be at least 6 characters'),
   role: z.enum(['CUSTOMER', 'RESTAURANT_OWNER', 'RIDER', 'ADMIN']),

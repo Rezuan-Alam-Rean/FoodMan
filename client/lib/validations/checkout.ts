@@ -6,7 +6,7 @@ export const checkoutSchema = z.object({
   customer_phone: z
     .string()
     .min(11, 'valid bangladesh mobile number is required')
-    .regex(/^[0-9+]+$/, 'mobile number must contain valid digits'),
+    .regex(/^\+?[0-9]{11,15}$/, 'mobile number must contain valid digits'),
   delivery_zone_id: z.string().min(1, 'please select a delivery zone'),
   delivery_subzone_id: z.string().min(1, 'please select a delivery subzone'),
   delivery_address_text: z

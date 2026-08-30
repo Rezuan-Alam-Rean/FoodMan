@@ -156,7 +156,7 @@ export default function CheckoutPage() {
     }
   }, [user, setValue]);
 
-  if (items.length === 0 || !restaurant) {
+  if ((items.length === 0 || !restaurant) && !guestCompletedOrderId) {
     return (
       <div className="min-h-[65vh] flex flex-col items-center justify-center text-center p-6 space-y-4">
         <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
@@ -174,6 +174,17 @@ export default function CheckoutPage() {
   const onSubmit = async (values: CheckoutFormValues) => {
     setFormError('');
 
+    const targetZone = zones.find((z) => String(z.id || z._id) === values.delivery_zone_id);
+    if (!targetZone) {
+      setFormError('Please select a valid delivery zone');
+      return;
+    }
+    const targetSubzone = targetZone.subzones?.find((s) => String(s.id || s._id) === values.delivery_subzone_id);
+    if (!targetSubzone) {
+      setFormError('Selected subzone does not belong to the selected delivery zone');
+      return;
+    }
+
     try {
       const orderPayload = {
         customer_name: values.customer_name.trim(),
@@ -182,7 +193,7 @@ export default function CheckoutPage() {
         delivery_subzone_id: values.delivery_subzone_id || null,
         delivery_address_text: values.delivery_address_text.trim(),
         special_notes: values.special_notes?.trim() || '',
-        restaurant_id: restaurant.id || restaurant._id,
+        restaurant_id: (restaurant?.id || restaurant?._id)!,
         payment_method: values.payment_method,
         mfs_sender_number: values.payment_method !== 'COD' ? values.mfs_sender_number?.trim() : undefined,
         mfs_transaction_id: values.payment_method !== 'COD' ? values.mfs_transaction_id?.trim() : undefined,
@@ -220,14 +231,14 @@ export default function CheckoutPage() {
     <div className="space-y-4 sm:space-y-6 pb-20">
       <div className="flex items-center gap-3">
         <Link
-          href={`/restaurants/${restaurant.slug || restaurant.id || restaurant._id}`}
+          href={`/restaurants/${restaurant?.slug || restaurant?.id || restaurant?._id || ''}`}
           className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 transition active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
         </Link>
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Checkout</h1>
-          <p className="text-xs text-slate-500">Ordering from <span className="font-bold text-rose-600">{restaurant.name}</span></p>
+          <p className="text-xs text-slate-500">Ordering from <span className="font-bold text-rose-600">{restaurant?.name || 'Restaurant'}</span></p>
         </div>
       </div>
 

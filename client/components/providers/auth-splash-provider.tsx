@@ -50,9 +50,18 @@ export function AuthSplashProvider({ children }: { children: React.ReactNode }) 
   // if token is invalid or rejected by server (401/403), clear auth
   useEffect(() => {
     if (meQuery.isError && token) {
-      store.clearAuth();
+      const errMessage = ((meQuery.error as any)?.message || '').toLowerCase();
+      const isAuthError =
+        errMessage.includes('401') ||
+        errMessage.includes('403') ||
+        errMessage.includes('unauthorized') ||
+        errMessage.includes('token') ||
+        errMessage.includes('forbidden');
+      if (isAuthError) {
+        store.clearAuth();
+      }
     }
-  }, [meQuery.isError, token, store]);
+  }, [meQuery.isError, meQuery.error, token, store]);
 
   // auth state is ready once mounted, hydrated, and profile loaded
   const isAuthReady =

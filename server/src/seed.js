@@ -19,12 +19,20 @@ import {
   Category,
   FoodItem,
   Rider,
+  Order,
+  Payment,
   Wallet,
+  LedgerTransaction,
+  Review,
 } from './modules/models.index.js';
 import { USER_ROLES, VEHICLE_TYPES, ADDRESS_LABELS } from './constants/index.js';
 
 const seedDatabase = async () => {
   try {
+    if (process.env.NODE_ENV === 'production' && !process.env.CONFIRM_SEED) {
+      throw new Error('seeding database in production requires CONFIRM_SEED=true');
+    }
+
     const mongoUri = process.env.MONGO_URI;
     if (!mongoUri) {
       throw new Error('MONGO_URI is not defined in .env');
@@ -35,16 +43,25 @@ const seedDatabase = async () => {
     console.log('MongoDB connected successfully.');
 
     console.log('Cleaning existing database collections...');
+    // delete dependent records first
     await Promise.all([
-      User.deleteMany({}),
-      Zone.deleteMany({}),
-      Subzone.deleteMany({}),
-      UserAddress.deleteMany({}),
-      Restaurant.deleteMany({}),
-      Category.deleteMany({}),
+      Order.deleteMany({}),
+      Payment.deleteMany({}),
+      LedgerTransaction.deleteMany({}),
+      Review.deleteMany({}),
       FoodItem.deleteMany({}),
+      UserAddress.deleteMany({}),
       Rider.deleteMany({}),
       Wallet.deleteMany({}),
+    ]);
+
+    // delete parent documents
+    await Promise.all([
+      User.deleteMany({}),
+      Restaurant.deleteMany({}),
+      Category.deleteMany({}),
+      Subzone.deleteMany({}),
+      Zone.deleteMany({}),
     ]);
     console.log('Existing collections cleaned.');
 

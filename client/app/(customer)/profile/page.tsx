@@ -370,7 +370,7 @@ export default function CustomerProfilePage() {
                       )}
                       <span className="text-xs font-bold text-slate-700 flex items-center gap-1">
                         <Navigation className="w-3 h-3 text-rose-500" />
-                        {zoneName} {subzoneName ? `• ${subzoneName}` : ''} {zoneFee !== null && `(৳${zoneFee})`}
+                        {zoneName} {subzoneName ? `• ${subzoneName}` : ''} {typeof zoneFee === 'number' && Number.isFinite(zoneFee) && `(৳${zoneFee})`}
                       </span>
                     </div>
 

@@ -98,7 +98,7 @@ export const getRestaurantDetails = async (restaurantIdOrSlug) => {
 
   for (const item of foodItems) {
     const category = item.category_id;
-    if (!category) continue;
+    if (!category || category.is_active === false) continue;
 
     const catId = category._id ? category._id.toString() : String(category);
     if (!categoryMap.has(catId)) {

@@ -412,7 +412,7 @@ export default function CustomerHomePage() {
         )}
 
         <div ref={loadMoreRef} className="h-10 flex items-center justify-center py-2">
-          {(isFetchingNextFoods || isFetchingNextKitchens) && (
+          {(activeTab === 'FOODS' ? isFetchingNextFoods : isFetchingNextKitchens) && (
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
               <Loader2 className="w-4 h-4 animate-spin text-rose-500" />
               <span>Loading more...</span>
