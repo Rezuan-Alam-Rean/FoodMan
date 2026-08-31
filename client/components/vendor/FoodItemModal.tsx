@@ -54,11 +54,14 @@ export function FoodItemModal({
     initialItem?.is_available !== undefined ? initialItem.is_available : true
   );
 
-  const [variants, setVariants] = useState<VariantGroup[]>(
-    initialItem?.variants || []
+  const [variants, setVariants] = useState<VariantGroup[]>(() =>
+    (initialItem?.variants || []).map((g) => ({
+      title: g.title,
+      options: (g.options || []).map((o) => ({ ...o })),
+    }))
   );
-  const [addOns, setAddOns] = useState<AddOn[]>(
-    initialItem?.add_ons || []
+  const [addOns, setAddOns] = useState<AddOn[]>(() =>
+    (initialItem?.add_ons || []).map((a) => ({ ...a }))
   );
 
   const [error, setError] = useState('');
@@ -97,8 +100,13 @@ export function FoodItemModal({
       setBasePrice(String(initialItem.base_price || ''));
       setIsVegetarian(initialItem.is_vegetarian || false);
       setIsAvailable(initialItem.is_available ?? true);
-      setVariants(initialItem.variants || []);
-      setAddOns(initialItem.add_ons || []);
+      setVariants(
+        (initialItem.variants || []).map((g) => ({
+          title: g.title,
+          options: (g.options || []).map((o) => ({ ...o })),
+        }))
+      );
+      setAddOns((initialItem.add_ons || []).map((a) => ({ ...a })));
     } else {
       setName('');
       setCategoryId(categories[0]?.id || categories[0]?._id || '');
@@ -115,8 +123,8 @@ export function FoodItemModal({
   if (!isOpen) return null;
 
   const handleAddVariantGroup = () => {
-    setVariants([
-      ...variants,
+    setVariants((prev) => [
+      ...prev,
       {
         title: '',
         options: [{ name: '', price_delta: 0 }],
@@ -125,30 +133,33 @@ export function FoodItemModal({
   };
 
   const handleRemoveVariantGroup = (groupIndex: number) => {
-    setVariants(variants.filter((_, idx) => idx !== groupIndex));
+    setVariants((prev) => prev.filter((_, idx) => idx !== groupIndex));
   };
 
   const handleUpdateGroupTitle = (groupIndex: number, title: string) => {
-    const updated = [...variants];
-    updated[groupIndex].title = title;
-    setVariants(updated);
+    setVariants((prev) =>
+      prev.map((g, idx) => (idx === groupIndex ? { ...g, title } : g))
+    );
   };
 
   const handleAddOptionToGroup = (groupIndex: number) => {
-    const updated = [...variants];
-    updated[groupIndex].options.push({
-      name: '',
-      price_delta: 0,
-    });
-    setVariants(updated);
+    setVariants((prev) =>
+      prev.map((g, idx) =>
+        idx === groupIndex
+          ? { ...g, options: [...g.options, { name: '', price_delta: 0 }] }
+          : g
+      )
+    );
   };
 
   const handleRemoveOptionFromGroup = (groupIndex: number, optionIndex: number) => {
-    const updated = [...variants];
-    updated[groupIndex].options = updated[groupIndex].options.filter(
-      (_, idx) => idx !== optionIndex
+    setVariants((prev) =>
+      prev.map((g, idx) =>
+        idx === groupIndex
+          ? { ...g, options: g.options.filter((_, oIdx) => oIdx !== optionIndex) }
+          : g
+      )
     );
-    setVariants(updated);
   };
 
   const handleUpdateOption = (
@@ -157,21 +168,27 @@ export function FoodItemModal({
     field: 'name' | 'price_delta',
     value: string | number
   ) => {
-    const updated = [...variants];
-    if (field === 'price_delta') {
-      updated[groupIndex].options[optionIndex].price_delta = Number(value) || 0;
-    } else {
-      updated[groupIndex].options[optionIndex].name = String(value);
-    }
-    setVariants(updated);
+    setVariants((prev) =>
+      prev.map((g, idx) => {
+        if (idx !== groupIndex) return g;
+        const newOptions = g.options.map((opt, oIdx) => {
+          if (oIdx !== optionIndex) return opt;
+          return {
+            ...opt,
+            [field]: field === 'price_delta' ? Number(value) || 0 : String(value),
+          };
+        });
+        return { ...g, options: newOptions };
+      })
+    );
   };
 
   const handleAddAddOn = () => {
-    setAddOns([...addOns, { name: '', price: 0 }]);
+    setAddOns((prev) => [...prev, { name: '', price: 0 }]);
   };
 
   const handleRemoveAddOn = (index: number) => {
-    setAddOns(addOns.filter((_, idx) => idx !== index));
+    setAddOns((prev) => prev.filter((_, idx) => idx !== index));
   };
 
   const handleUpdateAddOn = (
@@ -179,13 +196,15 @@ export function FoodItemModal({
     field: 'name' | 'price',
     value: string | number
   ) => {
-    const updated = [...addOns];
-    if (field === 'price') {
-      updated[index].price = Number(value) || 0;
-    } else {
-      updated[index].name = String(value);
-    }
-    setAddOns(updated);
+    setAddOns((prev) =>
+      prev.map((a, idx) => {
+        if (idx !== index) return a;
+        return {
+          ...a,
+          [field]: field === 'price' ? Number(value) || 0 : String(value),
+        };
+      })
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -215,7 +234,8 @@ export function FoodItemModal({
             name: o.name.trim(),
             price_delta: Number(o.price_delta) || 0,
           })),
-      }));
+      }))
+      .filter((g) => g.options.length > 0);
 
     // clean add-ons
     const cleanedAddOns = addOns

@@ -149,10 +149,12 @@ export function RiderCompletedDeliveries() {
                         : `Prepaid (${formatBDT(order.grand_total)})`}
                     </span>
                   </div>
-                  <span>
-                    {order.items?.length || 1}{' '}
-                    {(order.items?.length || 1) === 1 ? 'item' : 'items'}
-                  </span>
+                  {order.items && order.items.length > 0 ? (
+                    <span>
+                      {order.items.length}{' '}
+                      {order.items.length === 1 ? 'item' : 'items'}
+                    </span>
+                  ) : null}
                 </div>
               </div>
             );
