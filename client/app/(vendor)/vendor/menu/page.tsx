@@ -1,19 +1,19 @@
-// live kitchen desk and incoming orders queue for restaurant vendors
+// restaurant menu builder and catalog management route
 'use client';
 
 import React from 'react';
 import { useMyRestaurantQuery } from '@/hooks/queries/use-restaurant-queries';
-import { KitchenLiveDesk } from '@/components/vendor/KitchenLiveDesk';
-import { Loader2, Store, AlertCircle } from 'lucide-react';
+import { VendorMenuManager } from '@/components/vendor/VendorMenuManager';
+import { Loader2, Store } from 'lucide-react';
 
-export default function VendorKitchenPage() {
+export default function VendorMenuPage() {
   const { data: restaurant, isLoading, error } = useMyRestaurantQuery();
 
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-3">
         <Loader2 className="w-8 h-8 text-rose-600 animate-spin" />
-        <p className="text-xs text-slate-400 font-semibold">Loading kitchen portal...</p>
+        <p className="text-xs text-slate-400 font-semibold">Loading menu manager...</p>
       </div>
     );
   }
@@ -34,5 +34,5 @@ export default function VendorKitchenPage() {
     );
   }
 
-  return <KitchenLiveDesk restaurant={restaurant} />;
+  return <VendorMenuManager restaurant={restaurant} />;
 }

@@ -183,6 +183,7 @@ export interface Order {
   delivered_at?: string;
   cancelled_at?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Payment {

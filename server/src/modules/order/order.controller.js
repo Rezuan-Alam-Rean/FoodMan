@@ -26,11 +26,11 @@ export const handleCreateOrder = catchAsync(async (req, res) => {
 });
 
 export const handleGetMyOrders = catchAsync(async (req, res) => {
-  const result = await getCustomerOrders(req.user._id, req.query);
+  const result = await getCustomerOrders(req.user, req.query);
 
   return ApiResponse.success(res, {
     statusCode: HTTP_STATUS.OK,
-    message: 'customer orders retrieved successfully',
+    message: 'orders retrieved successfully',
     data: result,
   });
 });

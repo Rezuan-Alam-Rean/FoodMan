@@ -80,10 +80,11 @@ export function useMyRestaurantQuery(enabled = true) {
   return useQuery({
     queryKey: RESTAURANT_KEYS.myRestaurant,
     queryFn: async (): Promise<Restaurant> => {
-      const data = await apiClient.get<any, Restaurant>('/restaurants/my/profile');
+      const data = await apiClient.get<any, Restaurant>('/restaurants/me/profile');
       return data;
     },
     enabled,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -103,11 +104,14 @@ export function useToggleRestaurantStatusMutation() {
       );
       return data;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (updatedRestaurant, variables) => {
+      queryClient.setQueryData(RESTAURANT_KEYS.myRestaurant, updatedRestaurant);
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
-      queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.detail(variables.restaurantId) });
+      queryClient.invalidateQueries({ queryKey: ['restaurant'] });
       queryClient.invalidateQueries({ queryKey: ['restaurants'] });
       queryClient.invalidateQueries({ queryKey: ['restaurants-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['food-items'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
   });
 }
@@ -126,3 +130,36 @@ export function useCreateRestaurantMutation() {
     },
   });
 }
+
+export function useUpdateRestaurantProfileMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      restaurantId,
+      updates,
+  }: {
+      restaurantId: string;
+      updates: {
+        name?: string;
+        address?: string;
+        zone_id?: string;
+        description?: string;
+      };
+    }) => {
+      const data = await apiClient.put<any, Restaurant>(
+        `/restaurants/${restaurantId}`,
+        updates
+      );
+      return data;
+    },
+    onSuccess: (updatedRestaurant) => {
+      queryClient.setQueryData(RESTAURANT_KEYS.myRestaurant, updatedRestaurant);
+      queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
+      queryClient.invalidateQueries({ queryKey: ['restaurant'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['food-items'] });
+    },
+  });
+}
+

@@ -5,6 +5,7 @@ import {
   createRestaurant,
   toggleRestaurantStatus,
   getMyRestaurant,
+  updateRestaurantProfile,
 } from './restaurant.service.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
@@ -67,3 +68,18 @@ export const handleToggleRestaurantStatus = catchAsync(async (req, res) => {
     data: restaurant,
   });
 });
+
+export const handleUpdateRestaurantProfile = catchAsync(async (req, res) => {
+  const restaurant = await updateRestaurantProfile(
+    req.params.id,
+    req.body,
+    req.user
+  );
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: 'restaurant profile updated successfully',
+    data: restaurant,
+  });
+});
+

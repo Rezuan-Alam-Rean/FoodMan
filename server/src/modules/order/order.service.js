@@ -439,11 +439,10 @@ export const restaurantAcceptAndCook = async (orderId, user) => {
     throw ApiError.forbidden('unauthorized to accept order for this restaurant');
   }
 
-  if (
-    order.status !== ORDER_STATUS.LOOKING_FOR_RIDER &&
-    order.status !== ORDER_STATUS.RIDER_ACCEPTED
-  ) {
-    throw ApiError.badRequest(`order cannot start preparation from status "${order.status}"`);
+  if (order.status !== ORDER_STATUS.RIDER_ACCEPTED || !order.rider_id) {
+    throw ApiError.badRequest(
+      'a delivery courier must accept the order before the kitchen can start preparation'
+    );
   }
 
   order.status = ORDER_STATUS.PREPARING;
@@ -497,12 +496,9 @@ export const riderPickupOrder = async (orderId, riderUserId) => {
     throw ApiError.forbidden('you are not assigned to this delivery');
   }
 
-  if (
-    order.status !== ORDER_STATUS.READY_FOR_PICKUP &&
-    order.status !== ORDER_STATUS.PREPARING
-  ) {
+  if (order.status !== ORDER_STATUS.READY_FOR_PICKUP) {
     throw ApiError.badRequest(
-      `order cannot be picked up from status "${order.status}". kitchen must accept the order before pickup.`
+      `order cannot be picked up from status "${order.status}". kitchen must finish cooking and mark food ready for pickup first.`
     );
   }
 
@@ -632,17 +628,44 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
 };
 
 /**
- * get all orders for the authenticated customer with pagination
- * @param {string} userId
+ * get orders for the authenticated user based on role (customer, rider, or restaurant)
+ * @param {object} user
  * @param {object} query
  * @returns {object}
  */
-export const getCustomerOrders = async (userId, query = {}) => {
+export const getMyOrders = async (user, query = {}) => {
   const page = Math.max(1, parseInt(query.page, 10) || 1);
   const limit = Math.max(1, Math.min(50, parseInt(query.limit, 10) || 10));
   const skip = (page - 1) * limit;
 
-  const filter = { customer_id: userId };
+  const filter = {};
+
+  if (query.status) {
+    filter.status = query.status;
+  }
+
+  if (user.role === USER_ROLES.CUSTOMER) {
+    filter.customer_id = user._id;
+  } else if (user.role === USER_ROLES.RIDER) {
+    const rider = await Rider.findOne({ user_id: user._id });
+    if (!rider) {
+      return {
+        orders: [],
+        pagination: { total: 0, page, limit, totalPages: 0, hasNextPage: false, hasPrevPage: false },
+      };
+    }
+    filter.rider_id = rider._id;
+  } else if (user.role === USER_ROLES.RESTAURANT_OWNER) {
+    const restaurant = await Restaurant.findOne({ owner_id: user._id });
+    if (!restaurant) {
+      return {
+        orders: [],
+        pagination: { total: 0, page, limit, totalPages: 0, hasNextPage: false, hasPrevPage: false },
+      };
+    }
+    filter.restaurant_id = restaurant._id;
+  }
+
   const total = await Order.countDocuments(filter);
   const totalPages = Math.ceil(total / limit) || 1;
 
@@ -673,3 +696,5 @@ export const getCustomerOrders = async (userId, query = {}) => {
     },
   };
 };
+
+export const getCustomerOrders = getMyOrders;

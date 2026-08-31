@@ -240,3 +240,57 @@ export const getMyRestaurant = async (ownerId) => {
   }
   return restaurant;
 };
+
+/**
+ * update restaurant details (name, address, zone_id, description)
+ * @param {string} restaurantId
+ * @param {object} updates
+ * @param {object} user
+ * @returns {object}
+ */
+export const updateRestaurantProfile = async (restaurantId, updates, user) => {
+  const restaurant = await Restaurant.findById(restaurantId);
+  if (!restaurant) {
+    throw ApiError.notFound('restaurant not found');
+  }
+
+  // verify ownership or admin role
+  if (
+    user.role !== USER_ROLES.ADMIN &&
+    restaurant.owner_id.toString() !== user._id.toString()
+  ) {
+    throw ApiError.forbidden('you do not have permission to manage this restaurant');
+  }
+
+  if (updates.name !== undefined) {
+    if (typeof updates.name !== 'string' || !updates.name.trim()) {
+      throw ApiError.badRequest('restaurant name cannot be empty');
+    }
+    restaurant.name = updates.name.trim();
+  }
+
+  if (updates.address !== undefined) {
+    if (typeof updates.address !== 'string' || !updates.address.trim()) {
+      throw ApiError.badRequest('restaurant address cannot be empty');
+    }
+    restaurant.address = updates.address.trim();
+  }
+
+  if (updates.zone_id !== undefined) {
+    const zone = await Zone.findById(updates.zone_id);
+    if (!zone) {
+      throw ApiError.badRequest('selected primary zone does not exist');
+    }
+    restaurant.zone_id = updates.zone_id;
+  }
+
+  if (updates.description !== undefined) {
+    restaurant.description = typeof updates.description === 'string' ? updates.description.trim() : '';
+  }
+
+  await restaurant.save();
+  await restaurant.populate('zone_id', 'name city fixed_delivery_fee');
+
+  return restaurant;
+};
+
