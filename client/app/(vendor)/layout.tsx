@@ -1,51 +1,72 @@
-// dedicated restaurant vendor kitchen layout
+// dedicated restaurant vendor kitchen layout with route guard
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { Store, ArrowLeft, UtensilsCrossed, User } from 'lucide-react';
+import { Store, LogOut } from 'lucide-react';
 
 export default function VendorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, isAuthenticated, isInitialized, logout } = useAuth();
+
+  const role = user?.role;
+  const isAuthorized = isAuthenticated && (role === 'RESTAURANT_OWNER' || role === 'ADMIN');
+
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    if (!isAuthenticated) {
+      router.replace('/auth/login');
+      return;
+    }
+
+    if (!isAuthorized) {
+      if (role === 'CUSTOMER') {
+        router.replace('/');
+      } else if (role === 'RIDER') {
+        router.replace('/rider');
+      } else {
+        router.replace('/');
+      }
+    }
+  }, [isInitialized, isAuthenticated, isAuthorized, role, router]);
+
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="p-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
-              title="back to customer view"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-xs">
-                <Store className="w-4 h-4" />
-              </div>
-              <div>
-                <h1 className="text-sm font-black text-slate-900 leading-tight">Kitchen Desk</h1>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">Vendor Portal</p>
-              </div>
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-rose-600 text-white flex items-center justify-center shadow-xs">
+              <Store className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-sm font-black text-slate-900 leading-tight">Kitchen Desk</h1>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Vendor Portal</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-700 hidden sm:inline">
-              {user?.name || 'Restaurant Partner'}
-            </span>
-            <Link
-              href="/profile"
-              className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 text-xs font-bold"
+          <div className="flex items-center gap-3">
+            <div className="text-right hidden sm:block">
+              <p className="text-xs font-bold text-slate-800 leading-tight">{user?.name || 'Restaurant Partner'}</p>
+              <p className="text-[10px] text-slate-400 font-medium">{user?.phone_number}</p>
+            </div>
+            <button
+              onClick={() => logout(() => router.push('/auth/login'))}
+              className="px-3 py-1.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition flex items-center gap-1.5"
+              title="log out"
             >
-              <User className="w-4 h-4" />
-            </Link>
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Log Out</span>
+            </button>
           </div>
         </div>
       </header>

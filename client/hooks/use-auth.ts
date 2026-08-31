@@ -29,7 +29,7 @@ export function useAuth() {
   }, [rawUser]);
 
   const token = store.token;
-  const role = store.activePersona || user?.role;
+  const role = user?.role;
 
   const isAdmin = role === 'ADMIN';
   const isRestaurantOwner = role === 'RESTAURANT_OWNER';
@@ -51,13 +51,13 @@ export function useAuth() {
 
   const login = (
     credentials: { phone_number: string; password?: string },
-    onSuccess?: () => void,
+    onSuccess?: (user?: User) => void,
     onError?: (err: Error) => void
   ) => {
     loginMutation.mutate(credentials, {
       onSuccess: (data) => {
         store.setAuth(data.token, data.user);
-        onSuccess?.();
+        onSuccess?.(data.user);
       },
       onError: (err) => onError?.(err as Error),
     });
@@ -71,13 +71,13 @@ export function useAuth() {
       password?: string;
       role?: string;
     },
-    onSuccess?: () => void,
+    onSuccess?: (user?: User) => void,
     onError?: (err: Error) => void
   ) => {
     registerMutation.mutate(payload, {
       onSuccess: (data) => {
         store.setAuth(data.token, data.user);
-        onSuccess?.();
+        onSuccess?.(data.user);
       },
       onError: (err) => onError?.(err as Error),
     });

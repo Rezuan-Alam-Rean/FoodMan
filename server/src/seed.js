@@ -164,7 +164,7 @@ const seedDatabase = async () => {
       phone_number: '01711111111',
       email: 'takeout@foodman.com',
       password_hash: defaultPasswordHash,
-      role: USER_ROLES.VENDOR,
+      role: USER_ROLES.RESTAURANT_OWNER,
     });
 
     const vendorPizzaUser = await User.create({
@@ -172,7 +172,7 @@ const seedDatabase = async () => {
       phone_number: '01722222222',
       email: 'pizzaguy@foodman.com',
       password_hash: defaultPasswordHash,
-      role: USER_ROLES.VENDOR,
+      role: USER_ROLES.RESTAURANT_OWNER,
     });
 
     const vendorSultanUser = await User.create({
@@ -180,7 +180,7 @@ const seedDatabase = async () => {
       phone_number: '01733333333',
       email: 'sultans@foodman.com',
       password_hash: defaultPasswordHash,
-      role: USER_ROLES.VENDOR,
+      role: USER_ROLES.RESTAURANT_OWNER,
     });
 
     const vendorTokyoUser = await User.create({
@@ -188,7 +188,7 @@ const seedDatabase = async () => {
       phone_number: '01744444444',
       email: 'tokyo@foodman.com',
       password_hash: defaultPasswordHash,
-      role: USER_ROLES.VENDOR,
+      role: USER_ROLES.RESTAURANT_OWNER,
     });
 
     const riderKabirUser = await User.create({

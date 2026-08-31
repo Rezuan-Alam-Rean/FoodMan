@@ -31,8 +31,17 @@ export default function LoginPage() {
     setError('');
     login(
       { phone_number: values.phone_number.trim(), password: values.password.trim() },
-      () => {
-        router.push('/');
+      (loggedUser) => {
+        const userRole = loggedUser?.role;
+        if (userRole === 'RIDER') {
+          router.push('/rider');
+        } else if (userRole === 'RESTAURANT_OWNER') {
+          router.push('/vendor');
+        } else if (userRole === 'ADMIN') {
+          router.push('/admin');
+        } else {
+          router.push('/');
+        }
       },
       (err) => {
         setError(err.message || 'invalid login credentials');
