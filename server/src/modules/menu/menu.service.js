@@ -108,7 +108,9 @@ export const updateCategory = async (categoryId, updates = {}, user) => {
     category.image_url = updates.image_url && typeof updates.image_url === 'string' ? updates.image_url.trim() : null;
   }
   if (updates.sort_order !== undefined) category.sort_order = Number(updates.sort_order) || 0;
-  if (updates.is_active !== undefined) category.is_active = Boolean(updates.is_active);
+  if (updates.is_active !== undefined) {
+    category.is_active = updates.is_active === 'true' || updates.is_active === true;
+  }
 
   await category.save();
   return category;
@@ -191,7 +193,7 @@ export const createFoodItem = async (
     base_price: price,
     variants: Array.isArray(variants) ? variants : [],
     add_ons: Array.isArray(add_ons) ? add_ons : [],
-    is_vegetarian: Boolean(is_vegetarian),
+    is_vegetarian: is_vegetarian === 'true' || is_vegetarian === true,
     is_available: true,
   });
 
@@ -244,8 +246,12 @@ export const updateFoodItem = async (foodItemId, updates = {}, user) => {
 
   if (updates.variants !== undefined) foodItem.variants = Array.isArray(updates.variants) ? updates.variants : [];
   if (updates.add_ons !== undefined) foodItem.add_ons = Array.isArray(updates.add_ons) ? updates.add_ons : [];
-  if (updates.is_vegetarian !== undefined) foodItem.is_vegetarian = Boolean(updates.is_vegetarian);
-  if (updates.is_available !== undefined) foodItem.is_available = Boolean(updates.is_available);
+  if (updates.is_vegetarian !== undefined) {
+    foodItem.is_vegetarian = updates.is_vegetarian === 'true' || updates.is_vegetarian === true;
+  }
+  if (updates.is_available !== undefined) {
+    foodItem.is_available = updates.is_available === 'true' || updates.is_available === true;
+  }
 
   await foodItem.save();
   return foodItem;

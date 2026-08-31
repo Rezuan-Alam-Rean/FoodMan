@@ -181,7 +181,9 @@ export function useRiderDeliverMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (orderId: string) => {
-      const data = await apiClient.post<any, Order>(`/orders/${orderId}/rider-deliver`);
+      const data = await apiClient.post<any, { order: Order; payment: Payment }>(
+        `/orders/${orderId}/rider-deliver`
+      );
       return data;
     },
     onSuccess: (_, orderId) => {

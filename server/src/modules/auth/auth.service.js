@@ -236,9 +236,7 @@ export const getCurrentUserProfile = async (userId) => {
   userObj.has_password = hasPassword;
 
   return {
-    ...userObj,
     user: userObj,
-    has_password: hasPassword,
     wallet,
     riderProfile,
   };
