@@ -156,10 +156,10 @@ export function useRiderAcceptOrderMutation() {
       return data;
     },
     onSuccess: (acceptedOrder, orderId) => {
-      queryClient.setQueryData(['riders', 'me'], (prev: any) => ({
-        ...(prev || {}),
-        active_delivery: acceptedOrder,
-      }));
+      queryClient.setQueryData(['riders', 'me'], (prev: any) => {
+        if (!prev) return prev;
+        return { ...prev, active_delivery: acceptedOrder };
+      });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });
       queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
@@ -176,10 +176,10 @@ export function useRiderPickupMutation() {
       return data;
     },
     onSuccess: (updatedOrder, orderId) => {
-      queryClient.setQueryData(['riders', 'me'], (prev: any) => ({
-        ...(prev || {}),
-        active_delivery: updatedOrder,
-      }));
+      queryClient.setQueryData(['riders', 'me'], (prev: any) => {
+        if (!prev) return prev;
+        return { ...prev, active_delivery: updatedOrder };
+      });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });
@@ -198,10 +198,10 @@ export function useRiderDeliverMutation() {
       return data;
     },
     onSuccess: (_, orderId) => {
-      queryClient.setQueryData(['riders', 'me'], (prev: any) => ({
-        ...(prev || {}),
-        active_delivery: null,
-      }));
+      queryClient.setQueryData(['riders', 'me'], (prev: any) => {
+        if (!prev) return prev;
+        return { ...prev, active_delivery: null };
+      });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });

@@ -1,7 +1,7 @@
 // operational delivery zones selector modal for couriers
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useZonesQuery } from '@/hooks/queries/use-zone-queries';
 import { useUpdateRiderZonesMutation } from '@/hooks/queries/use-rider-queries';
 import type { Rider, Zone } from '@/types';
@@ -17,14 +17,30 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
   const { data: zones = [], isLoading: isZonesLoading } = useZonesQuery();
   const updateZonesMutation = useUpdateRiderZonesMutation();
 
-  const initialZoneIds = Array.isArray(rider.assigned_zones)
-    ? rider.assigned_zones.map((z: any) => (typeof z === 'string' ? z : z._id || z.id))
-    : [];
+  const initialZoneIds = useMemo(() => {
+    return Array.isArray(rider.assigned_zones)
+      ? rider.assigned_zones.map((z: any) => (typeof z === 'string' ? z : z._id || z.id))
+      : [];
+  }, [rider.assigned_zones]);
 
   const [selectedIds, setSelectedIds] = useState<string[]>(initialZoneIds);
   const [error, setError] = useState('');
 
+  // reset draft selection on open or cancel
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedIds(initialZoneIds);
+      setError('');
+    }
+  }, [isOpen, initialZoneIds]);
+
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    setSelectedIds(initialZoneIds);
+    setError('');
+    onClose();
+  };
 
   const toggleZone = (id: string) => {
     setError('');
@@ -69,8 +85,9 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
             </div>
           </div>
           <button
-            onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+            type="button"
+            onClick={handleClose}
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -97,7 +114,7 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
                   key={zoneId}
                   type="button"
                   onClick={() => toggleZone(zoneId)}
-                  className={`w-full p-3 rounded-2xl border text-left transition flex items-center justify-between ${
+                  className={`w-full p-3 rounded-2xl border text-left transition flex items-center justify-between cursor-pointer ${
                     isSelected
                       ? 'border-rose-600 bg-rose-50/50 text-slate-900'
                       : 'border-slate-200 hover:border-slate-300 bg-white text-slate-600'
@@ -125,8 +142,8 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
         <div className="pt-2 flex items-center gap-3">
           <button
             type="button"
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition"
+            onClick={handleClose}
+            className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition cursor-pointer"
           >
             Cancel
           </button>
@@ -134,7 +151,7 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
             type="button"
             disabled={updateZonesMutation.isPending}
             onClick={handleSave}
-            className="flex-1 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+            className="flex-1 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             {updateZonesMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />

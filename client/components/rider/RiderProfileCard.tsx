@@ -43,8 +43,8 @@ export function RiderProfileCard({ rider }: RiderProfileCardProps) {
   };
 
   const vehicleType = (rider as any).vehicle_type || 'MOTORCYCLE';
-  const nidNumber = (rider as any).nid_number || 'NID-8829-1928-44';
-  const licenseNo = (rider as any).driving_license_no || 'DL-DHAKA-2024-9182';
+  const nidNumber = (rider as any).nid_number || 'Not provided';
+  const licenseNo = (rider as any).driving_license_no || 'Not provided';
   const cashLimit = Number(rider.cash_in_hand_limit) || 3000;
 
   return (

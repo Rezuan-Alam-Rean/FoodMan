@@ -172,6 +172,7 @@ export interface Order {
   customer_phone: string;
   delivery_address_text: string;
   special_notes?: string;
+  payment_method?: PaymentMethod;
   status: OrderStatus;
   cancellation_locked: boolean;
   cancellation_reason?: string;

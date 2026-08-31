@@ -64,6 +64,8 @@ export function useAuth() {
     loginMutation.mutate(credentials, {
       onSuccess: (data) => {
         queryClient.clear();
+        cartStore.clearCart();
+        zoneStore.resetZone();
         store.setAuth(data.token, data.user);
         onSuccess?.(data.user);
       },
@@ -85,6 +87,8 @@ export function useAuth() {
     registerMutation.mutate(payload, {
       onSuccess: (data) => {
         queryClient.clear();
+        cartStore.clearCart();
+        zoneStore.resetZone();
         store.setAuth(data.token, data.user);
         onSuccess?.(data.user);
       },

@@ -46,7 +46,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
   const isPreparing = order.status === 'PREPARING';
   const isPendingKitchen = order.status === 'RIDER_ACCEPTED';
 
-  const isCOD = !order.status || (order as any).payment_method === 'COD' || order.grand_total > 0;
+  const isCOD = order.payment_method === 'COD';
 
   const handleConfirmPickup = () => {
     setActionError('');
