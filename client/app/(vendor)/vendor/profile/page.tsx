@@ -4,10 +4,10 @@
 import React from 'react';
 import { useMyRestaurantQuery } from '@/hooks/queries/use-restaurant-queries';
 import { VendorProfileCard } from '@/components/vendor/VendorProfileCard';
-import { Loader2, Store } from 'lucide-react';
+import { Loader2, Store, AlertCircle } from 'lucide-react';
 
 export default function VendorProfilePage() {
-  const { data: restaurant, isLoading, error } = useMyRestaurantQuery();
+  const { data: restaurant, isLoading, isError, error, refetch } = useMyRestaurantQuery();
 
   if (isLoading) {
     return (
@@ -18,7 +18,30 @@ export default function VendorProfilePage() {
     );
   }
 
-  if (error || !restaurant) {
+  if (isError) {
+    return (
+      <div className="bg-white rounded-3xl p-8 border border-rose-200 text-center space-y-4 max-w-md mx-auto shadow-xs">
+        <div className="w-14 h-14 rounded-3xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+          <AlertCircle className="w-7 h-7" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-base font-black text-slate-900">Failed to Load Restaurant Profile</h3>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            {error?.message || 'An error occurred while fetching your profile.'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="px-4 py-2 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition cursor-pointer"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  if (!restaurant) {
     return (
       <div className="bg-white rounded-3xl p-8 border border-slate-200 text-center space-y-4 max-w-md mx-auto shadow-xs">
         <div className="w-14 h-14 rounded-3xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
