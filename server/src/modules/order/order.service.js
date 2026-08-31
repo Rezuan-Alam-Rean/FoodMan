@@ -99,36 +99,50 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     let unit_price = foodItem.base_price;
     let selected_variant = null;
 
-    if (item.selected_variant && item.selected_variant.group_title && item.selected_variant.option_name) {
-      const variantGroup = foodItem.variants.find(
-        (v) => v.title === item.selected_variant.group_title
-      );
-      if (variantGroup) {
-        const option = variantGroup.options.find(
-          (o) => o.name === item.selected_variant.option_name
-        );
-        if (option) {
-          unit_price += option.price_delta;
-          selected_variant = {
-            group_title: variantGroup.title,
-            option_name: option.name,
-            price_delta: option.price_delta,
-          };
-        }
+    if (item.selected_variant) {
+      const groupTitle = item.selected_variant.group_title || item.selected_variant.title;
+      const optionName = item.selected_variant.option_name || item.selected_variant.name;
+
+      if (!groupTitle || !optionName) {
+        throw ApiError.badRequest(`invalid variant selection format for item "${foodItem.name}"`);
       }
+
+      const variantGroup = foodItem.variants?.find((v) => v.title === groupTitle);
+      if (!variantGroup) {
+        throw ApiError.badRequest(`variant group "${groupTitle}" not found for item "${foodItem.name}"`);
+      }
+
+      const option = variantGroup.options?.find((o) => o.name === optionName);
+      if (!option) {
+        throw ApiError.badRequest(`variant option "${optionName}" not found in group "${groupTitle}" for item "${foodItem.name}"`);
+      }
+
+      unit_price += Number(option.price_delta || 0);
+      selected_variant = {
+        group_title: variantGroup.title,
+        option_name: option.name,
+        price_delta: Number(option.price_delta || 0),
+      };
     }
 
     let matchedAddOns = [];
     if (Array.isArray(item.selected_add_ons) && item.selected_add_ons.length > 0) {
       for (const reqAddOn of item.selected_add_ons) {
-        const found = foodItem.add_ons.find((a) => a.name === reqAddOn.name);
-        if (found) {
-          unit_price += found.price;
-          matchedAddOns.push({
-            name: found.name,
-            price: found.price,
-          });
+        const addonName = typeof reqAddOn === 'string' ? reqAddOn : reqAddOn.name;
+        if (!addonName) {
+          throw ApiError.badRequest(`invalid add-on format for item "${foodItem.name}"`);
         }
+
+        const found = foodItem.add_ons?.find((a) => a.name === addonName);
+        if (!found) {
+          throw ApiError.badRequest(`add-on "${addonName}" is invalid or unavailable for item "${foodItem.name}"`);
+        }
+
+        unit_price += Number(found.price || 0);
+        matchedAddOns.push({
+          name: found.name,
+          price: Number(found.price || 0),
+        });
       }
     }
 
@@ -200,6 +214,7 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
   const grand_total = food_subtotal + delivery_fee + service_fee;
 
   const paymentMethod = payload.payment_method || PAYMENT_METHODS.COD;
+  // TODO: for non-cod payment methods, automated gateway verification is not yet integrated so orders proceed immediately to looking for rider; update to pending_payment workflow once payment gateway webhooks are added
   const initialOrderStatus = ORDER_STATUS.LOOKING_FOR_RIDER;
   const initialPaymentStatus = PAYMENT_STATUS.PENDING;
 

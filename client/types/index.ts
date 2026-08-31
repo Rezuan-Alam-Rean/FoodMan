@@ -52,7 +52,7 @@ export interface UserAddress {
   _id: string;
   user_id: string;
   zone_id: Zone | string;
-  subzone_id?: Subzone | string | null;
+  subzone_id: Subzone | string;
   address_label: string;
   detailed_address: string;
   contact_person_name: string;
@@ -159,7 +159,7 @@ export interface Order {
   restaurant_id: Restaurant;
   rider_id?: Rider | null;
   delivery_zone_id: Zone;
-  delivery_subzone_id?: Subzone | null;
+  delivery_subzone_id: Subzone | string;
   user_address_id?: string | null;
   items: OrderItem[];
   food_subtotal: number;
