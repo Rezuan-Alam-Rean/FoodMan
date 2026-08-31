@@ -2,8 +2,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { Bike, ArrowLeft } from 'lucide-react';
+import { Bike } from 'lucide-react';
 
 export default function RiderRadarPage() {
   return (
@@ -12,18 +11,11 @@ export default function RiderRadarPage() {
         <Bike className="w-8 h-8" />
       </div>
       <div className="space-y-1">
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Rider Portal</h1>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Rider Radar</h1>
         <p className="text-xs text-slate-500 max-w-sm">
-          Delivery partner order radar and active trip management.
+          Delivery partner order radar, assigned zones, and active trip management.
         </p>
       </div>
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Back to Customer View</span>
-      </Link>
     </div>
   );
 }
