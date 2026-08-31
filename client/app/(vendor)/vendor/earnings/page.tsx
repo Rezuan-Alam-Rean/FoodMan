@@ -1,19 +1,20 @@
-// live kitchen desk and incoming orders queue for restaurant vendors
+// restaurant sales earnings, digital wallet statement, and fulfilled orders route
 'use client';
 
 import React from 'react';
 import { useMyRestaurantQuery } from '@/hooks/queries/use-restaurant-queries';
-import { KitchenLiveDesk } from '@/components/vendor/KitchenLiveDesk';
-import { Loader2, Store, AlertCircle } from 'lucide-react';
+import { VendorWalletCard } from '@/components/vendor/VendorWalletCard';
+import { VendorCompletedOrders } from '@/components/vendor/VendorCompletedOrders';
+import { Loader2, Store } from 'lucide-react';
 
-export default function VendorKitchenPage() {
+export default function VendorEarningsPage() {
   const { data: restaurant, isLoading, error } = useMyRestaurantQuery();
 
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-3">
         <Loader2 className="w-8 h-8 text-rose-600 animate-spin" />
-        <p className="text-xs text-slate-400 font-semibold">Loading kitchen portal...</p>
+        <p className="text-xs text-slate-400 font-semibold">Loading wallet statement...</p>
       </div>
     );
   }
@@ -34,5 +35,10 @@ export default function VendorKitchenPage() {
     );
   }
 
-  return <KitchenLiveDesk restaurant={restaurant} />;
+  return (
+    <div className="space-y-5 pb-6">
+      <VendorWalletCard restaurant={restaurant} />
+      <VendorCompletedOrders />
+    </div>
+  );
 }

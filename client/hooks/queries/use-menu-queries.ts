@@ -140,8 +140,13 @@ export function useCreateFoodItemMutation(restaurantId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.detail(restaurantId) });
+      queryClient.invalidateQueries({ queryKey: ['restaurant'] });
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
       queryClient.invalidateQueries({ queryKey: FOOD_ITEM_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['food-items'] });
+      queryClient.invalidateQueries({ queryKey: ['food-items-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants-infinite'] });
     },
   });
 }
@@ -164,8 +169,13 @@ export function useUpdateFoodItemMutation(restaurantId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.detail(restaurantId) });
+      queryClient.invalidateQueries({ queryKey: ['restaurant'] });
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
       queryClient.invalidateQueries({ queryKey: FOOD_ITEM_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['food-items'] });
+      queryClient.invalidateQueries({ queryKey: ['food-items-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants-infinite'] });
     },
   });
 }
@@ -179,8 +189,13 @@ export function useDeleteFoodItemMutation(restaurantId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.detail(restaurantId) });
+      queryClient.invalidateQueries({ queryKey: ['restaurant'] });
       queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
       queryClient.invalidateQueries({ queryKey: FOOD_ITEM_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['food-items'] });
+      queryClient.invalidateQueries({ queryKey: ['food-items-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants-infinite'] });
     },
   });
 }

@@ -48,6 +48,47 @@ export function useCustomerOrdersQuery(page = 1, limit = 10, enabled = true) {
   });
 }
 
+export function useMyOrdersQuery(
+  params?: { page?: number; limit?: number; status?: string },
+  enabled = true
+) {
+  const page = params?.page || 1;
+  const limit = params?.limit || 10;
+  const status = params?.status || '';
+
+  return useQuery({
+    queryKey: ['orders', 'my-orders', page, limit, status] as const,
+    queryFn: async (): Promise<PaginatedOrdersResponse> => {
+      const searchParams = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      });
+      if (status) {
+        searchParams.set('status', status);
+      }
+
+      const data = await apiClient.get<any, any>(`/orders/me?${searchParams.toString()}`);
+      if (Array.isArray(data)) {
+        return {
+          orders: data,
+          pagination: {
+            total: data.length,
+            page: 1,
+            limit: data.length,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPrevPage: false,
+          },
+        };
+      }
+      return data;
+    },
+    enabled,
+    refetchInterval: 6000,
+    refetchOnWindowFocus: true,
+  });
+}
+
 export function useCreateOrderMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -125,6 +166,10 @@ export function useRestaurantAcceptAndCookMutation(restaurantId?: string) {
     },
     onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders', 'restaurant-live'] });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['wallets', 'me'] });
       if (restaurantId) {
         queryClient.invalidateQueries({ queryKey: ORDER_KEYS.restaurantLive(restaurantId) });
       }
@@ -141,6 +186,11 @@ export function useRestaurantFoodReadyMutation(restaurantId?: string) {
     },
     onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders', 'restaurant-live'] });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['wallets', 'me'] });
       if (restaurantId) {
         queryClient.invalidateQueries({ queryKey: ORDER_KEYS.restaurantLive(restaurantId) });
       }

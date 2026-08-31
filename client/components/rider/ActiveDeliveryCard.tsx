@@ -22,6 +22,7 @@ import {
   Copy,
   Check,
   X,
+  Flame,
 } from 'lucide-react';
 
 interface ActiveDeliveryCardProps {
@@ -263,32 +264,39 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
         </div>
 
         <div className="pt-1">
-          {isPendingKitchen ? (
-            <div className="w-full py-3.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-400 text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed">
-              <Clock className="w-4 h-4 animate-spin text-slate-400" />
-              <span>Awaiting Kitchen Acceptance...</span>
+          {isPendingKitchen && (
+            <div className="w-full py-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed">
+              <Clock className="w-4 h-4 animate-spin text-amber-600" />
+              <span>Awaiting Kitchen Acceptance • Kitchen has not accepted yet</span>
             </div>
-          ) : !isPickedUp ? (
+          )}
+
+          {isPreparing && (
+            <div className="w-full py-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed">
+              <Flame className="w-4 h-4 animate-pulse text-rose-600" />
+              <span>Food is being prepared at restaurant</span>
+            </div>
+          )}
+
+          {isFoodReady && (
             <button
               type="button"
               disabled={pickupMutation.isPending}
               onClick={handleConfirmPickup}
-              className={`w-full py-3.5 rounded-2xl text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-sm ${
-                isFoodReady
-                  ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/25 ring-2 ring-rose-200 cursor-pointer'
-                  : 'bg-slate-800 hover:bg-slate-900 cursor-pointer'
-              }`}
+              className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/25 ring-2 ring-rose-200 cursor-pointer disabled:opacity-50"
             >
               {pickupMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <>
                   <PackageCheck className="w-4 h-4" />
-                  <span>{isFoodReady ? 'Food Ready! Confirm Picked Up' : 'Confirm Food Picked Up'}</span>
+                  <span>Food Ready! Confirm Picked Up & Start Delivery</span>
                 </>
               )}
             </button>
-          ) : (
+          )}
+
+          {isPickedUp && (
             <button
               type="button"
               onClick={() => setConfirmDeliverModalOpen(true)}

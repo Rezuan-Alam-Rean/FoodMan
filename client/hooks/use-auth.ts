@@ -11,6 +11,7 @@ import {
   useLoginMutation,
   useRegisterMutation,
   useGuestAuthMutation,
+  useSetPasswordMutation,
 } from '@/hooks/queries/use-auth-queries';
 import type { User, UserRole } from '@/types';
 
@@ -25,6 +26,7 @@ export function useAuth() {
   const loginMutation = useLoginMutation();
   const registerMutation = useRegisterMutation();
   const guestAuthMutation = useGuestAuthMutation();
+  const setPasswordMutation = useSetPasswordMutation();
 
   const rawUser = meQuery.data || store.user;
   const user: User | null = useMemo(() => {
@@ -150,6 +152,7 @@ export function useAuth() {
     login,
     register,
     guestAuth,
+    setPassword: setPasswordMutation.mutate,
     logout,
     clearAuth: store.clearAuth,
     switchPersona,
@@ -158,9 +161,11 @@ export function useAuth() {
     loginAsync: loginMutation.mutateAsync,
     registerAsync: registerMutation.mutateAsync,
     guestAuthAsync: guestAuthMutation.mutateAsync,
+    setPasswordAsync: setPasswordMutation.mutateAsync,
 
     isLoggingIn: loginMutation.isPending,
     isRegistering: registerMutation.isPending,
     isGuestAuthenticating: guestAuthMutation.isPending,
+    isSettingPassword: setPasswordMutation.isPending,
   };
 }

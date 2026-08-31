@@ -1,11 +1,16 @@
-// dedicated restaurant vendor kitchen layout with route guard
+// dedicated restaurant vendor kitchen layout with route guard and persistent floating dock
 'use client';
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { UtensilsCrossed, LogOut } from 'lucide-react';
+import {
+  useMyRestaurantQuery,
+  useToggleRestaurantStatusMutation,
+} from '@/hooks/queries/use-restaurant-queries';
+import { VendorBottomNav } from '@/components/vendor/VendorBottomNav';
+import { UtensilsCrossed, Power, Loader2 } from 'lucide-react';
 
 export default function VendorLayout({
   children,
@@ -13,7 +18,9 @@ export default function VendorLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, isAuthenticated, isInitialized, logout } = useAuth();
+  const { user, isAuthenticated, isInitialized } = useAuth();
+  const { data: restaurant } = useMyRestaurantQuery(isAuthenticated);
+  const toggleStatusMutation = useToggleRestaurantStatusMutation();
 
   const role = user?.role;
   const isAuthorized = isAuthenticated && (role === 'RESTAURANT_OWNER' || role === 'ADMIN');
@@ -41,6 +48,17 @@ export default function VendorLayout({
     return null;
   }
 
+  const isOpen = restaurant?.is_open ?? true;
+  const restaurantId = restaurant?.id || restaurant?._id;
+
+  const handleToggleStoreStatus = () => {
+    if (!restaurantId) return;
+    toggleStatusMutation.mutate({
+      restaurantId,
+      is_open: !isOpen,
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-xs">
@@ -60,23 +78,46 @@ export default function VendorLayout({
           </Link>
 
           <div className="flex items-center gap-3">
+            {restaurant && (
+              <button
+                type="button"
+                disabled={toggleStatusMutation.isPending}
+                onClick={handleToggleStoreStatus}
+                className={`px-3 py-1.5 rounded-full text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs ${
+                  isOpen
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                    : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                }`}
+                title="toggle store open or closed"
+              >
+                {toggleStatusMutation.isPending ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      isOpen ? 'bg-white animate-pulse' : 'bg-slate-400'
+                    }`}
+                  />
+                )}
+                <span>{isOpen ? 'Store Open' : 'Store Closed'}</span>
+              </button>
+            )}
+
             <div className="text-right hidden sm:block">
-              <p className="text-xs font-bold text-slate-800 leading-tight">{user?.name || 'Restaurant Partner'}</p>
+              <p className="text-xs font-bold text-slate-800 leading-tight">
+                {restaurant?.name || user?.name || 'Restaurant Partner'}
+              </p>
               <p className="text-[10px] text-slate-400 font-medium">{user?.phone_number}</p>
             </div>
-            <button
-              onClick={() => logout(() => router.push('/auth/login'))}
-              className="px-3 py-1.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition flex items-center gap-1.5"
-              title="log out"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Log Out</span>
-            </button>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-6">{children}</main>
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-6 pb-28 sm:pb-20">
+        {children}
+      </main>
+
+      <VendorBottomNav />
     </div>
   );
 }

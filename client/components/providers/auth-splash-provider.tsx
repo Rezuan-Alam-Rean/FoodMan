@@ -7,16 +7,19 @@ import { useMeQuery } from '@/hooks/queries/use-auth-queries';
 import { UtensilsCrossed } from 'lucide-react';
 
 export function AuthSplashProvider({ children }: { children: React.ReactNode }) {
-  const store = useAuthStore();
-  const token = store.token;
-  const isInitialized = store.isInitialized;
+  const token = useAuthStore((state) => state.token);
+  const user = useAuthStore((state) => state.user);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const setUser = useAuthStore((state) => state.setUser);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+
   const [mounted, setMounted] = useState(false);
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [showLoader, setShowLoader] = useState(true);
 
   // query /auth/me to refresh/validate active session if token exists
-  const meQuery = useMeQuery(!!token && isInitialized);
+  const meQuery = useMeQuery(Boolean(token && isInitialized));
 
   useEffect(() => {
     setMounted(true);
@@ -42,10 +45,10 @@ export function AuthSplashProvider({ children }: { children: React.ReactNode }) 
 
   // sync fresh profile when meQuery resolves
   useEffect(() => {
-    if (meQuery.data && JSON.stringify(meQuery.data) !== JSON.stringify(store.user)) {
-      store.setUser(meQuery.data);
+    if (meQuery.data && JSON.stringify(meQuery.data) !== JSON.stringify(user)) {
+      setUser(meQuery.data);
     }
-  }, [meQuery.data, store]);
+  }, [meQuery.data, user, setUser]);
 
   // if token is invalid or rejected by server (401/403), clear auth
   useEffect(() => {
@@ -58,16 +61,16 @@ export function AuthSplashProvider({ children }: { children: React.ReactNode }) 
         errMessage.includes('token') ||
         errMessage.includes('forbidden');
       if (isAuthError) {
-        store.clearAuth();
+        clearAuth();
       }
     }
-  }, [meQuery.isError, meQuery.error, token, store]);
+  }, [meQuery.isError, meQuery.error, token, clearAuth]);
 
   // auth state is ready once mounted, hydrated, and profile loaded
   const isAuthReady =
     mounted &&
     isInitialized &&
-    (!token || !!store.user || !meQuery.isLoading);
+    (!token || Boolean(user) || !meQuery.isLoading);
 
   useEffect(() => {
     if (isAuthReady && minTimeElapsed && !isFadingOut) {

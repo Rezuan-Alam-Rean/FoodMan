@@ -2,9 +2,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSetPasswordMutation } from '@/hooks/queries/use-auth-queries';
 import { useAuth } from '@/hooks/use-auth';
-import { X, Lock, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface SetPasswordModalProps {
   isOpen: boolean;
@@ -19,8 +18,7 @@ export function SetPasswordModal({
   onSuccess,
   isGuestPrompt = false,
 }: SetPasswordModalProps) {
-  const { user } = useAuth();
-  const setPasswordMutation = useSetPasswordMutation();
+  const { user, setPasswordAsync, isSettingPassword } = useAuth();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -53,7 +51,7 @@ export function SetPasswordModal({
     }
 
     try {
-      await setPasswordMutation.mutateAsync({
+      await setPasswordAsync({
         current_password: hasExistingPassword ? currentPassword : undefined,
         new_password: newPassword,
       });
@@ -94,6 +92,7 @@ export function SetPasswordModal({
           </div>
 
           <button
+            type="button"
             onClick={onClose}
             className="p-1 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           >
@@ -167,10 +166,10 @@ export function SetPasswordModal({
 
               <button
                 type="submit"
-                disabled={setPasswordMutation.isPending}
+                disabled={isSettingPassword}
                 className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md transition disabled:opacity-50 active:scale-95 cursor-pointer"
               >
-                {setPasswordMutation.isPending ? 'Saving...' : 'Save Password'}
+                {isSettingPassword ? 'Saving...' : 'Save Password'}
               </button>
             </div>
           </form>

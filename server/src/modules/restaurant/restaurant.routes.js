@@ -6,6 +6,7 @@ import {
   handleGetMyRestaurant,
   handleCreateRestaurant,
   handleToggleRestaurantStatus,
+  handleUpdateRestaurantProfile,
 } from './restaurant.controller.js';
 import { authenticate, authorize } from '../../middlewares/auth.js';
 import { USER_ROLES } from '../../constants/index.js';
@@ -33,6 +34,13 @@ router.post(
 );
 
 router.put(
+  '/:id',
+  authenticate,
+  authorize(USER_ROLES.RESTAURANT_OWNER, USER_ROLES.ADMIN),
+  handleUpdateRestaurantProfile
+);
+
+router.put(
   '/:id/status',
   authenticate,
   authorize(USER_ROLES.RESTAURANT_OWNER, USER_ROLES.ADMIN),
@@ -40,3 +48,4 @@ router.put(
 );
 
 export default router;
+
