@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useZoneStore } from '@/lib/store/zone-store';
 import { useZonesQuery } from '@/hooks/queries/use-zone-queries';
@@ -24,6 +25,8 @@ import {
   Sparkles,
   Plus,
   Trash2,
+  Edit2,
+  CheckCircle2,
   Home,
   Briefcase,
   Navigation,
@@ -32,6 +35,7 @@ import {
 } from 'lucide-react';
 
 export default function CustomerProfilePage() {
+  const router = useRouter();
   const { user, role, isAuthenticated, isLoading, logout } = useAuth();
   const { selectedZone, setSelectedZone } = useZoneStore();
   const { data: zones = [] } = useZonesQuery();
@@ -458,7 +462,7 @@ export default function CustomerProfilePage() {
       )}
 
       <button
-        onClick={() => logout()}
+        onClick={() => logout(() => router.push('/auth/login'))}
         className="w-full py-3 rounded-2xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer"
       >
         <LogOut className="w-4 h-4" />

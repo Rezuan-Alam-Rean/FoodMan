@@ -99,13 +99,17 @@ export const useCartStore = create<CartState>()(
 
       setSpecialNotes: (specialNotes) => set({ specialNotes }),
 
-      clearCart: () =>
+      clearCart: () => {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('foodman_cart_storage');
+        }
         set({
           restaurant: null,
           items: [],
           specialNotes: '',
           isCartOpen: false,
-        }),
+        });
+      },
 
       setIsCartOpen: (isCartOpen) => set({ isCartOpen }),
 

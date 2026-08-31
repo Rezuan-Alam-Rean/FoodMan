@@ -2,9 +2,10 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { ShieldCheck, LogOut } from 'lucide-react';
+import { UtensilsCrossed, LogOut } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -46,15 +47,19 @@ export default function AdminLayout({
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
-              <ShieldCheck className="w-5 h-5 text-rose-500" />
+          <Link href="/admin" className="flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 flex items-center justify-center text-white shadow-sm shadow-rose-500/25 group-hover:scale-105 transition shrink-0">
+              <UtensilsCrossed className="w-5 h-5" />
             </div>
-            <div>
-              <h1 className="text-sm font-black text-slate-900 leading-tight">Admin Tower</h1>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Control Center</p>
+            <div className="space-y-0.5">
+              <span className="text-base font-black tracking-tight text-slate-900 leading-none flex items-center">
+                Food<span className="text-rose-600">Man</span>
+              </span>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+                Admin Console
+              </p>
             </div>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">

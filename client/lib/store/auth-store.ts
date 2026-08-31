@@ -41,6 +41,7 @@ export const useAuthStore = create<AuthState>()(
       clearAuth: () => {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('foodman_auth_token');
+          localStorage.removeItem('foodman_auth_storage');
         }
         set({ token: null, user: null, activePersona: null });
       },

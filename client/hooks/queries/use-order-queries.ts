@@ -155,10 +155,15 @@ export function useRiderAcceptOrderMutation() {
       const data = await apiClient.post<any, Order>(`/orders/${orderId}/rider-accept`);
       return data;
     },
-    onSuccess: (_, orderId) => {
+    onSuccess: (acceptedOrder, orderId) => {
+      queryClient.setQueryData(['riders', 'me'], (prev: any) => {
+        if (!prev) return prev;
+        return { ...prev, active_delivery: acceptedOrder };
+      });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });
       queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
   });
 }
@@ -170,9 +175,15 @@ export function useRiderPickupMutation() {
       const data = await apiClient.post<any, Order>(`/orders/${orderId}/rider-pickup`);
       return data;
     },
-    onSuccess: (_, orderId) => {
+    onSuccess: (updatedOrder, orderId) => {
+      queryClient.setQueryData(['riders', 'me'], (prev: any) => {
+        if (!prev) return prev;
+        return { ...prev, active_delivery: updatedOrder };
+      });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
   });
 }
@@ -187,9 +198,16 @@ export function useRiderDeliverMutation() {
       return data;
     },
     onSuccess: (_, orderId) => {
+      queryClient.setQueryData(['riders', 'me'], (prev: any) => {
+        if (!prev) return prev;
+        return { ...prev, active_delivery: null };
+      });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });
       queryClient.invalidateQueries({ queryKey: ['wallets', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['remittances', 'my-history'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
   });
 }
