@@ -18,11 +18,11 @@ export function useRiderProfileQuery(enabled = true) {
       return data;
     },
     enabled,
-    refetchInterval: 8000,
+    refetchInterval: 4000,
   });
 }
 
-// rider zone radar polling hook (polling every 5 seconds)
+// rider zone radar polling hook (polling every 4 seconds)
 export function useRiderAvailableOrdersQuery(enabled = true) {
   return useQuery({
     queryKey: RIDER_KEYS.available,
@@ -31,7 +31,7 @@ export function useRiderAvailableOrdersQuery(enabled = true) {
       return data;
     },
     enabled,
-    refetchInterval: 5000, // short polling interval
+    refetchInterval: 4000,
   });
 }
 
@@ -42,9 +42,14 @@ export function useToggleRiderStatusMutation() {
       const data = await apiClient.put<any, Rider>('/riders/status', { is_online });
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (updatedRider) => {
+      queryClient.setQueryData(RIDER_KEYS.me, (prev: any) => {
+        if (!prev) return { rider: updatedRider };
+        return { ...prev, rider: updatedRider };
+      });
       queryClient.invalidateQueries({ queryKey: RIDER_KEYS.me });
       queryClient.invalidateQueries({ queryKey: RIDER_KEYS.available });
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
     },
   });
 }
@@ -56,7 +61,11 @@ export function useUpdateRiderZonesMutation() {
       const data = await apiClient.put<any, Rider>('/riders/zones', { zone_ids });
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (updatedRider) => {
+      queryClient.setQueryData(RIDER_KEYS.me, (prev: any) => {
+        if (!prev) return { rider: updatedRider };
+        return { ...prev, rider: updatedRider };
+      });
       queryClient.invalidateQueries({ queryKey: RIDER_KEYS.me });
       queryClient.invalidateQueries({ queryKey: RIDER_KEYS.available });
     },

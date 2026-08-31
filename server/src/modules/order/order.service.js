@@ -501,7 +501,9 @@ export const riderPickupOrder = async (orderId, riderUserId) => {
     order.status !== ORDER_STATUS.READY_FOR_PICKUP &&
     order.status !== ORDER_STATUS.PREPARING
   ) {
-    throw ApiError.badRequest(`order cannot be picked up from status "${order.status}"`);
+    throw ApiError.badRequest(
+      `order cannot be picked up from status "${order.status}". kitchen must accept the order before pickup.`
+    );
   }
 
   order.status = ORDER_STATUS.PICKED_UP;

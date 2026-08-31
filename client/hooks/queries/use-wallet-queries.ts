@@ -18,7 +18,7 @@ export function useMyWalletQuery(enabled = true) {
       return data;
     },
     enabled,
-    refetchInterval: 10000,
+    refetchInterval: 5000,
   });
 }
 

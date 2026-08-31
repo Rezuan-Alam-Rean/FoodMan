@@ -1,8 +1,11 @@
-// authentication facade hook wrapping query mutations and zustand store
+// authentication facade hook wrapping query mutations, zustand stores, and query cache clearing
 'use client';
 
 import { useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/lib/store/auth-store';
+import { useCartStore } from '@/lib/store/cart-store';
+import { useZoneStore } from '@/lib/store/zone-store';
 import {
   useMeQuery,
   useLoginMutation,
@@ -12,7 +15,11 @@ import {
 import type { User, UserRole } from '@/types';
 
 export function useAuth() {
+  const queryClient = useQueryClient();
   const store = useAuthStore();
+  const cartStore = useCartStore();
+  const zoneStore = useZoneStore();
+
   const meQuery = useMeQuery(!!store.token);
 
   const loginMutation = useLoginMutation();
@@ -56,6 +63,7 @@ export function useAuth() {
   ) => {
     loginMutation.mutate(credentials, {
       onSuccess: (data) => {
+        queryClient.clear();
         store.setAuth(data.token, data.user);
         onSuccess?.(data.user);
       },
@@ -76,6 +84,7 @@ export function useAuth() {
   ) => {
     registerMutation.mutate(payload, {
       onSuccess: (data) => {
+        queryClient.clear();
         store.setAuth(data.token, data.user);
         onSuccess?.(data.user);
       },
@@ -91,12 +100,29 @@ export function useAuth() {
     detailed_address?: string;
   }) => {
     const res = await guestAuthMutation.mutateAsync(payload);
+    queryClient.clear();
     store.setAuth(res.token, res.user);
     return res;
   };
 
   const logout = (onSuccess?: () => void) => {
+    // clear all tanstack query cache entries
+    queryClient.clear();
+    queryClient.removeQueries();
+
+    // reset all zustand stores
     store.clearAuth();
+    cartStore.clearCart();
+    zoneStore.resetZone();
+
+    // remove all persistent storage keys from local storage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('foodman_auth_token');
+      localStorage.removeItem('foodman_auth_storage');
+      localStorage.removeItem('foodman_cart_storage');
+      localStorage.removeItem('foodman_zone_storage');
+    }
+
     onSuccess?.();
   };
 

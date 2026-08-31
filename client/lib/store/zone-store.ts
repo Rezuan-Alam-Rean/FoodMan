@@ -10,6 +10,7 @@ interface ZoneState {
   setSelectedZone: (zone: Zone | null) => void;
   setSelectedSubzone: (subzone: Subzone | null) => void;
   setDetailedAddressText: (address: string) => void;
+  resetZone: () => void;
   getDeliveryFee: () => number;
 }
 
@@ -39,6 +40,17 @@ export const useZoneStore = create<ZoneState>()(
 
       setDetailedAddressText: (detailedAddressText) => {
         set({ detailedAddressText });
+      },
+
+      resetZone: () => {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('foodman_zone_storage');
+        }
+        set({
+          selectedZone: null,
+          selectedSubzone: null,
+          detailedAddressText: '',
+        });
       },
 
       getDeliveryFee: () => {

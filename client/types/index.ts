@@ -24,6 +24,7 @@ export interface User {
   phone_number: string;
   email?: string;
   role: UserRole;
+  status?: string;
   has_password?: boolean;
   createdAt?: string;
 }
@@ -112,6 +113,7 @@ export interface Restaurant {
   logo_url?: string | null;
   cover_image_url?: string | null;
   address: string;
+  phone_number?: string | null;
   commission_rate: number;
   is_open: boolean;
   rating_avg: number;

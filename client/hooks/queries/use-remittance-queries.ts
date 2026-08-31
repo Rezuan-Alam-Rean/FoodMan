@@ -46,8 +46,9 @@ export function useSubmitRemittanceMutation() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: REMITTANCE_KEYS.myHistory });
+      queryClient.invalidateQueries({ queryKey: ['remittances'] });
       queryClient.invalidateQueries({ queryKey: ['wallets', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'counts'] });
     },
   });
