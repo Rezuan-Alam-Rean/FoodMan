@@ -267,7 +267,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
           {isPendingKitchen && (
             <div className="w-full py-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed">
               <Clock className="w-4 h-4 animate-spin text-amber-600" />
-              <span>Awaiting Kitchen Acceptance • Kitchen has not accepted yet</span>
+              <span>Waiting for Kitchen to accept</span>
             </div>
           )}
 

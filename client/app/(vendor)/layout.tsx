@@ -23,7 +23,7 @@ export default function VendorLayout({
   const toggleStatusMutation = useToggleRestaurantStatusMutation();
 
   const role = user?.role;
-  const isAuthorized = isAuthenticated && (role === 'RESTAURANT_OWNER' || role === 'ADMIN');
+  const isAuthorized = isAuthenticated && role === 'RESTAURANT_OWNER';
 
   useEffect(() => {
     if (!isInitialized) return;
@@ -38,6 +38,8 @@ export default function VendorLayout({
         router.replace('/');
       } else if (role === 'RIDER') {
         router.replace('/rider');
+      } else if (role === 'ADMIN') {
+        router.replace('/admin');
       } else {
         router.replace('/');
       }

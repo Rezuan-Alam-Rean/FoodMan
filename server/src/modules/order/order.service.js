@@ -698,3 +698,98 @@ export const getMyOrders = async (user, query = {}) => {
 };
 
 export const getCustomerOrders = getMyOrders;
+
+/**
+ * admin force-cancel an order at any stage, bypassing all locks
+ * @param {string} orderId
+ * @param {string} reason
+ * @returns {object}
+ */
+export const adminCancelOrder = async (orderId, reason) => {
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw ApiError.notFound('order not found');
+  }
+
+  if (order.status === ORDER_STATUS.CANCELLED) {
+    throw ApiError.badRequest('order is already cancelled');
+  }
+
+  if (order.status === ORDER_STATUS.DELIVERED) {
+    throw ApiError.badRequest('cannot cancel an already delivered order');
+  }
+
+  order.status = ORDER_STATUS.CANCELLED;
+  order.cancelled_at = new Date();
+  order.cancellation_reason = reason?.trim() || 'cancelled by admin';
+  order.cancellation_locked = false;
+  await order.save();
+
+  return order;
+};
+
+/**
+ * admin platform-wide orders overview with status, search, and zone filters
+ * @param {object} queryParams
+ * @returns {object}
+ */
+export const getAdminAllOrders = async ({
+  status,
+  search,
+  zone_id,
+  page = 1,
+  limit = 20,
+} = {}) => {
+  const p = Math.max(1, parseInt(page, 10) || 1);
+  const l = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+  const skip = (p - 1) * l;
+
+  const filter = {};
+
+  if (status && Object.values(ORDER_STATUS).includes(status)) {
+    filter.status = status;
+  }
+
+  if (zone_id) {
+    filter.delivery_zone_id = zone_id;
+  }
+
+  if (search && typeof search === 'string' && search.trim()) {
+    const cleanSearch = String(search.trim()).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    filter.$or = [
+      { order_number: { $regex: cleanSearch, $options: 'i' } },
+      { delivery_address_text: { $regex: cleanSearch, $options: 'i' } },
+    ];
+  }
+
+  const total = await Order.countDocuments(filter);
+  const totalPages = Math.ceil(total / l) || 1;
+
+  const orders = await Order.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(l)
+    .populate('customer_id', 'name phone_number email')
+    .populate('restaurant_id', 'name slug address phone_number logo_url')
+    .populate('delivery_zone_id', 'name fixed_delivery_fee')
+    .populate('delivery_subzone_id', 'name custom_fixed_fee')
+    .populate({
+      path: 'rider_id',
+      populate: {
+        path: 'user_id',
+        select: 'name phone_number',
+      },
+    });
+
+  return {
+    orders,
+    pagination: {
+      total,
+      page: p,
+      limit: l,
+      totalPages,
+      hasNextPage: p < totalPages,
+      hasPrevPage: p > 1,
+    },
+  };
+};

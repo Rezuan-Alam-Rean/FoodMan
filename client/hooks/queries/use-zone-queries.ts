@@ -72,3 +72,22 @@ export function useCreateSubzoneMutation() {
     },
   });
 }
+
+export function useUpdateSubzoneMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      subzoneId,
+      updates,
+    }: {
+      subzoneId: string;
+      updates: { name?: string; custom_fixed_fee?: number | null; is_active?: boolean };
+    }) => {
+      const data = await apiClient.put<any, Subzone>(`/zones/subzones/${subzoneId}`, updates);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ZONE_KEYS.all });
+    },
+  });
+}

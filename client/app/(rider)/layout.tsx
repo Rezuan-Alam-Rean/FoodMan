@@ -20,7 +20,7 @@ export default function RiderLayout({
   const toggleStatusMutation = useToggleRiderStatusMutation();
 
   const role = user?.role;
-  const isAuthorized = isAuthenticated && (role === 'RIDER' || role === 'ADMIN');
+  const isAuthorized = isAuthenticated && role === 'RIDER';
   const isOnline = profileData?.rider?.is_online || false;
 
   const handleToggle = () => {
@@ -40,6 +40,8 @@ export default function RiderLayout({
         router.replace('/');
       } else if (role === 'RESTAURANT_OWNER') {
         router.replace('/vendor');
+      } else if (role === 'ADMIN') {
+        router.replace('/admin');
       } else {
         router.replace('/');
       }
