@@ -86,6 +86,29 @@ export default function CheckoutPage() {
     selectedZone ||
     zones[0];
 
+  const activeCheckoutSubzone = (() => {
+    const found = activeCheckoutZone?.subzones?.find(
+      (s) => String(s.id || s._id) === String(watchedSubzoneId)
+    );
+    if (found) return found;
+    if (
+      selectedSubzone &&
+      activeCheckoutZone?.subzones?.some(
+        (s) => String(s.id || s._id) === String(selectedSubzone.id || selectedSubzone._id)
+      )
+    ) {
+      return selectedSubzone;
+    }
+    return null;
+  })();
+
+  const checkoutDeliveryFee =
+    activeCheckoutSubzone && activeCheckoutSubzone.custom_fixed_fee != null
+      ? activeCheckoutSubzone.custom_fixed_fee
+      : activeCheckoutZone?.fixed_delivery_fee ?? deliveryFee;
+
+  const checkoutGrandTotal = subtotal > 0 ? subtotal + checkoutDeliveryFee + serviceFee : 0;
+
   // auto-select default address on initial load
   const hasInitializedAddress = React.useRef(false);
   useEffect(() => {
@@ -558,7 +581,7 @@ export default function CheckoutPage() {
                   <span>FoodMan Official MFS: 01700-000000</span>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
-                  Send Money of <span className="font-bold text-rose-600">{formatBDT(grandTotal)}</span> and enter your sender number & TxnID.
+                  Send Money of <span className="font-bold text-rose-600">{formatBDT(checkoutGrandTotal)}</span> and enter your sender number & TxnID.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
@@ -648,8 +671,15 @@ export default function CheckoutPage() {
                 <span className="font-bold text-slate-800">{formatBDT(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Fixed Zone Delivery Fee ({selectedZone?.name})</span>
-                <span className="font-bold text-slate-800">{formatBDT(deliveryFee)}</span>
+                <span>
+                  Delivery Fee
+                  {activeCheckoutSubzone?.name
+                    ? ` (${activeCheckoutSubzone.name})`
+                    : activeCheckoutZone?.name
+                    ? ` (${activeCheckoutZone.name})`
+                    : ''}
+                </span>
+                <span className="font-bold text-slate-800">{formatBDT(checkoutDeliveryFee)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Platform Service Fee</span>
@@ -663,7 +693,7 @@ export default function CheckoutPage() {
               </div>
               <div className="pt-2 border-t border-slate-200 flex justify-between text-sm font-black text-slate-900">
                 <span>Grand Total</span>
-                <span className="text-rose-600 text-base">{formatBDT(grandTotal)}</span>
+                <span className="text-rose-600 text-base">{formatBDT(checkoutGrandTotal)}</span>
               </div>
             </div>
 
@@ -677,7 +707,7 @@ export default function CheckoutPage() {
               ) : (
                 <>
                   <span>Confirm Order</span>
-                  <span>• {formatBDT(grandTotal)}</span>
+                  <span>• {formatBDT(checkoutGrandTotal)}</span>
                 </>
               )}
             </button>

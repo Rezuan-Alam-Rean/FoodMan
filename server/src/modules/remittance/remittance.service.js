@@ -1,6 +1,7 @@
 // rider cod cash remittance and admin reconciliation business logic
 import { RiderRemittance } from './riderRemittance.model.js';
 import { Rider } from '../rider/rider.model.js';
+import { User } from '../user/user.model.js';
 import { Wallet } from '../wallet/wallet.model.js';
 import { LedgerTransaction } from '../wallet/ledgerTransaction.model.js';
 import { ApiError } from '../../utils/apiError.js';
@@ -119,13 +120,36 @@ export const verifyRiderRemittance = async (
     throw ApiError.badRequest('status must be either APPROVED or REJECTED');
   }
 
-  const remittance = await RiderRemittance.findById(remittanceId).populate('rider_id');
+  const remittance = await RiderRemittance.findById(remittanceId);
   if (!remittance) {
     throw ApiError.notFound('remittance submission not found');
   }
 
   if (remittance.status !== REMITTANCE_STATUS.PENDING_VERIFICATION) {
     throw ApiError.badRequest('remittance has already been processed');
+  }
+
+  // resolve rider user id safely
+  let riderUserId = null;
+  if (remittance.rider_id) {
+    const riderDoc = await Rider.findById(remittance.rider_id);
+    if (riderDoc && riderDoc.user_id) {
+      riderUserId = riderDoc.user_id;
+    } else {
+      const riderByUser = await Rider.findOne({ user_id: remittance.rider_id });
+      if (riderByUser) {
+        riderUserId = riderByUser.user_id;
+      } else {
+        const userDoc = await User.findById(remittance.rider_id);
+        if (userDoc) {
+          riderUserId = userDoc._id;
+        }
+      }
+    }
+  }
+
+  if (status === REMITTANCE_STATUS.APPROVED && !riderUserId) {
+    throw ApiError.notFound('associated rider account could not be resolved for this remittance');
   }
 
   remittance.status = status;
@@ -135,8 +159,7 @@ export const verifyRiderRemittance = async (
   await remittance.save();
 
   // if approved, clear rider cash liability in digital wallet
-  if (status === REMITTANCE_STATUS.APPROVED) {
-    const riderUserId = remittance.rider_id.user_id;
+  if (status === REMITTANCE_STATUS.APPROVED && riderUserId) {
     let riderWallet = await Wallet.findOne({ user_id: riderUserId });
     if (!riderWallet) {
       riderWallet = await Wallet.create({ user_id: riderUserId });

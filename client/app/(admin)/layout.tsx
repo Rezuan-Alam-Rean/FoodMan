@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
+import { AdminBottomNav } from '@/components/admin/AdminBottomNav';
 import { UtensilsCrossed, LogOut } from 'lucide-react';
 
 export default function AdminLayout({
@@ -68,7 +69,7 @@ export default function AdminLayout({
             </div>
             <button
               onClick={() => logout(() => router.push('/auth/login'))}
-              className="px-3 py-1.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
               title="log out"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -78,7 +79,9 @@ export default function AdminLayout({
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-6">{children}</main>
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-6 pb-28 sm:pb-20">{children}</main>
+
+      <AdminBottomNav />
     </div>
   );
 }

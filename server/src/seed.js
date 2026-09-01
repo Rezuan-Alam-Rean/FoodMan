@@ -23,6 +23,8 @@ import {
   Payment,
   Wallet,
   LedgerTransaction,
+  RiderRemittance,
+  PayoutSettlement,
   Review,
 } from './modules/models.index.js';
 import { USER_ROLES, VEHICLE_TYPES, ADDRESS_LABELS } from './constants/index.js';
@@ -48,6 +50,8 @@ const seedDatabase = async () => {
       Order.deleteMany({}),
       Payment.deleteMany({}),
       LedgerTransaction.deleteMany({}),
+      RiderRemittance.deleteMany({}),
+      PayoutSettlement.deleteMany({}),
       Review.deleteMany({}),
       FoodItem.deleteMany({}),
       UserAddress.deleteMany({}),

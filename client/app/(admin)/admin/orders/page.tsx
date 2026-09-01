@@ -1,15 +1,15 @@
-// admin user directory route
+// admin platform orders oversight route
 'use client';
 
 import React from 'react';
 import { AdminHeaderStats } from '@/components/admin/AdminHeaderStats';
-import { AdminUserDirectory } from '@/components/admin/AdminUserDirectory';
+import { AdminOrdersDesk } from '@/components/admin/AdminOrdersDesk';
 
-export default function AdminUsersPage() {
+export default function AdminOrdersPage() {
   return (
     <div className="space-y-6">
       <AdminHeaderStats />
-      <AdminUserDirectory />
+      <AdminOrdersDesk />
     </div>
   );
 }
