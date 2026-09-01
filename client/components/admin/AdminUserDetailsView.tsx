@@ -136,7 +136,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
             <span>Edit Profile</span>
           </button>
 
-          {wallet && (wallet.current_balance || 0) > 0 && (
+          {user?._id && wallet && (wallet.current_balance || 0) > 0 && (
             <button
               type="button"
               onClick={() => setIsPayoutOpen(true)}
@@ -464,7 +464,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
         </div>
       )}
 
-      {isPayoutOpen && wallet && (
+      {isPayoutOpen && wallet && user?._id && (
         <DisbursePayoutModal
           isOpen={isPayoutOpen}
           onClose={() => setIsPayoutOpen(false)}

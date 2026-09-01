@@ -79,11 +79,11 @@ export function AdminTreasuryDesk() {
           ) : (
             <div className="space-y-2">
               {(wallets as any[])
-                .filter((w: any) => w.user_id?.role !== 'CUSTOMER' && w.user_id?.role !== 'ADMIN')
+                .filter((w: any) => w.user_id?.role === 'RIDER' || w.user_id?.role === 'RESTAURANT_OWNER')
                 .map((wallet: any) => {
                   const user = wallet.user_id;
                   const isRider = user?.role === 'RIDER';
-                  const canPayout = (wallet.current_balance || 0) > 0;
+                  const canPayout = Boolean(user?._id) && (wallet.current_balance || 0) > 0;
 
                   return (
                     <div key={wallet._id} className="bg-white rounded-3xl p-4 border border-slate-200 flex items-center gap-3.5">

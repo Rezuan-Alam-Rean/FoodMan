@@ -667,29 +667,30 @@ export const updateAdminUser = async (userId, payload = {}) => {
   let restaurantProfile = null;
   if (user.role === USER_ROLES.RESTAURANT_OWNER) {
     restaurantProfile = await Restaurant.findOne({ owner_id: user._id });
-    if (restaurantProfile) {
-      if (payload.restaurant_name && typeof payload.restaurant_name === 'string' && payload.restaurant_name.trim()) {
-        restaurantProfile.name = payload.restaurant_name.trim();
-      }
-      if (payload.zone_id) {
-        const zoneExists = await Zone.findById(payload.zone_id);
-        if (zoneExists) restaurantProfile.zone_id = payload.zone_id;
-      }
-      if (payload.restaurant_address && typeof payload.restaurant_address === 'string' && payload.restaurant_address.trim()) {
-        restaurantProfile.address = payload.restaurant_address.trim();
-      }
-      if (payload.commission_rate !== undefined) {
-        const comm = Number(payload.commission_rate);
-        if (Number.isFinite(comm) && comm >= 0 && comm <= 100) restaurantProfile.commission_rate = comm;
-      }
-      if (payload.description !== undefined) {
-        restaurantProfile.description = payload.description ? payload.description.trim() : '';
-      }
-      if (payload.is_open !== undefined) {
-        restaurantProfile.is_open = Boolean(payload.is_open);
-      }
-      await restaurantProfile.save();
+    if (!restaurantProfile) {
+      throw ApiError.notFound('restaurant profile not found for this owner account');
     }
+    if (payload.restaurant_name && typeof payload.restaurant_name === 'string' && payload.restaurant_name.trim()) {
+      restaurantProfile.name = payload.restaurant_name.trim();
+    }
+    if (payload.zone_id) {
+      const zoneExists = await Zone.findById(payload.zone_id);
+      if (zoneExists) restaurantProfile.zone_id = payload.zone_id;
+    }
+    if (payload.restaurant_address && typeof payload.restaurant_address === 'string' && payload.restaurant_address.trim()) {
+      restaurantProfile.address = payload.restaurant_address.trim();
+    }
+    if (payload.commission_rate !== undefined) {
+      const comm = Number(payload.commission_rate);
+      if (Number.isFinite(comm) && comm >= 0 && comm <= 100) restaurantProfile.commission_rate = comm;
+    }
+    if (payload.description !== undefined) {
+      restaurantProfile.description = payload.description ? payload.description.trim() : '';
+    }
+    if (payload.is_open !== undefined) {
+      restaurantProfile.is_open = Boolean(payload.is_open);
+    }
+    await restaurantProfile.save();
   }
 
   const userObj = user.toJSON();

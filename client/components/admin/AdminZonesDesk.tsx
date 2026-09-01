@@ -51,6 +51,18 @@ export function AdminZonesDesk() {
   const createSubzoneMutation = useCreateSubzoneMutation();
   const updateSubzoneMutation = useUpdateSubzoneMutation();
 
+  // close modals on escape key press
+  React.useEffect(() => {
+    if (!isZoneModalOpen && !isSubzoneModalOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setIsZoneModalOpen(false);
+      setIsSubzoneModalOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isZoneModalOpen, isSubzoneModalOpen]);
+
   const handleOpenCreateZone = () => {
     setEditingZone(null);
     setZoneName('');
@@ -337,7 +349,12 @@ export function AdminZonesDesk() {
       {isZoneModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsZoneModalOpen(false)} />
-          <div className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col p-6 space-y-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={editingZone ? 'Edit delivery zone' : 'Create delivery zone'}
+            className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col p-6 space-y-4"
+          >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-sm font-black text-slate-900">
                 {editingZone ? `Edit Zone: ${editingZone.name}` : 'Create Delivery Zone'}
@@ -366,6 +383,7 @@ export function AdminZonesDesk() {
                   value={zoneName}
                   onChange={(e) => setZoneName(e.target.value)}
                   placeholder="e.g. Dhanmondi, Gulshan"
+                  autoFocus
                   required
                   className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                 />
@@ -432,7 +450,12 @@ export function AdminZonesDesk() {
       {isSubzoneModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsSubzoneModalOpen(false)} />
-          <div className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col p-6 space-y-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={editingSubzone ? 'Edit subzone' : 'Add subzone'}
+            className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col p-6 space-y-4"
+          >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-sm font-black text-slate-900">
                 {editingSubzone ? `Edit Subzone: ${editingSubzone.name}` : 'Add Subzone'}
@@ -461,6 +484,7 @@ export function AdminZonesDesk() {
                   value={subzoneName}
                   onChange={(e) => setSubzoneName(e.target.value)}
                   placeholder="e.g. Block A, Road 27"
+                  autoFocus
                   required
                   className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                 />

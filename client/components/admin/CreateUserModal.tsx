@@ -107,7 +107,8 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
       setError('mobile number is required');
       return;
     }
-    if (password.length < 6) {
+    const trimmedPassword = password.trim();
+    if (trimmedPassword.length < 6) {
       setError('password must be at least 6 characters');
       return;
     }
@@ -132,7 +133,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
         name: name.trim(),
         phone_number: phoneNumber.trim(),
         email: email.trim() || undefined,
-        password: password.trim(),
+        password: trimmedPassword,
         role,
         vehicle_type: role === 'RIDER' ? vehicleType : undefined,
         driving_license_no: role === 'RIDER' && drivingLicense.trim() ? drivingLicense.trim() : undefined,

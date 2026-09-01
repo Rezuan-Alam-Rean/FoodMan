@@ -86,9 +86,21 @@ export default function CheckoutPage() {
     selectedZone ||
     zones[0];
 
-  const activeCheckoutSubzone = activeCheckoutZone?.subzones?.find(
-    (s) => String(s.id || s._id) === String(watchedSubzoneId)
-  ) || selectedSubzone;
+  const activeCheckoutSubzone = (() => {
+    const found = activeCheckoutZone?.subzones?.find(
+      (s) => String(s.id || s._id) === String(watchedSubzoneId)
+    );
+    if (found) return found;
+    if (
+      selectedSubzone &&
+      activeCheckoutZone?.subzones?.some(
+        (s) => String(s.id || s._id) === String(selectedSubzone.id || selectedSubzone._id)
+      )
+    ) {
+      return selectedSubzone;
+    }
+    return null;
+  })();
 
   const checkoutDeliveryFee =
     activeCheckoutSubzone && activeCheckoutSubzone.custom_fixed_fee != null
@@ -569,7 +581,7 @@ export default function CheckoutPage() {
                   <span>FoodMan Official MFS: 01700-000000</span>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
-                  Send Money of <span className="font-bold text-rose-600">{formatBDT(grandTotal)}</span> and enter your sender number & TxnID.
+                  Send Money of <span className="font-bold text-rose-600">{formatBDT(checkoutGrandTotal)}</span> and enter your sender number & TxnID.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">

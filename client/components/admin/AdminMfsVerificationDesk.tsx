@@ -21,12 +21,16 @@ export function AdminMfsVerificationDesk() {
   const verifyMutation = useVerifyMfsPaymentMutation();
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [rowError, setRowError] = useState<Record<string, string>>({});
 
   const handleVerify = (paymentId: string, status: 'VERIFIED' | 'FAILED') => {
     setProcessingId(paymentId);
+    setRowError((prev) => ({ ...prev, [paymentId]: '' }));
     verifyMutation.mutate(
       { paymentId, status, notes: notes[paymentId] || '' },
       {
+        onError: (err: any) =>
+          setRowError((prev) => ({ ...prev, [paymentId]: err?.message || 'failed to verify payment' })),
         onSettled: () => setProcessingId(null),
       }
     );
@@ -119,6 +123,10 @@ export function AdminMfsVerificationDesk() {
                   onChange={(e) => setNotes((prev) => ({ ...prev, [payment._id]: e.target.value }))}
                   className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition"
                 />
+
+                {rowError[payment._id] && (
+                  <p className="text-[11px] text-rose-600 font-semibold">{rowError[payment._id]}</p>
+                )}
 
                 <div className="flex items-center gap-2.5">
                   <button

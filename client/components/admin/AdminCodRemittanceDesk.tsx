@@ -36,12 +36,18 @@ export function AdminCodRemittanceDesk() {
   const verifyMutation = useVerifyRemittanceMutation();
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [rowError, setRowError] = useState<Record<string, string>>({});
 
   const handleVerify = (id: string, status: 'APPROVED' | 'REJECTED') => {
     setProcessingId(id);
+    setRowError((prev) => ({ ...prev, [id]: '' }));
     verifyMutation.mutate(
       { remittanceId: id, status, admin_notes: notes[id] || '' },
-      { onSettled: () => setProcessingId(null) }
+      {
+        onError: (err: any) =>
+          setRowError((prev) => ({ ...prev, [id]: err?.message || 'failed to update remittance' })),
+        onSettled: () => setProcessingId(null),
+      }
     );
   };
 
@@ -161,6 +167,9 @@ export function AdminCodRemittanceDesk() {
                       onChange={(e) => setNotes((prev) => ({ ...prev, [rem._id]: e.target.value }))}
                       className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition"
                     />
+                    {rowError[rem._id] && (
+                      <p className="text-[11px] text-rose-600 font-semibold">{rowError[rem._id]}</p>
+                    )}
                     <div className="flex items-center gap-2.5">
                       <button
                         type="button"

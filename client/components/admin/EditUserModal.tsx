@@ -130,7 +130,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
         payload: {
           name: name.trim(),
           phone_number: phoneNumber.trim(),
-          email: email.trim() || undefined,
+          email: email.trim(),
           password: password.trim() || undefined,
           vehicle_type: role === 'RIDER' ? vehicleType : undefined,
           driving_license_no: role === 'RIDER' ? drivingLicense.trim() || undefined : undefined,

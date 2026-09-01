@@ -5,9 +5,9 @@ import { apiClient } from '@/lib/api-client';
 export const ADMIN_KEYS = {
   deskCounts: ['admin', 'desk-counts'] as const,
   users: (params?: Record<string, any>) => ['admin', 'users', params] as const,
-  customerDetails: (id: string) => ['admin', 'customer', id] as const,
-  riderDetails: (id: string) => ['admin', 'rider', id] as const,
-  restaurantDetails: (id: string) => ['admin', 'restaurant', id] as const,
+  customerDetails: (id: string, page = 1) => ['admin', 'customer', id, page] as const,
+  riderDetails: (id: string, page = 1) => ['admin', 'rider', id, page] as const,
+  restaurantDetails: (id: string, page = 1) => ['admin', 'restaurant', id, page] as const,
   pendingMfs: ['admin', 'pending-mfs'] as const,
   remittances: (status?: string) => ['admin', 'remittances', status] as const,
   allWallets: ['admin', 'wallets'] as const,
@@ -46,7 +46,7 @@ export function useAdminUsersQuery(params?: {
 
 export function useAdminCustomerDetailsQuery(customerId: string, page = 1) {
   return useQuery({
-    queryKey: ADMIN_KEYS.customerDetails(customerId),
+    queryKey: ADMIN_KEYS.customerDetails(customerId, page),
     queryFn: () =>
       apiClient.get<any, any>(`/admin/users/customers/${customerId}`, {
         params: { page },
@@ -58,7 +58,7 @@ export function useAdminCustomerDetailsQuery(customerId: string, page = 1) {
 
 export function useAdminRiderDetailsQuery(riderId: string, page = 1) {
   return useQuery({
-    queryKey: ADMIN_KEYS.riderDetails(riderId),
+    queryKey: ADMIN_KEYS.riderDetails(riderId, page),
     queryFn: () =>
       apiClient.get<any, any>(`/admin/users/riders/${riderId}`, {
         params: { page },
@@ -70,7 +70,7 @@ export function useAdminRiderDetailsQuery(riderId: string, page = 1) {
 
 export function useAdminRestaurantDetailsQuery(restaurantUserId: string, page = 1) {
   return useQuery({
-    queryKey: ADMIN_KEYS.restaurantDetails(restaurantUserId),
+    queryKey: ADMIN_KEYS.restaurantDetails(restaurantUserId, page),
     queryFn: () =>
       apiClient.get<any, any>(`/admin/users/restaurants/${restaurantUserId}`, {
         params: { page },

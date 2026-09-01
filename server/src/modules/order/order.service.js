@@ -750,7 +750,7 @@ export const getAdminAllOrders = async ({
     filter.status = status;
   }
 
-  if (zone_id) {
+  if (zone_id && /^[0-9a-fA-F]{24}$/.test(String(zone_id))) {
     filter.delivery_zone_id = zone_id;
   }
 
