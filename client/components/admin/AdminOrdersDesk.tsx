@@ -123,7 +123,7 @@ export function AdminOrdersDesk() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
             <ShoppingBag className="w-4 h-4" />
@@ -134,8 +134,8 @@ export function AdminOrdersDesk() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <div className="relative flex-1 sm:w-56">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"

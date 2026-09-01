@@ -55,7 +55,7 @@ export default function RiderLayout({
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 pb-24">
       <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-xs">
-        <div className="max-w-2xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-3">
+        <div className="max-w-md mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-3">
           <Link href="/rider" className="flex items-center gap-2.5 group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 flex items-center justify-center text-white shadow-sm shadow-rose-500/25 group-hover:scale-105 transition shrink-0">
               <UtensilsCrossed className="w-5 h-5" />
@@ -93,16 +93,11 @@ export default function RiderLayout({
               )}
               <span>{isOnline ? 'Online' : 'Offline'}</span>
             </button>
-
-            <div className="text-right hidden sm:block">
-              <p className="text-xs font-black text-slate-800 leading-tight">{user?.name || 'Rider Partner'}</p>
-              <p className="text-[10px] text-slate-400 font-medium">{user?.phone_number}</p>
-            </div>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-2xl mx-auto px-4 py-5">{children}</main>
+      <main className="flex-1 w-full max-w-md mx-auto px-4 py-5">{children}</main>
       <RiderBottomNav />
     </div>
   );

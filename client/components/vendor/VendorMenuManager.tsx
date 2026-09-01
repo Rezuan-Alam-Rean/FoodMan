@@ -214,7 +214,7 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div className="flex flex-col gap-3.5">
           {filteredItems.map((item) => {
             const itemId = item.id || item._id;
             const isDeleting = deleteConfirmId === itemId;

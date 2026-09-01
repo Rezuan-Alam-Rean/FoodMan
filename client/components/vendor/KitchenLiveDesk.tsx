@@ -282,7 +282,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <div className="flex flex-col gap-2.5 text-xs">
                   <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
