@@ -137,7 +137,7 @@ export function VendorCompletedOrders() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-200/60">
+                <div className="flex flex-col gap-2 text-xs pt-1 border-t border-slate-200/60">
                   <div className="flex items-center gap-2 min-w-0">
                     <User className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                     <div className="min-w-0">

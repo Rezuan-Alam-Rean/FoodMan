@@ -47,7 +47,7 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-3">
+        <div className="max-w-md mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-3">
           <Link href="/admin" className="flex items-center gap-2.5 group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 flex items-center justify-center text-white shadow-sm shadow-rose-500/25 group-hover:scale-105 transition shrink-0">
               <UtensilsCrossed className="w-5 h-5" />
@@ -63,10 +63,6 @@ export default function AdminLayout({
           </Link>
 
           <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs font-bold text-slate-800 leading-tight">{user?.name || 'Administrator'}</p>
-              <p className="text-[10px] text-slate-400 font-medium">{user?.phone_number}</p>
-            </div>
             <button
               onClick={() => logout(() => router.push('/auth/login'))}
               className="px-3 py-1.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
@@ -79,7 +75,7 @@ export default function AdminLayout({
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-6 pb-28 sm:pb-20">{children}</main>
+      <main className="flex-1 w-full max-w-md mx-auto px-4 py-4 pb-28 sm:pb-24">{children}</main>
 
       <AdminBottomNav />
     </div>

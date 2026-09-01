@@ -72,7 +72,7 @@ export function CustomizationModal({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-10 animate-in slide-in-from-bottom duration-300">
+      <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-10 animate-in slide-in-from-bottom duration-300">
         <div className="relative h-44 bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950 flex items-center justify-center overflow-hidden shrink-0 border-b border-slate-800">
           {item.image_url ? (
             <img

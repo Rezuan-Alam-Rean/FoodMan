@@ -156,7 +156,7 @@ export default function CustomerProfilePage() {
   const activeAddZone = zones.find((z) => (z.id || z._id) === (newZoneId || zones[0]?.id || zones[0]?._id)) || zones[0];
 
   return (
-    <div className="space-y-4 pb-20 max-w-xl mx-auto">
+    <div className="space-y-4 pb-20 w-full max-w-md mx-auto">
       <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 space-y-4 shadow-xs">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-800 text-white flex items-center justify-center font-black text-xl shadow-xs shrink-0">

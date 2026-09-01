@@ -123,7 +123,7 @@ export function AdminOrdersDesk() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
             <ShoppingBag className="w-4 h-4" />
@@ -134,8 +134,8 @@ export function AdminOrdersDesk() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <div className="relative flex-1 sm:w-56">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -149,7 +149,7 @@ export function AdminOrdersDesk() {
           <select
             value={selectedZone}
             onChange={(e) => setSelectedZone(e.target.value)}
-            className="px-3 py-2 rounded-2xl border border-slate-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-violet-500/20 cursor-pointer shrink-0"
+            className="max-w-[110px] truncate px-3 py-2 rounded-2xl border border-slate-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-violet-500/20 cursor-pointer shrink-0"
           >
             <option value="">All Zones</option>
             {zones.map((z) => (
@@ -301,7 +301,7 @@ export function AdminOrdersDesk() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+                <div className="flex flex-col gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-1 text-slate-400 font-bold text-[10px] uppercase">
                       <User className="w-3 h-3" />

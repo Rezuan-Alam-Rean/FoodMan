@@ -19,7 +19,7 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 sm:p-6 text-slate-900 dark:text-slate-100">
-      <div className="w-full max-w-lg text-center space-y-6 animate-in fade-in zoom-in-95 duration-200">
+      <div className="w-full max-w-md text-center space-y-6 animate-in fade-in zoom-in-95 duration-200">
         <div className="relative inline-block">
           <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/50 flex items-center justify-center mx-auto text-rose-600 dark:text-rose-400 shadow-lg shadow-rose-600/10">
             <Compass className="w-12 h-12 sm:w-14 sm:h-14 animate-spin [animation-duration:12s]" />

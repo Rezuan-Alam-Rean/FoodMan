@@ -9,7 +9,7 @@ export function AdminHeaderStats() {
   const { data: counts } = useAdminDeskCountsQuery();
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between mb-6">
+    <div className="flex flex-col gap-3.5 mb-5">
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-3xl bg-gradient-to-tr from-slate-900 to-slate-700 text-rose-400 flex items-center justify-center shadow-lg shrink-0">
           <ShieldCheck className="w-6 h-6" />

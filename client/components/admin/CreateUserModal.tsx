@@ -167,7 +167,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full sm:max-w-lg bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
           <div className="w-10 h-1 rounded-full bg-slate-200" />
         </div>
@@ -212,7 +212,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
               <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
                 Account Role
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {ROLES.map((r) => {
                   const Icon = r.icon;
                   const isSelected = role === r.value;
