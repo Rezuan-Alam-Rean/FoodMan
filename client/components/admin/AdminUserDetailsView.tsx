@@ -177,7 +177,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
 
       {role === 'CUSTOMER' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {[
               { label: 'Total Orders', value: stats?.total_orders || 0, color: 'text-slate-900' },
               { label: 'Total Spent', value: formatBDT(stats?.total_spent || 0), color: 'text-rose-600' },
@@ -197,7 +197,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
                 <MapPin className="w-4 h-4 text-rose-600" />
                 <h2 className="text-sm font-black text-slate-900">Saved Addresses ({data.addresses.length})</h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-3">
                 {data.addresses.map((addr: any) => (
                   <div
                     key={addr._id}
@@ -263,7 +263,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
 
       {role === 'RIDER' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {[
               { label: 'Total Trips', value: stats?.total_orders_handled ?? 0, color: 'text-slate-900' },
               { label: 'Completed', value: stats?.completed_deliveries ?? 0, color: 'text-emerald-600' },
@@ -284,7 +284,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
               <Bike className="w-4 h-4 text-blue-600" />
               <h2 className="text-sm font-black text-slate-900">Courier Profile</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Vehicle Type</p>
                 <p className="font-bold text-slate-900 capitalize mt-0.5">{rider?.vehicle_type?.toLowerCase() || 'N/A'}</p>
@@ -300,7 +300,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
                 <p className="font-bold text-slate-900 mt-0.5">{formatBDT(rider?.cash_in_hand_limit || 3000)}</p>
               </div>
               {rider?.assigned_zones && rider.assigned_zones.length > 0 && (
-                <div className="col-span-2 sm:col-span-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                <div className="col-span-2 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase mb-1.5">Operational Zones</p>
                   <div className="flex flex-wrap gap-2">
                     {rider.assigned_zones.map((z: any) => (
@@ -385,7 +385,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
 
       {role === 'RESTAURANT_OWNER' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {[
               { label: 'Total Orders', value: stats?.total_orders_received ?? 0, color: 'text-slate-900' },
               { label: 'Fulfilled', value: stats?.fulfilled_orders ?? 0, color: 'text-emerald-600' },
@@ -406,7 +406,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
               <Store className="w-4 h-4 text-rose-600" />
               <h2 className="text-sm font-black text-slate-900">Store Profile</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Store Status</p>
                 <p className={`font-bold mt-0.5 ${restaurant?.is_open ? 'text-emerald-600' : 'text-slate-400'}`}>
@@ -422,7 +422,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
                 <p className="font-bold text-slate-900 mt-0.5">{restaurant?.zone_id?.name || 'N/A'}</p>
               </div>
               {restaurant?.address && (
-                <div className="col-span-2 sm:col-span-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                <div className="col-span-2 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase">Physical Address</p>
                   <p className="font-bold text-slate-900 mt-0.5 leading-snug">{restaurant.address}</p>
                 </div>

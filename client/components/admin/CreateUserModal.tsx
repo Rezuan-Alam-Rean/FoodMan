@@ -212,7 +212,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
               <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
                 Account Role
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {ROLES.map((r) => {
                   const Icon = r.icon;
                   const isSelected = role === r.value;
