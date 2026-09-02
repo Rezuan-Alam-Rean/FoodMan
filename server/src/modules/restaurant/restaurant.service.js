@@ -288,6 +288,14 @@ export const updateRestaurantProfile = async (restaurantId, updates, user) => {
     restaurant.description = typeof updates.description === 'string' ? updates.description.trim() : '';
   }
 
+  if (updates.logo_url !== undefined) {
+    restaurant.logo_url = updates.logo_url && typeof updates.logo_url === 'string' ? updates.logo_url.trim() : null;
+  }
+
+  if (updates.cover_image_url !== undefined) {
+    restaurant.cover_image_url = updates.cover_image_url && typeof updates.cover_image_url === 'string' ? updates.cover_image_url.trim() : null;
+  }
+
   await restaurant.save();
   await restaurant.populate('zone_id', 'name city fixed_delivery_fee');
 

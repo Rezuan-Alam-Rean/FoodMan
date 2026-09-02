@@ -144,6 +144,8 @@ export function useUpdateRestaurantProfileMutation() {
         address?: string;
         zone_id?: string;
         description?: string;
+        logo_url?: string | null;
+        cover_image_url?: string | null;
       };
     }) => {
       const data = await apiClient.put<any, Restaurant>(

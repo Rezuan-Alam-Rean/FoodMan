@@ -133,10 +133,12 @@ export function useCreateFoodItemMutation(restaurantId: string) {
       category_id: string;
       name: string;
       description?: string;
+      image_url?: string | null;
       base_price: number;
       variants?: any[];
       add_ons?: any[];
       is_vegetarian?: boolean;
+      is_available?: boolean;
     }) => {
       const data = await apiClient.post<any, FoodItem>(
         `/menu/restaurants/${restaurantId}/items`,

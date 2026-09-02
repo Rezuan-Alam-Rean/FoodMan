@@ -226,58 +226,72 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                 key={itemId}
                 className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs space-y-3 hover:border-slate-300 transition flex flex-col justify-between"
               >
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <h4 className="text-sm font-black text-slate-900 leading-tight">
-                          {item.name}
-                        </h4>
-                        {item.is_vegetarian && (
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase tracking-wider">
-                            Veg
+                <div className="flex items-start gap-3.5">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <UtensilsCrossed className="w-6 h-6 text-slate-300" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-0.5 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h4 className="text-sm font-black text-slate-900 leading-tight truncate">
+                            {item.name}
+                          </h4>
+                          {item.is_vegetarian && (
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase tracking-wider">
+                              Veg
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs font-black text-rose-600">
+                          {formatBDT(item.base_price)}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleToggleAvailability(item)}
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition cursor-pointer shrink-0 ${
+                          item.is_available
+                            ? 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-200'
+                            : 'bg-slate-200 text-slate-600'
+                        }`}
+                        title="toggle in-stock / out-of-stock"
+                      >
+                        {item.is_available ? 'In Stock' : 'Sold Out'}
+                      </button>
+                    </div>
+
+                    {item.description && (
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-medium">
+                        {item.description}
+                      </p>
+                    )}
+
+                    {(variantsCount > 0 || addOnsCount > 0) && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {variantsCount > 0 && (
+                          <span className="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold">
+                            {variantsCount} variant {variantsCount === 1 ? 'group' : 'groups'}
+                          </span>
+                        )}
+                        {addOnsCount > 0 && (
+                          <span className="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold">
+                            {addOnsCount} {addOnsCount === 1 ? 'add-on' : 'add-ons'}
                           </span>
                         )}
                       </div>
-                      <p className="text-xs font-black text-rose-600">
-                        {formatBDT(item.base_price)}
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleToggleAvailability(item)}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition cursor-pointer shrink-0 ${
-                        item.is_available
-                          ? 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-200'
-                          : 'bg-slate-200 text-slate-600'
-                      }`}
-                      title="toggle in-stock / out-of-stock"
-                    >
-                      {item.is_available ? 'In Stock' : 'Sold Out'}
-                    </button>
+                    )}
                   </div>
-
-                  {item.description && (
-                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-medium">
-                      {item.description}
-                    </p>
-                  )}
-
-                  {(variantsCount > 0 || addOnsCount > 0) && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {variantsCount > 0 && (
-                        <span className="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold">
-                          {variantsCount} variant {variantsCount === 1 ? 'group' : 'groups'}
-                        </span>
-                      )}
-                      {addOnsCount > 0 && (
-                        <span className="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold">
-                          {addOnsCount} {addOnsCount === 1 ? 'add-on' : 'add-ons'}
-                        </span>
-                      )}
-                    </div>
-                  )}
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">

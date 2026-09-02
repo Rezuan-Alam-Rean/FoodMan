@@ -20,7 +20,10 @@ import {
   Check,
   Tag,
   Leaf,
+  UploadCloud,
+  Camera,
 } from 'lucide-react';
+import { useUploadImageMutation } from '@/hooks/queries/use-upload-config-queries';
 
 interface FoodItemModalProps {
   isOpen: boolean;
@@ -64,12 +67,18 @@ export function FoodItemModal({
     (initialItem?.add_ons || []).map((a) => ({ ...a }))
   );
 
+  const [imageUrl, setImageUrl] = useState(initialItem?.image_url || '');
+  const [isImageManual, setIsImageManual] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const imageInputRef = React.useRef<HTMLInputElement>(null);
+
   const [error, setError] = useState('');
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const categoryDropdownRef = React.useRef<HTMLDivElement>(null);
 
   const createMutation = useCreateFoodItemMutation(restaurantId);
   const updateMutation = useUpdateFoodItemMutation(restaurantId);
+  const uploadImageMutation = useUploadImageMutation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -107,6 +116,7 @@ export function FoodItemModal({
         }))
       );
       setAddOns((initialItem.add_ons || []).map((a) => ({ ...a })));
+      setImageUrl(initialItem.image_url || '');
     } else {
       setName('');
       setCategoryId(categories[0]?.id || categories[0]?._id || '');
@@ -116,6 +126,7 @@ export function FoodItemModal({
       setIsAvailable(true);
       setVariants([]);
       setAddOns([]);
+      setImageUrl('');
     }
     setError('');
   }, [initialItem, categories, isOpen]);
@@ -207,25 +218,52 @@ export function FoodItemModal({
     );
   };
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file (PNG, JPG, WEBP, GIF)');
+      return;
+    }
+
+    setError('');
+    setIsUploadingImage(true);
+    try {
+      const result = await uploadImageMutation.mutateAsync(file);
+      if (result?.url) {
+        setImageUrl(result.url);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload dish photo to Cloudinary');
+    } finally {
+      setIsUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!name.trim()) {
       setError('item name is required');
       return;
     }
+
     if (!categoryId) {
-      setError('please select a category');
-      return;
-    }
-    const priceNum = Number(basePrice);
-    if (!Number.isFinite(priceNum) || priceNum <= 0) {
-      setError('please enter a valid base price greater than 0');
+      setError('category is required');
       return;
     }
 
-    // clean empty variant groups or options
+    const priceNum = Number(basePrice);
+    if (isNaN(priceNum) || priceNum < 0) {
+      setError('valid base price is required');
+      return;
+    }
+
+    // clean variants
     const cleanedVariants = variants
-      .filter((g) => g.title.trim() && g.options.length > 0)
+      .filter((g) => g.title.trim())
       .map((g) => ({
         title: g.title.trim(),
         options: g.options
@@ -247,7 +285,6 @@ export function FoodItemModal({
 
     setError('');
 
-    // TODO: add image upload integration (defaulting image_url to null)
     const payload: any = {
       name: name.trim(),
       category_id: categoryId,
@@ -255,7 +292,7 @@ export function FoodItemModal({
       base_price: priceNum,
       is_vegetarian: isVegetarian,
       is_available: isAvailable,
-      image_url: null,
+      image_url: imageUrl.trim() ? imageUrl.trim() : null,
       variants: cleanedVariants,
       add_ons: cleanedAddOns,
     };
@@ -320,6 +357,88 @@ export function FoodItemModal({
               <span>{error}</span>
             </div>
           )}
+
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                Dish Photo (Cloudinary)
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsImageManual(!isImageManual)}
+                className="text-[10px] font-bold text-rose-600 hover:text-rose-700 transition cursor-pointer"
+              >
+                {isImageManual ? 'Upload file' : 'Enter URL manually'}
+              </button>
+            </div>
+
+            {isImageManual ? (
+              <input
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://res.cloudinary.com/.../dish.jpg"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-mono focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 placeholder:font-sans placeholder:text-slate-400"
+              />
+            ) : imageUrl ? (
+              <div className="relative h-32 sm:h-36 w-full rounded-2xl border border-slate-200 overflow-hidden bg-slate-100 group">
+                <img
+                  src={imageUrl}
+                  alt="Dish preview"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => imageInputRef.current?.click()}
+                    disabled={isUploadingImage}
+                    className="px-3 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-1 shadow-sm"
+                  >
+                    <Camera className="w-3.5 h-3.5 text-rose-600" />
+                    <span>Change Photo</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl('')}
+                    className="p-1.5 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition cursor-pointer shadow-sm"
+                    title="Remove photo"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                disabled={isUploadingImage}
+                className="w-full h-24 rounded-2xl border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-slate-100/70 transition flex flex-col items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isUploadingImage ? (
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                    <Loader2 className="w-4 h-4 text-rose-600 animate-spin" />
+                    <span>Uploading dish photo to Cloudinary...</span>
+                  </div>
+                ) : (
+                  <>
+                    <UploadCloud className="w-5 h-5 text-rose-500" />
+                    <span className="text-xs font-bold text-slate-700">Upload Dish Photo</span>
+                    <span className="text-[10px] text-slate-400">
+                      PNG, JPG, WEBP or GIF (automatically routes to active upload endpoint)
+                    </span>
+                  </>
+                )}
+              </button>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
@@ -632,11 +751,11 @@ export function FoodItemModal({
           </button>
           <button
             type="button"
-            disabled={isPending}
+            disabled={createMutation.isPending || updateMutation.isPending || isUploadingImage}
             onClick={handleSubmit}
             className="flex-1 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
-            {isPending ? (
+            {createMutation.isPending || updateMutation.isPending || isUploadingImage ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : isEditing ? (
               'Update Item'

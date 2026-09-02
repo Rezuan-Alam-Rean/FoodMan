@@ -237,7 +237,10 @@ export const updateFoodItem = async (foodItemId, updates = {}, user) => {
     foodItem.description = updates.description && typeof updates.description === 'string' ? updates.description.trim() : '';
   }
 
-  if (updates.image_url !== undefined) foodItem.image_url = updates.image_url;
+  if (updates.image_url !== undefined) {
+    foodItem.image_url =
+      updates.image_url && typeof updates.image_url === 'string' ? updates.image_url.trim() : null;
+  }
 
   if (updates.base_price !== undefined) {
     const price = Number(updates.base_price);

@@ -21,6 +21,7 @@ import {
   Mail,
   AlertCircle,
   Edit3,
+  Camera,
 } from 'lucide-react';
 
 interface VendorProfileCardProps {
@@ -86,11 +87,62 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
       )}
 
       <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs space-y-4">
+        {restaurant.cover_image_url ? (
+          <div className="relative h-32 sm:h-44 w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 group">
+            <img
+              src={restaurant.cover_image_url}
+              alt={`${restaurant.name} cover`}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-50 group-hover:opacity-80 transition-opacity" />
+            <button
+              type="button"
+              onClick={() => setIsEditProfileModalOpen(true)}
+              className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-white/95 hover:bg-white text-slate-800 text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer backdrop-blur-xs"
+            >
+              <Camera className="w-3.5 h-3.5 text-rose-600" />
+              <span>Change Banner</span>
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsEditProfileModalOpen(true)}
+            className="w-full py-5 px-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50/70 hover:bg-slate-100/60 transition flex flex-col items-center justify-center gap-1.5 text-center cursor-pointer group"
+          >
+            <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-rose-600 transition shadow-2xs">
+              <Camera className="w-4 h-4" />
+            </div>
+            <span className="text-xs font-bold text-slate-700">Add Outlet Cover Banner</span>
+            <span className="text-[10px] text-slate-400">
+              Upload a wide banner photo for your storefront
+            </span>
+          </button>
+        )}
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-rose-600 to-rose-500 text-white flex items-center justify-center text-xl font-black shadow-md shadow-rose-600/20 shrink-0">
-              {restaurant.name.charAt(0).toUpperCase()}
+            <div
+              onClick={() => setIsEditProfileModalOpen(true)}
+              className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl border border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center text-xl font-black shrink-0 shadow-sm cursor-pointer group"
+              title="Click to update logo"
+            >
+              {restaurant.logo_url ? (
+                <img
+                  src={restaurant.logo_url}
+                  alt={restaurant.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-tr from-rose-600 to-rose-500 text-white flex items-center justify-center text-xl font-black shadow-md shadow-rose-600/20">
+                  {restaurant.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <Camera className="w-4 h-4" />
+              </div>
             </div>
+
             <div className="space-y-0.5 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-base sm:text-lg font-black text-slate-900 leading-tight truncate">
