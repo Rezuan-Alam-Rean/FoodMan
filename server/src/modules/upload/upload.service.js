@@ -109,33 +109,47 @@ export const resetUploadConfigLoad = async (configId) => {
 
 
 /**
- * upload an image to the active cloudinary endpoint with the lowest load.
- * the file is sent as a base64 data URI — no cloudinary sdk or env keys needed.
- * @param {Buffer} fileBuffer - raw file buffer from multer
- * @param {string} mimetype  - e.g. "image/jpeg"
- * @returns {{ url: string, public_id: string }}
+ * upload an image via the cloudinary SDK (for cloudinary:// connection URLs)
+ * @param {object} config - UploadConfig document
+ * @param {Buffer} fileBuffer
+ * @param {string} mimetype
  */
-export const uploadImageToCloudinary = async (fileBuffer, mimetype) => {
-  // pick the least-loaded active endpoint
-  const config = await UploadConfig.findOne({ isActive: true }).sort({ load: 1 });
+const uploadViaCloudinarySdk = async (config, fileBuffer, mimetype) => {
+  const { v2: cloudinary } = await import('cloudinary');
 
-  if (!config) {
-    throw ApiError.serviceUnavailable('no active upload endpoints are available');
-  }
+  // parse cloudinary://api_key:api_secret@cloud_name
+  const url = new URL(config.uploadUrl);
+  cloudinary.config({
+    cloud_name: url.host,          // everything after @
+    api_key: url.username,
+    api_secret: url.password,
+  });
 
-  // encode buffer as base64 data URI (cloudinary accepts this format)
   const base64DataUri = `data:${mimetype};base64,${fileBuffer.toString('base64')}`;
 
+  const result = await cloudinary.uploader.upload(base64DataUri, {
+    resource_type: 'image',
+  });
+
+  return { url: result.secure_url, public_id: result.public_id };
+};
+
+/**
+ * upload an image to a plain HTTPS cloudinary upload endpoint
+ * (e.g. https://api.cloudinary.com/v1_1/{cloud}/image/upload?upload_preset=xxx)
+ * @param {object} config - UploadConfig document
+ * @param {Buffer} fileBuffer
+ * @param {string} mimetype
+ */
+const uploadViaHttpEndpoint = async (config, fileBuffer, mimetype) => {
+  const base64DataUri = `data:${mimetype};base64,${fileBuffer.toString('base64')}`;
   const formData = new FormData();
   formData.append('file', base64DataUri);
 
   let response;
   try {
-    response = await fetch(config.uploadUrl, {
-      method: 'POST',
-      body: formData,
-    });
-  } catch (networkError) {
+    response = await fetch(config.uploadUrl, { method: 'POST', body: formData });
+  } catch {
     throw ApiError.serviceUnavailable('failed to reach upload endpoint — check network connectivity');
   }
 
@@ -144,19 +158,36 @@ export const uploadImageToCloudinary = async (fileBuffer, mimetype) => {
     try {
       const errBody = await response.json();
       errMessage = errBody?.error?.message || errMessage;
-    } catch {
-      // ignore json parse failure on error response
-    }
+    } catch { /* ignore */ }
     throw ApiError.internal(errMessage);
   }
 
   const data = await response.json();
+  return { url: data.secure_url, public_id: data.public_id };
+};
+
+/**
+ * upload an image to the active cloudinary endpoint with the lowest load.
+ * auto-detects cloudinary:// connection strings vs plain HTTPS upload URLs.
+ * @param {Buffer} fileBuffer - raw file buffer from multer
+ * @param {string} mimetype  - e.g. "image/jpeg"
+ * @returns {{ url: string, public_id: string }}
+ */
+export const uploadImageToCloudinary = async (fileBuffer, mimetype) => {
+  // pick the least-loaded active endpoint
+  const config = await UploadConfig.findOne({ isActive: true }).sort({ load: 1 });
+  if (!config) {
+    throw ApiError.serviceUnavailable('no active upload endpoints are available');
+  }
+
+  const isCloudinaryScheme = config.uploadUrl.startsWith('cloudinary://');
+
+  const result = isCloudinaryScheme
+    ? await uploadViaCloudinarySdk(config, fileBuffer, mimetype)
+    : await uploadViaHttpEndpoint(config, fileBuffer, mimetype);
 
   // increment load on the used config atomically
   await UploadConfig.findByIdAndUpdate(config._id, { $inc: { load: 1 } });
 
-  return {
-    url: data.secure_url,
-    public_id: data.public_id,
-  };
+  return result;
 };

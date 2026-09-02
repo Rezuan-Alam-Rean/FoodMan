@@ -44,7 +44,10 @@ export const getAllCategories = async ({ is_active } = {}) => {
  * @param {object} user
  * @returns {object}
  */
-export const createCategory = async ({ name, image_url = null, sort_order = 0 }, user) => {
+export const createCategory = async (
+  { name, emoji = '🍽️', sort_order = 0, is_active = true },
+  user
+) => {
   if (!user || user.role !== USER_ROLES.ADMIN) {
     throw ApiError.forbidden('only administrators can create categories');
   }
@@ -63,9 +66,9 @@ export const createCategory = async ({ name, image_url = null, sort_order = 0 },
 
   const category = await Category.create({
     name: cleanName,
-    image_url: image_url && typeof image_url === 'string' ? image_url.trim() : null,
+    emoji: emoji && typeof emoji === 'string' ? emoji.trim() : '🍽️',
     sort_order: Number(sort_order) || 0,
-    is_active: true,
+    is_active: is_active === undefined ? true : is_active === 'true' || is_active === true,
   });
 
   return category;
@@ -104,8 +107,8 @@ export const updateCategory = async (categoryId, updates = {}, user) => {
     }
   }
 
-  if (updates.image_url !== undefined) {
-    category.image_url = updates.image_url && typeof updates.image_url === 'string' ? updates.image_url.trim() : null;
+  if (updates.emoji !== undefined) {
+    category.emoji = updates.emoji && typeof updates.emoji === 'string' ? updates.emoji.trim() : '🍽️';
   }
   if (updates.sort_order !== undefined) category.sort_order = Number(updates.sort_order) || 0;
   if (updates.is_active !== undefined) {
@@ -234,7 +237,10 @@ export const updateFoodItem = async (foodItemId, updates = {}, user) => {
     foodItem.description = updates.description && typeof updates.description === 'string' ? updates.description.trim() : '';
   }
 
-  if (updates.image_url !== undefined) foodItem.image_url = updates.image_url;
+  if (updates.image_url !== undefined) {
+    foodItem.image_url =
+      updates.image_url && typeof updates.image_url === 'string' ? updates.image_url.trim() : null;
+  }
 
   if (updates.base_price !== undefined) {
     const price = Number(updates.base_price);
@@ -369,7 +375,7 @@ export const getAllFoodItems = async ({
       select: 'name slug address logo_url cover_image_url is_open rating_avg zone_id',
       populate: { path: 'zone_id', select: 'name city fixed_delivery_fee' },
     })
-    .populate('category_id', 'name image_url');
+    .populate('category_id', 'name emoji');
 
   return {
     items,

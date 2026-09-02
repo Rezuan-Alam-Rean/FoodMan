@@ -297,13 +297,13 @@ const seedDatabase = async () => {
     // seed catalog categories
     console.log('Seeding Categories...');
     const categoriesData = [
-      { name: 'Burgers', sort_order: 1 },
-      { name: 'Pizza', sort_order: 2 },
-      { name: 'Biryani & Kacchi', sort_order: 3 },
-      { name: 'Asian & Sushi', sort_order: 4 },
-      { name: 'Fast Food', sort_order: 5 },
-      { name: 'Desserts', sort_order: 6 },
-      { name: 'Beverages', sort_order: 7 },
+      { name: 'Burgers', emoji: '🍔', sort_order: 1 },
+      { name: 'Pizza', emoji: '🍕', sort_order: 2 },
+      { name: 'Biryani & Kacchi', emoji: '🍖', sort_order: 3 },
+      { name: 'Asian & Sushi', emoji: '🍣', sort_order: 4 },
+      { name: 'Fast Food', emoji: '🍟', sort_order: 5 },
+      { name: 'Desserts', emoji: '🍰', sort_order: 6 },
+      { name: 'Beverages', emoji: '🥤', sort_order: 7 },
     ];
 
     const categoryMap = {};

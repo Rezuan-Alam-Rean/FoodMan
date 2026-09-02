@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAdminDeskCountsQuery } from '@/hooks/queries/use-admin-queries';
-import { Users, ShoppingBag, MapPin, BadgeCheck, Wallet } from 'lucide-react';
+import { Users, ShoppingBag, MapPin, BadgeCheck, Wallet, Settings } from 'lucide-react';
 
 export function AdminBottomNav() {
   const pathname = usePathname();
@@ -53,11 +53,17 @@ export function AdminBottomNav() {
       icon: Wallet,
       isActive: pathname === '/admin/treasury',
     },
+    {
+      href: '/admin/settings',
+      label: 'Settings',
+      icon: Settings,
+      isActive: pathname === '/admin/settings' || pathname.startsWith('/admin/settings'),
+    },
   ];
 
   return (
     <div className="fixed bottom-3 left-0 right-0 z-40 px-3 sm:px-4 pointer-events-none flex justify-center">
-      <nav className="pointer-events-auto w-full max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-full py-1.5 px-3 grid grid-cols-5 items-center shadow-[0_12px_30px_rgb(0,0,0,0.08)]">
+      <nav className="pointer-events-auto w-full max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-full py-1.5 px-3 grid grid-cols-6 items-center shadow-[0_12px_30px_rgb(0,0,0,0.08)]">
         {navItems.map((item) => {
           const Icon = item.icon;
 

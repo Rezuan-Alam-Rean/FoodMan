@@ -96,6 +96,7 @@ export interface MenuCategory {
   _id: string;
   restaurant_id?: string;
   name: string;
+  emoji?: string;
   image_url?: string | null;
   sort_order: number;
   is_active: boolean;
