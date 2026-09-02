@@ -44,6 +44,7 @@ export function AdminUploadConfigDesk() {
   const [editingConfig, setEditingConfig] = useState<UploadConfig | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [formError, setFormError] = useState('');
+  const [actionError, setActionError] = useState('');
 
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
@@ -125,14 +126,23 @@ export function AdminUploadConfigDesk() {
   };
 
   const handleDelete = (id: string) => {
+    setActionError('');
     deleteMutation.mutate(id, {
       onSuccess: () => setDeleteConfirmId(null),
-      onError: () => setDeleteConfirmId(null),
+      onError: (err: any) => {
+        setActionError(err.message || 'Failed to delete upload configuration');
+        setDeleteConfirmId(null);
+      },
     });
   };
 
   const handleResetLoad = (id: string) => {
-    resetLoadMutation.mutate(id);
+    setActionError('');
+    resetLoadMutation.mutate(id, {
+      onError: (err: any) => {
+        setActionError(err.message || 'Failed to reset load count');
+      },
+    });
   };
 
   const isMutating = createMutation.isPending || updateMutation.isPending;
@@ -159,6 +169,22 @@ export function AdminUploadConfigDesk() {
           <span>Add Config</span>
         </button>
       </div>
+
+      {actionError && (
+        <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span className="truncate">{actionError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActionError('')}
+            className="text-rose-500 hover:text-rose-700 text-[11px] font-bold shrink-0 cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center py-16">

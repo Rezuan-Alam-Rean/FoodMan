@@ -169,6 +169,32 @@ export function EditRestaurantProfileModal({
       return;
     }
 
+    const trimmedCover = coverImageUrl.trim();
+    if (trimmedCover) {
+      try {
+        const parsed = new URL(trimmedCover);
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          throw new Error();
+        }
+      } catch {
+        setError('Please enter a valid HTTP or HTTPS cover banner URL');
+        return;
+      }
+    }
+
+    const trimmedLogo = logoUrl.trim();
+    if (trimmedLogo) {
+      try {
+        const parsed = new URL(trimmedLogo);
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          throw new Error();
+        }
+      } catch {
+        setError('Please enter a valid HTTP or HTTPS logo URL');
+        return;
+      }
+    }
+
     updateMutation.mutate(
       {
         restaurantId,
@@ -177,8 +203,8 @@ export function EditRestaurantProfileModal({
           address: address.trim(),
           zone_id: zoneId,
           description: description.trim(),
-          logo_url: logoUrl.trim() ? logoUrl.trim() : null,
-          cover_image_url: coverImageUrl.trim() ? coverImageUrl.trim() : null,
+          logo_url: trimmedLogo || null,
+          cover_image_url: trimmedCover || null,
         },
       },
       {

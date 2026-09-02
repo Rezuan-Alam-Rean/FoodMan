@@ -68,7 +68,7 @@ export const createCategory = async (
     name: cleanName,
     emoji: emoji && typeof emoji === 'string' ? emoji.trim() : '🍽️',
     sort_order: Number(sort_order) || 0,
-    is_active: is_active === undefined ? true : Boolean(is_active),
+    is_active: is_active === undefined ? true : is_active === 'true' || is_active === true,
   });
 
   return category;

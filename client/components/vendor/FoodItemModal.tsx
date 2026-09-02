@@ -283,6 +283,19 @@ export function FoodItemModal({
         price: Number(a.price) || 0,
       }));
 
+    const trimmedImageUrl = imageUrl.trim();
+    if (trimmedImageUrl) {
+      try {
+        const parsed = new URL(trimmedImageUrl);
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          throw new Error();
+        }
+      } catch {
+        setError('Please enter a valid HTTP or HTTPS dish photo URL');
+        return;
+      }
+    }
+
     setError('');
 
     const payload: any = {
@@ -292,7 +305,7 @@ export function FoodItemModal({
       base_price: priceNum,
       is_vegetarian: isVegetarian,
       is_available: isAvailable,
-      image_url: imageUrl.trim() ? imageUrl.trim() : null,
+      image_url: trimmedImageUrl || null,
       variants: cleanedVariants,
       add_ons: cleanedAddOns,
     };
