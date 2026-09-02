@@ -14,3 +14,4 @@ export { LedgerTransaction } from './wallet/ledgerTransaction.model.js';
 export { RiderRemittance } from './remittance/riderRemittance.model.js';
 export { PayoutSettlement } from './payout/payoutSettlement.model.js';
 export { Review } from './review/review.model.js';
+export { default as UploadConfig } from './upload/uploadConfig.model.js';
