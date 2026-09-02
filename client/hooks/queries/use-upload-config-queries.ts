@@ -90,3 +90,18 @@ export function useResetUploadConfigLoadMutation() {
     },
   });
 }
+
+export function useUploadImageMutation() {
+  return useMutation({
+    mutationFn: async (file: File): Promise<{ url: string; public_id: string }> => {
+      const formData = new FormData();
+      formData.append('image', file);
+      const data = await apiClient.post<any, { url: string; public_id: string }>('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return data;
+    },
+  });
+}

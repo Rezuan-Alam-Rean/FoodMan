@@ -71,7 +71,13 @@ export function useCategoriesQuery(params?: { is_active?: boolean }) {
 export function useCreateCategoryMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { name: string; image_url?: string; sort_order?: number }) => {
+    mutationFn: async (payload: {
+      name: string;
+      emoji?: string;
+      image_url?: string | null;
+      sort_order?: number;
+      is_active?: boolean;
+    }) => {
       const data = await apiClient.post<any, MenuCategory>(
         '/menu/categories',
         payload

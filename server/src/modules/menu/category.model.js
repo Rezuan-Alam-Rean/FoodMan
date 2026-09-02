@@ -10,9 +10,9 @@ const categorySchema = new mongoose.Schema(
       trim: true,
       maxlength: [80, 'category name cannot exceed 80 characters'],
     },
-    image_url: {
+    emoji: {
       type: String,
-      default: null,
+      default: '🍽️',
       trim: true,
     },
     sort_order: {

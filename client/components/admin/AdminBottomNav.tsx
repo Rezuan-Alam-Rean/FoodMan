@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAdminDeskCountsQuery } from '@/hooks/queries/use-admin-queries';
-import { Users, ShoppingBag, MapPin, BadgeCheck, Wallet, Cloud } from 'lucide-react';
+import { Users, ShoppingBag, MapPin, BadgeCheck, Wallet, Settings } from 'lucide-react';
 
 export function AdminBottomNav() {
   const pathname = usePathname();
@@ -54,10 +54,10 @@ export function AdminBottomNav() {
       isActive: pathname === '/admin/treasury',
     },
     {
-      href: '/admin/upload-configs',
-      label: 'Uploads',
-      icon: Cloud,
-      isActive: pathname === '/admin/upload-configs',
+      href: '/admin/settings',
+      label: 'Settings',
+      icon: Settings,
+      isActive: pathname === '/admin/settings' || pathname.startsWith('/admin/settings'),
     },
   ];
 

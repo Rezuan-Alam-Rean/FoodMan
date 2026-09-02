@@ -106,7 +106,7 @@ export const getRestaurantDetails = async (restaurantIdOrSlug) => {
         _id: category._id || category,
         id: category._id || category,
         name: category.name || 'Uncategorized',
-        image_url: category.image_url || null,
+        emoji: category.emoji || '🍽️',
         sort_order: category.sort_order ?? 0,
         is_active: category.is_active ?? true,
         items: [],

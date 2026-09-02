@@ -192,7 +192,7 @@ export default function CustomerHomePage() {
                 }`}
               >
                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-lg shadow-inner">
-                  {getCategoryIcon(cat.name)}
+                  {cat.emoji || getCategoryIcon(cat.name)}
                 </div>
                 <span className="text-[10px] font-bold tracking-tight truncate max-w-[64px]">
                   {cat.name}
