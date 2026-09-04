@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import { env } from './config/env.js';
+import { env, connectDB } from './config/index.js';
 import { logger } from './utils/logger.js';
 import routes from './routes/index.js';
 import healthRoutes from './modules/health/health.routes.js';
@@ -51,6 +51,16 @@ app.use(
     },
   })
 );
+
+// ensure database is connected before handling API requests (critical for serverless like Vercel)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // health check endpoint directly on root and versioned
 app.use('/health', healthRoutes);

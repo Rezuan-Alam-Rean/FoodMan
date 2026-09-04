@@ -3,18 +3,27 @@ import { env } from './env.js';
 import { logger } from '../utils/logger.js';
 import { DB_CONNECTION_STATES } from '../constants/index.js';
 
+let cachedPromise = null;
+
 export const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(env.MONGO_URI);
-    logger.info(`MongoDB Connected: ${conn.connection.host}`);
-    return conn;
-  } catch (error) {
-    logger.error(`MongoDB Connection Error: ${error.message}`);
-    // do not terminate process immediately in development so server can still serve health check
-    if (env.NODE_ENV === 'production') {
-      process.exit(1);
-    }
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
   }
+
+  if (!cachedPromise) {
+    cachedPromise = mongoose.connect(env.MONGO_URI, {
+      bufferCommands: false,
+    }).then((conn) => {
+      logger.info(`MongoDB Connected: ${conn.connection.host}`);
+      return conn;
+    }).catch((error) => {
+      cachedPromise = null;
+      logger.error(`MongoDB Connection Error: ${error.message}`);
+      throw error;
+    });
+  }
+
+  return cachedPromise;
 };
 
 export const disconnectDB = async () => {
