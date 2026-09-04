@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useRiderProfileQuery, useToggleRiderStatusMutation } from '@/hooks/queries/use-rider-queries';
 import { UtensilsCrossed, Loader2 } from 'lucide-react';
 import { RiderBottomNav } from '@/components/rider/RiderBottomNav';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 export default function RiderLayout({
   children,
@@ -70,7 +71,8 @@ export default function RiderLayout({
             </div>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <NotificationBell />
             <button
               type="button"
               disabled={toggleStatusMutation.isPending}

@@ -10,6 +10,8 @@ import { Wallet } from '../wallet/wallet.model.js';
 import { LedgerTransaction } from '../wallet/ledgerTransaction.model.js';
 import { UserAddress } from '../address/address.model.js';
 import { resolveGuestCheckoutAuth } from '../auth/auth.service.js';
+import { User } from '../user/user.model.js';
+import { dispatchNotification } from '../notification/notification.service.js';
 import { ApiError } from '../../utils/apiError.js';
 import { normalizePhoneNumber } from '../../utils/phone.js';
 import {
@@ -18,6 +20,8 @@ import {
   PAYMENT_STATUS,
   LEDGER_TRANSACTION_TYPES,
   USER_ROLES,
+  NOTIFICATION_PRIORITIES,
+  NOTIFICATION_TYPES,
 } from '../../constants/index.js';
 
 /**
@@ -255,6 +259,67 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     transaction_id: payload.mfs_transaction_id || `TRX-${Date.now().toString(36).toUpperCase()}`,
   });
 
+  // real-time notifications for order creation
+  // 1. To Restaurant (ALARM: new order needs kitchen review)
+  dispatchNotification({
+    recipientId: restaurant.owner_id,
+    role: USER_ROLES.RESTAURANT_OWNER,
+    orderId: order._id,
+    type: NOTIFICATION_TYPES.ORDER_NEW,
+    priority: NOTIFICATION_PRIORITIES.ALARM,
+    title: 'New Order Received!',
+    message: `Order #${order.order_number} received from ${resolvedCustomerName} for ৳${grand_total}.`,
+    metadata: {
+      order_id: order._id,
+      order_number: order.order_number,
+      grand_total,
+      restaurant_id: restaurant._id,
+      sound_variant: 'kitchen_order',
+    },
+    channels: [`restaurant-${restaurant._id}`],
+    event: 'order:new',
+  }).catch(() => {});
+
+  // 2. To Riders in delivery zone (ALARM: new delivery offer to claim)
+  dispatchNotification({
+    role: USER_ROLES.RIDER,
+    orderId: order._id,
+    type: NOTIFICATION_TYPES.ORDER_AVAILABLE,
+    priority: NOTIFICATION_PRIORITIES.ALARM,
+    title: 'New Delivery Offer!',
+    message: `New delivery opportunity in ${zone.name} (৳${delivery_fee} fee).`,
+    metadata: {
+      order_id: order._id,
+      order_number: order.order_number,
+      zone_id: zone._id,
+      zone_name: zone.name,
+      delivery_fee,
+      sound_variant: 'rider_offer',
+    },
+    channels: [`zone-${zone._id}`],
+    event: 'order:available',
+  }).catch(() => {});
+
+  // 3. To Customer (SILENT: confirmation status update)
+  dispatchNotification({
+    recipientId: customerUser._id,
+    role: USER_ROLES.CUSTOMER,
+    orderId: order._id,
+    type: NOTIFICATION_TYPES.ORDER_NEW,
+    priority: NOTIFICATION_PRIORITIES.SILENT,
+    title: 'Order Placed Successfully!',
+    message: `Your order #${order.order_number} at ${restaurant.name} has been placed. Finding nearby rider...`,
+    metadata: {
+      order_id: order._id,
+      order_number: order.order_number,
+      restaurant_id: restaurant._id,
+      restaurant_name: restaurant.name,
+      status: order.status,
+    },
+    channels: [`customer-${customerUser._id}`, `order-${order._id}`],
+    event: 'order:created',
+  }).catch(() => {});
+
   return {
     order,
     payment,
@@ -341,6 +406,86 @@ export const cancelOrder = async (orderId, reason, user) => {
   order.cancellation_reason = reason || 'cancelled by user';
   await order.save();
 
+  const populatedOrder = await Order.findById(order._id).populate('restaurant_id');
+  const restaurant = populatedOrder?.restaurant_id;
+
+  // 1. Notify Customer (ALARM)
+  dispatchNotification({
+    recipientId: order.customer_id,
+    role: USER_ROLES.CUSTOMER,
+    orderId: order._id,
+    type: NOTIFICATION_TYPES.ORDER_CANCELLED,
+    priority: NOTIFICATION_PRIORITIES.ALARM,
+    title: 'Order Cancelled',
+    message: `Order #${order.order_number} was cancelled. Reason: ${order.cancellation_reason}`,
+    metadata: {
+      order_id: order._id,
+      order_number: order.order_number,
+      status: ORDER_STATUS.CANCELLED,
+      sound_variant: 'cancellation',
+    },
+    channels: [`customer-${order.customer_id}`, `order-${order._id}`],
+    event: 'order:cancelled',
+  }).catch(() => {});
+
+  // 2. Notify Restaurant (ALARM)
+  if (restaurant?.owner_id) {
+    dispatchNotification({
+      recipientId: restaurant.owner_id,
+      role: USER_ROLES.RESTAURANT_OWNER,
+      orderId: order._id,
+      type: NOTIFICATION_TYPES.ORDER_CANCELLED,
+      priority: NOTIFICATION_PRIORITIES.ALARM,
+      title: `Order #${order.order_number} Cancelled`,
+      message: `Order #${order.order_number} was cancelled. Reason: ${order.cancellation_reason}`,
+      metadata: {
+        order_id: order._id,
+        order_number: order.order_number,
+        status: ORDER_STATUS.CANCELLED,
+        sound_variant: 'cancellation',
+      },
+      channels: [`restaurant-${restaurant._id}`],
+      event: 'order:cancelled',
+    }).catch(() => {});
+  }
+
+  // 3. Notify Assigned Rider or Zone Radar
+  if (order.rider_id) {
+    Rider.findById(order.rider_id).then((riderDoc) => {
+      if (riderDoc?.user_id) {
+        dispatchNotification({
+          recipientId: riderDoc.user_id,
+          role: USER_ROLES.RIDER,
+          orderId: order._id,
+          type: NOTIFICATION_TYPES.ORDER_CANCELLED,
+          priority: NOTIFICATION_PRIORITIES.ALARM,
+          title: `Order #${order.order_number} Cancelled`,
+          message: `Delivery #${order.order_number} was cancelled by user.`,
+          metadata: {
+            order_id: order._id,
+            order_number: order.order_number,
+            status: ORDER_STATUS.CANCELLED,
+            sound_variant: 'cancellation',
+          },
+          channels: [`rider-${order.rider_id}`, `rider-user-${riderDoc.user_id}`],
+          event: 'order:cancelled',
+        }).catch(() => {});
+      }
+    }).catch(() => {});
+  } else if (order.delivery_zone_id) {
+    dispatchNotification({
+      role: USER_ROLES.RIDER,
+      orderId: order._id,
+      type: NOTIFICATION_TYPES.ORDER_CANCELLED,
+      priority: NOTIFICATION_PRIORITIES.SILENT,
+      title: 'Order No Longer Available',
+      message: `Order #${order.order_number} was cancelled.`,
+      metadata: { order_id: order._id, order_number: order.order_number },
+      channels: [`zone-${order.delivery_zone_id}`],
+      event: 'order:claimed',
+    }).catch(() => {});
+  }
+
   return order;
 };
 
@@ -417,6 +562,64 @@ export const riderAcceptOrder = async (orderId, riderUserId) => {
     throw ApiError.badRequest('order is no longer available or already claimed by another rider');
   }
 
+  // real-time notifications for rider assignment
+  User.findById(riderUserId).then(async (riderUser) => {
+    const restaurant = await Restaurant.findById(claimedOrder.restaurant_id);
+
+    // 1. Notify Customer (SILENT status update)
+    dispatchNotification({
+      recipientId: claimedOrder.customer_id,
+      role: USER_ROLES.CUSTOMER,
+      orderId: claimedOrder._id,
+      type: NOTIFICATION_TYPES.RIDER_ASSIGNED,
+      priority: NOTIFICATION_PRIORITIES.SILENT,
+      title: 'Rider Assigned!',
+      message: `${riderUser?.name || 'A rider'} accepted Order #${claimedOrder.order_number} and is en route to kitchen.`,
+      metadata: {
+        order_id: claimedOrder._id,
+        order_number: claimedOrder.order_number,
+        rider_name: riderUser?.name,
+        status: claimedOrder.status,
+      },
+      channels: [`customer-${claimedOrder.customer_id}`, `order-${claimedOrder._id}`],
+      event: 'order:rider_assigned',
+    }).catch(() => {});
+
+    // 2. Notify Restaurant (SILENT status update)
+    if (restaurant?.owner_id) {
+      dispatchNotification({
+        recipientId: restaurant.owner_id,
+        role: USER_ROLES.RESTAURANT_OWNER,
+        orderId: claimedOrder._id,
+        type: NOTIFICATION_TYPES.RIDER_ASSIGNED,
+        priority: NOTIFICATION_PRIORITIES.SILENT,
+        title: `Rider Assigned to #${claimedOrder.order_number}`,
+        message: `Courier ${riderUser?.name || 'Rider'} assigned. Kitchen can now accept and start cooking!`,
+        metadata: {
+          order_id: claimedOrder._id,
+          order_number: claimedOrder.order_number,
+          rider_name: riderUser?.name,
+          status: claimedOrder.status,
+        },
+        channels: [`restaurant-${restaurant._id}`],
+        event: 'order:rider_assigned',
+      }).catch(() => {});
+    }
+
+    // 3. Notify other riders in zone to remove from radar (SILENT)
+    dispatchNotification({
+      role: USER_ROLES.RIDER,
+      orderId: claimedOrder._id,
+      type: NOTIFICATION_TYPES.ORDER_AVAILABLE,
+      priority: NOTIFICATION_PRIORITIES.SILENT,
+      title: 'Order Claimed',
+      message: `Order #${claimedOrder.order_number} claimed by another rider.`,
+      metadata: { order_id: claimedOrder._id, order_number: claimedOrder.order_number },
+      channels: [`zone-${claimedOrder.delivery_zone_id}`],
+      event: 'order:claimed',
+    }).catch(() => {});
+  }).catch(() => {});
+
   return claimedOrder.populate(['restaurant_id', 'delivery_zone_id']);
 };
 
@@ -450,6 +653,48 @@ export const restaurantAcceptAndCook = async (orderId, user) => {
   order.cancellation_locked = true; // customer cannot cancel after this point
   await order.save();
 
+  // 1. Notify Customer (SILENT status update)
+  dispatchNotification({
+    recipientId: order.customer_id,
+    role: USER_ROLES.CUSTOMER,
+    orderId: order._id,
+    type: NOTIFICATION_TYPES.ORDER_PREPARING,
+    priority: NOTIFICATION_PRIORITIES.SILENT,
+    title: 'Kitchen Cooking Your Food!',
+    message: `${order.restaurant_id?.name || 'Restaurant'} has accepted order #${order.order_number} and started cooking!`,
+    metadata: {
+      order_id: order._id,
+      order_number: order.order_number,
+      status: ORDER_STATUS.PREPARING,
+    },
+    channels: [`customer-${order.customer_id}`, `order-${order._id}`],
+    event: 'order:preparing',
+  }).catch(() => {});
+
+  // 2. Notify Rider (SILENT status update)
+  if (order.rider_id) {
+    Rider.findById(order.rider_id).then((riderDoc) => {
+      if (riderDoc?.user_id) {
+        dispatchNotification({
+          recipientId: riderDoc.user_id,
+          role: USER_ROLES.RIDER,
+          orderId: order._id,
+          type: NOTIFICATION_TYPES.ORDER_PREPARING,
+          priority: NOTIFICATION_PRIORITIES.SILENT,
+          title: 'Kitchen Cooking',
+          message: `${order.restaurant_id?.name || 'Kitchen'} is preparing Order #${order.order_number}.`,
+          metadata: {
+            order_id: order._id,
+            order_number: order.order_number,
+            status: ORDER_STATUS.PREPARING,
+          },
+          channels: [`rider-${order.rider_id}`, `rider-user-${riderDoc.user_id}`],
+          event: 'order:preparing',
+        }).catch(() => {});
+      }
+    }).catch(() => {});
+  }
+
   return order;
 };
 
@@ -479,6 +724,50 @@ export const restaurantFoodReady = async (orderId, user) => {
   order.status = ORDER_STATUS.READY_FOR_PICKUP;
   await order.save();
 
+  // 1. Notify Customer (ALARM: user requested alarm when food is ready for delivery)
+  dispatchNotification({
+    recipientId: order.customer_id,
+    role: USER_ROLES.CUSTOMER,
+    orderId: order._id,
+    type: NOTIFICATION_TYPES.FOOD_READY,
+    priority: NOTIFICATION_PRIORITIES.ALARM,
+    title: 'Your Food is Ready!',
+    message: `Your food for order #${order.order_number} is packed and ready for delivery from ${order.restaurant_id?.name || 'the kitchen'}!`,
+    metadata: {
+      order_id: order._id,
+      order_number: order.order_number,
+      status: ORDER_STATUS.READY_FOR_PICKUP,
+      sound_variant: 'food_ready_delivery',
+    },
+    channels: [`customer-${order.customer_id}`, `order-${order._id}`],
+    event: 'order:food_ready',
+  }).catch(() => {});
+
+  // 2. Notify Rider (ALARM: food ready at counter for pickup)
+  if (order.rider_id) {
+    Rider.findById(order.rider_id).then((riderDoc) => {
+      if (riderDoc?.user_id) {
+        dispatchNotification({
+          recipientId: riderDoc.user_id,
+          role: USER_ROLES.RIDER,
+          orderId: order._id,
+          type: NOTIFICATION_TYPES.FOOD_READY,
+          priority: NOTIFICATION_PRIORITIES.ALARM,
+          title: 'Food Ready for Pickup!',
+          message: `Order #${order.order_number} is ready at ${order.restaurant_id?.name || 'kitchen'} counter. Collect now!`,
+          metadata: {
+            order_id: order._id,
+            order_number: order.order_number,
+            status: ORDER_STATUS.READY_FOR_PICKUP,
+            sound_variant: 'food_ready_delivery',
+          },
+          channels: [`rider-${order.rider_id}`, `rider-user-${riderDoc.user_id}`],
+          event: 'order:food_ready',
+        }).catch(() => {});
+      }
+    }).catch(() => {});
+  }
+
   return order;
 };
 
@@ -505,6 +794,49 @@ export const riderPickupOrder = async (orderId, riderUserId) => {
   order.status = ORDER_STATUS.PICKED_UP;
   order.picked_up_at = new Date();
   await order.save();
+
+  Order.findById(orderId).populate('restaurant_id').then(async (populatedOrder) => {
+    const riderUser = await User.findById(riderUserId);
+
+    // 1. Notify Customer (ALARM: out for delivery chime!)
+    dispatchNotification({
+      recipientId: order.customer_id,
+      role: USER_ROLES.CUSTOMER,
+      orderId: order._id,
+      type: NOTIFICATION_TYPES.ORDER_PICKED_UP,
+      priority: NOTIFICATION_PRIORITIES.ALARM,
+      title: 'Out for Delivery!',
+      message: `Rider ${riderUser?.name || 'Courier'} picked up your order #${order.order_number} and is on the way to your door!`,
+      metadata: {
+        order_id: order._id,
+        order_number: order.order_number,
+        status: ORDER_STATUS.PICKED_UP,
+        sound_variant: 'food_ready_delivery',
+      },
+      channels: [`customer-${order.customer_id}`, `order-${order._id}`],
+      event: 'order:picked_up',
+    }).catch(() => {});
+
+    // 2. Notify Restaurant (SILENT status update)
+    if (populatedOrder?.restaurant_id?.owner_id) {
+      dispatchNotification({
+        recipientId: populatedOrder.restaurant_id.owner_id,
+        role: USER_ROLES.RESTAURANT_OWNER,
+        orderId: order._id,
+        type: NOTIFICATION_TYPES.ORDER_PICKED_UP,
+        priority: NOTIFICATION_PRIORITIES.SILENT,
+        title: `Order #${order.order_number} Picked Up`,
+        message: `Rider ${riderUser?.name || 'Courier'} picked up order #${order.order_number}.`,
+        metadata: {
+          order_id: order._id,
+          order_number: order.order_number,
+          status: ORDER_STATUS.PICKED_UP,
+        },
+        channels: [`restaurant-${populatedOrder.restaurant_id._id}`],
+        event: 'order:picked_up',
+      }).catch(() => {});
+    }
+  }).catch(() => {});
 
   return order;
 };
@@ -621,6 +953,62 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
     });
   }
 
+  // 1. Notify Customer (SILENT: meal delivered)
+  dispatchNotification({
+    recipientId: deliveredOrder.customer_id,
+    role: USER_ROLES.CUSTOMER,
+    orderId: deliveredOrder._id,
+    type: NOTIFICATION_TYPES.ORDER_DELIVERED,
+    priority: NOTIFICATION_PRIORITIES.SILENT,
+    title: 'Order Delivered!',
+    message: `Order #${deliveredOrder.order_number} has been delivered. Enjoy your meal! Please rate your experience.`,
+    metadata: {
+      order_id: deliveredOrder._id,
+      order_number: deliveredOrder.order_number,
+      status: ORDER_STATUS.DELIVERED,
+    },
+    channels: [`customer-${deliveredOrder.customer_id}`, `order-${deliveredOrder._id}`],
+    event: 'order:delivered',
+  }).catch(() => {});
+
+  // 2. Notify Restaurant (SILENT)
+  if (deliveredOrder.restaurant_id?.owner_id) {
+    dispatchNotification({
+      recipientId: deliveredOrder.restaurant_id.owner_id,
+      role: USER_ROLES.RESTAURANT_OWNER,
+      orderId: deliveredOrder._id,
+      type: NOTIFICATION_TYPES.ORDER_DELIVERED,
+      priority: NOTIFICATION_PRIORITIES.SILENT,
+      title: `Order #${deliveredOrder.order_number} Delivered`,
+      message: `Order #${deliveredOrder.order_number} completed. ৳${netVendorEarning.toFixed(2)} credited to your wallet.`,
+      metadata: {
+        order_id: deliveredOrder._id,
+        order_number: deliveredOrder.order_number,
+        status: ORDER_STATUS.DELIVERED,
+      },
+      channels: [`restaurant-${deliveredOrder.restaurant_id._id}`],
+      event: 'order:delivered',
+    }).catch(() => {});
+  }
+
+  // 3. Notify Rider (SILENT)
+  dispatchNotification({
+    recipientId: rider.user_id,
+    role: USER_ROLES.RIDER,
+    orderId: deliveredOrder._id,
+    type: NOTIFICATION_TYPES.ORDER_DELIVERED,
+    priority: NOTIFICATION_PRIORITIES.SILENT,
+    title: 'Delivery Complete!',
+    message: `Trip #${deliveredOrder.order_number} marked delivered. Delivery earnings recorded.`,
+    metadata: {
+      order_id: deliveredOrder._id,
+      order_number: deliveredOrder.order_number,
+      status: ORDER_STATUS.DELIVERED,
+    },
+    channels: [`rider-${rider._id}`, `rider-user-${rider.user_id}`],
+    event: 'order:delivered',
+  }).catch(() => {});
+
   return {
     order: deliveredOrder,
     payment,
@@ -724,6 +1112,72 @@ export const adminCancelOrder = async (orderId, reason) => {
   order.cancellation_reason = reason?.trim() || 'cancelled by admin';
   order.cancellation_locked = false;
   await order.save();
+
+  Order.findById(orderId).populate('restaurant_id').then(async (populatedOrder) => {
+    // 1. Notify Customer (ALARM)
+    dispatchNotification({
+      recipientId: order.customer_id,
+      role: USER_ROLES.CUSTOMER,
+      orderId: order._id,
+      type: NOTIFICATION_TYPES.ORDER_CANCELLED,
+      priority: NOTIFICATION_PRIORITIES.ALARM,
+      title: 'Order Cancelled by Admin',
+      message: `Order #${order.order_number} was cancelled. Reason: ${order.cancellation_reason}`,
+      metadata: {
+        order_id: order._id,
+        order_number: order.order_number,
+        status: ORDER_STATUS.CANCELLED,
+        sound_variant: 'cancellation',
+      },
+      channels: [`customer-${order.customer_id}`, `order-${order._id}`],
+      event: 'order:cancelled',
+    }).catch(() => {});
+
+    // 2. Notify Restaurant (ALARM)
+    if (populatedOrder?.restaurant_id?.owner_id) {
+      dispatchNotification({
+        recipientId: populatedOrder.restaurant_id.owner_id,
+        role: USER_ROLES.RESTAURANT_OWNER,
+        orderId: order._id,
+        type: NOTIFICATION_TYPES.ORDER_CANCELLED,
+        priority: NOTIFICATION_PRIORITIES.ALARM,
+        title: `Order #${order.order_number} Cancelled by Admin`,
+        message: `Order #${order.order_number} was cancelled. Reason: ${order.cancellation_reason}`,
+        metadata: {
+          order_id: order._id,
+          order_number: order.order_number,
+          status: ORDER_STATUS.CANCELLED,
+          sound_variant: 'cancellation',
+        },
+        channels: [`restaurant-${populatedOrder.restaurant_id._id}`],
+        event: 'order:cancelled',
+      }).catch(() => {});
+    }
+
+    // 3. Notify Rider if assigned
+    if (order.rider_id) {
+      const riderDoc = await Rider.findById(order.rider_id);
+      if (riderDoc?.user_id) {
+        dispatchNotification({
+          recipientId: riderDoc.user_id,
+          role: USER_ROLES.RIDER,
+          orderId: order._id,
+          type: NOTIFICATION_TYPES.ORDER_CANCELLED,
+          priority: NOTIFICATION_PRIORITIES.ALARM,
+          title: `Order #${order.order_number} Cancelled`,
+          message: `Delivery #${order.order_number} was cancelled by administrator.`,
+          metadata: {
+            order_id: order._id,
+            order_number: order.order_number,
+            status: ORDER_STATUS.CANCELLED,
+            sound_variant: 'cancellation',
+          },
+          channels: [`rider-${order.rider_id}`, `rider-user-${riderDoc.user_id}`],
+          event: 'order:cancelled',
+        }).catch(() => {});
+      }
+    }
+  }).catch(() => {});
 
   return order;
 };

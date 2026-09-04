@@ -288,3 +288,46 @@ export interface ApiResponseWrapper<T> {
   message: string;
   data: T;
 }
+
+export type NotificationPriority = 'ALARM' | 'SILENT';
+
+export type NotificationType =
+  | 'ORDER_NEW'
+  | 'ORDER_AVAILABLE'
+  | 'RIDER_ASSIGNED'
+  | 'ORDER_PREPARING'
+  | 'FOOD_READY'
+  | 'ORDER_PICKED_UP'
+  | 'ORDER_DELIVERED'
+  | 'ORDER_CANCELLED';
+
+export interface NotificationItem {
+  id: string;
+  _id: string;
+  recipient_id: string | User;
+  role: UserRole;
+  order_id?: string | Order | null;
+  type: NotificationType;
+  priority: NotificationPriority;
+  has_alarm?: boolean;
+  title: string;
+  message: string;
+  is_read: boolean;
+  metadata?: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaginatedNotificationsResponse {
+  notifications: NotificationItem[];
+  unread_count: number;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
+

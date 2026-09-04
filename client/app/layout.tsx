@@ -4,6 +4,7 @@ import { JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { AuthSplashProvider } from '@/components/providers/auth-splash-provider';
+import { NotificationProvider } from '@/components/providers/notification-provider';
 
 const fontMono = JetBrains_Mono({
   variable: '--font-mono',
@@ -45,10 +46,13 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#F8F9FA] text-slate-900 font-sans" suppressHydrationWarning>
         <QueryProvider>
           <AuthSplashProvider>
-            {children}
+            <NotificationProvider>
+              {children}
+            </NotificationProvider>
           </AuthSplashProvider>
         </QueryProvider>
       </body>
     </html>
   );
 }
+

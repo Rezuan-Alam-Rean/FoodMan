@@ -20,6 +20,10 @@ const envSchema = z.object({
     .min(32, 'JWT_SECRET must be at least 32 characters')
     .default('foodman-super-secret-jwt-key-2026-production-ready'),
   JWT_EXPIRES_IN: z.string().default('30d'),
+  PUSHER_APP_ID: z.string().default('2191610'),
+  PUSHER_KEY: z.string().default('5b2f6bed1958ab26a224'),
+  PUSHER_SECRET: z.string().default('d96f1502bbdf2ce3161b'),
+  PUSHER_CLUSTER: z.string().default('ap2'),
 });
 
 const parseEnv = () => {

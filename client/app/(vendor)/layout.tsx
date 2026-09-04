@@ -10,6 +10,7 @@ import {
   useToggleRestaurantStatusMutation,
 } from '@/hooks/queries/use-restaurant-queries';
 import { VendorBottomNav } from '@/components/vendor/VendorBottomNav';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { UtensilsCrossed, Power, Loader2 } from 'lucide-react';
 
 export default function VendorLayout({
@@ -79,7 +80,8 @@ export default function VendorLayout({
             </div>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <NotificationBell />
             {restaurant && (
               <button
                 type="button"
