@@ -65,13 +65,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const assignedZones = Array.isArray(rider?.assigned_zones) ? rider.assigned_zones : [];
 
   const dismissToast = useCallback((toastId: string) => {
-    setActiveToasts((prev) => {
-      const target = prev.find((t) => t.toastId === toastId);
-      if (target?.priority === 'ALARM' || target?.has_alarm) {
-        stopActiveAlarm();
-      }
-      return prev.filter((t) => t.toastId !== toastId);
-    });
+    setActiveToasts((prev) => prev.filter((t) => t.toastId !== toastId));
+    stopActiveAlarm();
   }, []);
 
   const handleIncomingNotification = useCallback(
@@ -234,7 +229,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }
 
     return () => {
-      stopActiveAlarm();
       subscribedChannels.forEach((ch) => {
         const channel = pusher.channel(ch);
         if (channel) {

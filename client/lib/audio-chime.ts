@@ -1,4 +1,4 @@
-// web audio api sound synthesizer for zero-dependency audible alarms and chimes
+// web audio api & html5 audio sound synthesizer for audible alarms and chimes
 'use client';
 
 export type SoundVariant = 'kitchen_order' | 'rider_offer' | 'food_ready_delivery' | 'cancellation';
@@ -9,14 +9,12 @@ export interface PlayAlarmOptions {
 }
 
 let audioCtx: AudioContext | null = null;
-let isAudioUnlocked = false;
-
-// active alarm state tracking
+let currentAlarmId = 0;
 let activeAlarmInterval: ReturnType<typeof setInterval> | null = null;
 let activeAlarmTimeout: ReturnType<typeof setTimeout> | null = null;
-let activeMasterGain: GainNode | null = null;
+let activeAudioElement: HTMLAudioElement | null = null;
 
-function getAudioContext(): AudioContext | null {
+export function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
 
   if (!audioCtx) {
@@ -33,105 +31,114 @@ function getAudioContext(): AudioContext | null {
   return audioCtx;
 }
 
-// unlock browser audio on first user touch/click/key
+// unlock browser audio on ANY user touch/click/key
 if (typeof window !== 'undefined') {
   const unlockAudio = () => {
-    const ctx = getAudioContext();
-    if (ctx && ctx.state !== 'running') {
-      ctx.resume().then(() => {
-        isAudioUnlocked = true;
-      }).catch(() => {});
-    } else {
-      isAudioUnlocked = true;
+    try {
+      const ctx = getAudioContext();
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+    } catch {
+      // ignore
     }
-    window.removeEventListener('click', unlockAudio);
-    window.removeEventListener('touchstart', unlockAudio);
-    window.removeEventListener('keydown', unlockAudio);
   };
 
-  window.addEventListener('click', unlockAudio, { once: true, passive: true });
-  window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
-  window.addEventListener('keydown', unlockAudio, { once: true, passive: true });
+  window.addEventListener('click', unlockAudio, { capture: true, passive: true });
+  window.addEventListener('touchstart', unlockAudio, { capture: true, passive: true });
+  window.addEventListener('keydown', unlockAudio, { capture: true, passive: true });
+  window.addEventListener('pointerdown', unlockAudio, { capture: true, passive: true });
 }
 
 /**
- * stop any currently playing or repeating alarm immediately
+ * stop any currently repeating alarm immediately
  */
 export function stopActiveAlarm() {
+  currentAlarmId++;
+
+  if (activeAudioElement) {
+    try {
+      activeAudioElement.pause();
+      activeAudioElement.currentTime = 0;
+    } catch {
+      // ignore
+    }
+    activeAudioElement = null;
+  }
+
   if (activeAlarmInterval) {
     clearInterval(activeAlarmInterval);
     activeAlarmInterval = null;
   }
+
   if (activeAlarmTimeout) {
     clearTimeout(activeAlarmTimeout);
     activeAlarmTimeout = null;
-  }
-  if (activeMasterGain && audioCtx) {
-    try {
-      activeMasterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-      activeMasterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-      activeMasterGain.disconnect();
-    } catch {
-      // ignore
-    }
-    activeMasterGain = null;
   }
 }
 
 /**
  * Synthesizes a single pulse of a kitchen order bell (restaurant)
  */
-function playKitchenOrderPulse(ctx: AudioContext, destinationNode: AudioNode) {
+function playKitchenOrderPulse(ctx: AudioContext) {
   const now = ctx.currentTime;
 
-  const playTone = (freq: number, start: number, duration: number, peakGain = 0.45) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+  const playTone = (freq: number, start: number, duration: number, peakGain = 0.5) => {
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, start);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, start);
 
-    gain.gain.setValueAtTime(0.001, start);
-    gain.gain.exponentialRampToValueAtTime(peakGain, start + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(peakGain, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
 
-    osc.connect(gain);
-    gain.connect(destinationNode);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
-    osc.start(start);
-    osc.stop(start + duration);
+      osc.start(start);
+      osc.stop(start + duration);
+    } catch {
+      // ignore
+    }
   };
 
   // High-attention dual bell strike (restaurant order bell)
-  playTone(880, now, 0.28, 0.42);            // A5
-  playTone(1318.51, now + 0.12, 0.38, 0.48); // E6
-  playTone(880, now + 0.45, 0.28, 0.38);     // A5
-  playTone(1318.51, now + 0.58, 0.48, 0.48); // E6
+  playTone(880, now, 0.28, 0.45);            // A5
+  playTone(1318.51, now + 0.12, 0.38, 0.5);  // E6
+  playTone(880, now + 0.45, 0.28, 0.4);      // A5
+  playTone(1318.51, now + 0.58, 0.48, 0.5);  // E6
 }
 
 /**
  * Synthesizes a single pulse of a rider offer radar ping (courier)
  */
-function playRiderOfferPulse(ctx: AudioContext, destinationNode: AudioNode) {
+function playRiderOfferPulse(ctx: AudioContext) {
   const now = ctx.currentTime;
 
   const playChirp = (freq: number, start: number, sweepFreq: number) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, start);
-    osc.frequency.exponentialRampToValueAtTime(sweepFreq, start + 0.12);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, start);
+      osc.frequency.exponentialRampToValueAtTime(sweepFreq, start + 0.12);
 
-    gain.gain.setValueAtTime(0.001, start);
-    gain.gain.exponentialRampToValueAtTime(0.4, start + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.14);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.45, start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.14);
 
-    osc.connect(gain);
-    gain.connect(destinationNode);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
-    osc.start(start);
-    osc.stop(start + 0.15);
+      osc.start(start);
+      osc.stop(start + 0.15);
+    } catch {
+      // ignore
+    }
   };
 
   // Urgent 3-tone rising radar alert
@@ -143,7 +150,7 @@ function playRiderOfferPulse(ctx: AudioContext, destinationNode: AudioNode) {
 /**
  * Synthesizes customer melodic chime: food is ready / out for delivery
  */
-function playFoodReadyChime(ctx: AudioContext, destinationNode: AudioNode) {
+function playFoodReadyChime(ctx: AudioContext) {
   const now = ctx.currentTime;
   const notes = [
     { freq: 523.25, time: 0 },    // C5
@@ -153,49 +160,57 @@ function playFoodReadyChime(ctx: AudioContext, destinationNode: AudioNode) {
   ];
 
   notes.forEach(({ freq, time }) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, now + time);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + time);
 
-    gain.gain.setValueAtTime(0.001, now + time);
-    gain.gain.exponentialRampToValueAtTime(0.3, now + time + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + time + 0.35);
+      gain.gain.setValueAtTime(0.0001, now + time);
+      gain.gain.exponentialRampToValueAtTime(0.35, now + time + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + time + 0.35);
 
-    osc.connect(gain);
-    gain.connect(destinationNode);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
-    osc.start(now + time);
-    osc.stop(now + time + 0.38);
+      osc.start(now + time);
+      osc.stop(now + time + 0.38);
+    } catch {
+      // ignore
+    }
   });
 }
 
 /**
  * Synthesizes order cancellation warning
  */
-function playCancellationTone(ctx: AudioContext, destinationNode: AudioNode) {
+function playCancellationTone(ctx: AudioContext) {
   const now = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
+  try {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(320, now);
-  osc.frequency.exponentialRampToValueAtTime(220, now + 0.3);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(220, now + 0.3);
 
-  gain.gain.setValueAtTime(0.001, now);
-  gain.gain.exponentialRampToValueAtTime(0.25, now + 0.03);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.3, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
 
-  osc.connect(gain);
-  gain.connect(destinationNode);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
 
-  osc.start(now);
-  osc.stop(now + 0.36);
+    osc.start(now);
+    osc.stop(now + 0.36);
+  } catch {
+    // ignore
+  }
 }
 
 /**
- * play an alarm sound synthesized via web audio api.
+ * play an alarm sound synthesized via Web Audio API or audio asset.
  * For long alarms (rider & restaurant), loops continuously for 30-40 seconds (default: 35s)
  * or until dismissed / stopActiveAlarm() is called.
  *
@@ -207,22 +222,11 @@ export function playAlarmSound(
   options?: PlayAlarmOptions
 ) {
   try {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-
-    if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
-    }
-
-    // Stop any existing playing alarm before starting new
+    // Stop any existing repeating alarm before starting a new one
     stopActiveAlarm();
 
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(1, ctx.currentTime);
-    masterGain.connect(ctx.destination);
-    activeMasterGain = masterGain;
+    const alarmId = currentAlarmId;
 
-    // Continuous 30-40 second alarm for rider & restaurant
     const isRepeating =
       options?.isLongAlarm !== undefined
         ? options.isLongAlarm
@@ -230,43 +234,104 @@ export function playAlarmSound(
 
     const durationSeconds = options?.durationSeconds || 35;
 
-    if (isRepeating) {
-      const intervalMs = variant === 'kitchen_order' ? 1400 : 1250;
+    const executeWebAudioSound = () => {
+      const ctx = getAudioContext();
+      if (!ctx) return;
 
-      // Play immediate first pulse
-      if (variant === 'kitchen_order') {
-        playKitchenOrderPulse(ctx, masterGain);
-      } else {
-        playRiderOfferPulse(ctx, masterGain);
-      }
+      const triggerOscillators = () => {
+        if (currentAlarmId !== alarmId) return;
 
-      // Loop pulses every interval
-      activeAlarmInterval = setInterval(() => {
-        if (!activeMasterGain || !audioCtx) return;
-        if (variant === 'kitchen_order') {
-          playKitchenOrderPulse(audioCtx, activeMasterGain);
+        if (isRepeating) {
+          const intervalMs = variant === 'kitchen_order' ? 1400 : 1250;
+
+          // 1. Play immediate first pulse
+          if (variant === 'kitchen_order') {
+            playKitchenOrderPulse(ctx);
+          } else {
+            playRiderOfferPulse(ctx);
+          }
+
+          // 2. Loop pulses every interval
+          activeAlarmInterval = setInterval(() => {
+            if (currentAlarmId !== alarmId) {
+              if (activeAlarmInterval) clearInterval(activeAlarmInterval);
+              return;
+            }
+            if (variant === 'kitchen_order') {
+              playKitchenOrderPulse(ctx);
+            } else {
+              playRiderOfferPulse(ctx);
+            }
+          }, intervalMs);
+
+          // 3. Auto-stop after durationSeconds (e.g. 35s)
+          activeAlarmTimeout = setTimeout(() => {
+            if (currentAlarmId === alarmId) {
+              stopActiveAlarm();
+            }
+          }, durationSeconds * 1000);
         } else {
-          playRiderOfferPulse(audioCtx, activeMasterGain);
+          // Single-shot chime
+          if (variant === 'food_ready_delivery') {
+            playFoodReadyChime(ctx);
+          } else if (variant === 'cancellation') {
+            playCancellationTone(ctx);
+          } else if (variant === 'kitchen_order') {
+            playKitchenOrderPulse(ctx);
+          } else {
+            playRiderOfferPulse(ctx);
+          }
         }
-      }, intervalMs);
+      };
 
-      // Auto-stop after durationSeconds (e.g. 35 seconds)
-      activeAlarmTimeout = setTimeout(() => {
-        stopActiveAlarm();
-      }, durationSeconds * 1000);
-    } else {
-      // Single-shot chime
-      if (variant === 'food_ready_delivery') {
-        playFoodReadyChime(ctx, masterGain);
-      } else if (variant === 'cancellation') {
-        playCancellationTone(ctx, masterGain);
-      } else if (variant === 'kitchen_order') {
-        playKitchenOrderPulse(ctx, masterGain);
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => triggerOscillators()).catch(() => triggerOscillators());
       } else {
-        playRiderOfferPulse(ctx, masterGain);
+        triggerOscillators();
       }
+    };
+
+    // For long alarms (rider & restaurant), first try MP3 audio asset if available
+    if (isRepeating && typeof window !== 'undefined') {
+      try {
+        const audio = new Audio('/never-50672.mp3');
+        audio.loop = true;
+        audio.volume = 1.0;
+        activeAudioElement = audio;
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              if (currentAlarmId !== alarmId) {
+                audio.pause();
+                return;
+              }
+              // Auto-stop after durationSeconds (35s)
+              activeAlarmTimeout = setTimeout(() => {
+                if (currentAlarmId === alarmId) {
+                  stopActiveAlarm();
+                }
+              }, durationSeconds * 1000);
+            })
+            .catch(() => {
+              // Browser autoplay policy or load failure: fall back immediately to synthesized Web Audio
+              executeWebAudioSound();
+            });
+        } else {
+          activeAlarmTimeout = setTimeout(() => {
+            if (currentAlarmId === alarmId) {
+              stopActiveAlarm();
+            }
+          }, durationSeconds * 1000);
+        }
+      } catch {
+        executeWebAudioSound();
+      }
+    } else {
+      executeWebAudioSound();
     }
   } catch {
-    // Ignore audio synthesis limitations
+    // Ignore audio playback limitations
   }
 }
