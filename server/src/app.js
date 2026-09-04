@@ -15,9 +15,23 @@ const app = express();
 
 // security middlewares
 app.use(helmet());
+const allowedOrigins =
+  env.CORS_ORIGIN === '*'
+    ? '*'
+    : env.CORS_ORIGIN.split(',').map((origin) => origin.trim().replace(/\/$/, ''));
+
 app.use(
   cors({
-    origin: env.CORS_ORIGIN === '*' ? true : env.CORS_ORIGIN.split(','),
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins === '*') {
+        return callback(null, true);
+      }
+      const sanitizedOrigin = origin.replace(/\/$/, '');
+      if (allowedOrigins.includes(sanitizedOrigin) || sanitizedOrigin.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     credentials: true,
   })
 );
