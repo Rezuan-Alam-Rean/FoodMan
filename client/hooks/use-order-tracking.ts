@@ -1,12 +1,14 @@
-// customer live order tracking and review submission facade hook
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import {
   useLiveOrderStatusQuery,
   useCancelOrderMutation,
+  ORDER_KEYS,
 } from '@/hooks/queries/use-order-queries';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCreateReviewMutation } from '@/hooks/queries/use-review-queries';
+import { getPusherClient } from '@/lib/pusher';
 import type { OrderStatus } from '@/types';
 
 export const ORDER_STEP_PROGRESS: Record<OrderStatus, number> = {
@@ -21,9 +23,39 @@ export const ORDER_STEP_PROGRESS: Record<OrderStatus, number> = {
 };
 
 export function useOrderTracking(orderId: string) {
+  const queryClient = useQueryClient();
   const statusQuery = useLiveOrderStatusQuery(orderId, !!orderId);
   const cancelMutation = useCancelOrderMutation();
   const reviewMutation = useCreateReviewMutation();
+
+  // subscribe directly to order channel for zero-latency status transitions
+  useEffect(() => {
+    if (!orderId) return;
+    const pusher = getPusherClient();
+    if (!pusher) return;
+
+    const channelName = `order-${orderId}`;
+    const channel = pusher.subscribe(channelName);
+
+    const handleUpdate = () => {
+      queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
+    };
+
+    channel.bind('order:created', handleUpdate);
+    channel.bind('order:rider_assigned', handleUpdate);
+    channel.bind('order:preparing', handleUpdate);
+    channel.bind('order:food_ready', handleUpdate);
+    channel.bind('order:picked_up', handleUpdate);
+    channel.bind('order:delivered', handleUpdate);
+    channel.bind('order:cancelled', handleUpdate);
+    channel.bind('order:status_updated', handleUpdate);
+
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe(channelName);
+    };
+  }, [orderId, queryClient]);
+
 
   const order = statusQuery.data?.order;
   const payment = statusQuery.data?.payment;

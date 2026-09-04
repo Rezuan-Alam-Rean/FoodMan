@@ -4,6 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { UtensilsCrossed } from 'lucide-react';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 export function CustomerHeader() {
   return (
@@ -22,8 +23,13 @@ export function CustomerHeader() {
             </p>
           </div>
         </Link>
+
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+        </div>
       </div>
     </header>
   );
 }
+
 

@@ -14,6 +14,7 @@ import payoutRoutes from '../modules/payout/payout.routes.js';
 import adminDeskRoutes from '../modules/admin/adminDesk.routes.js';
 import reviewRoutes from '../modules/review/review.routes.js';
 import uploadRoutes from '../modules/upload/upload.routes.js';
+import notificationRoutes from '../modules/notification/notification.routes.js';
 
 const router = Router();
 
@@ -32,5 +33,7 @@ router.use('/payouts', payoutRoutes);
 router.use('/admin', adminDeskRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/upload', uploadRoutes);
+router.use('/notifications', notificationRoutes);
+
 
 export default router;
