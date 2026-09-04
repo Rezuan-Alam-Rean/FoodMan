@@ -5,7 +5,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { getPusherClient } from '@/lib/pusher';
-import { playAlarmSound, stopActiveAlarm } from '@/lib/audio-chime';
+import { playAlarmSound, stopAlarmSound, type SoundVariant } from '@/lib/audio-chime';
 import { useAuth } from '@/hooks/use-auth';
 import { useMyRestaurantQuery } from '@/hooks/queries/use-restaurant-queries';
 import { useRiderProfileQuery } from '@/hooks/queries/use-rider-queries';
@@ -25,6 +25,7 @@ import {
 
 interface ToastNotification extends NotificationItem {
   toastId: string;
+  isLongAlarm?: boolean;
 }
 
 interface NotificationContextValue {
@@ -39,12 +40,66 @@ const NotificationContext = createContext<NotificationContextValue>({
 
 export const useRealtimeNotifications = () => useContext(NotificationContext);
 
+/**
+ * Intelligently resolve the appropriate sound variant based on notification metadata,
+ * event type, title, and target persona.
+ */
+function resolveSoundVariant(data: any): SoundVariant {
+  if (data?.metadata?.sound_variant) {
+    return data.metadata.sound_variant as SoundVariant;
+  }
+  const type = String(data?.type || '').toUpperCase();
+  const event = String(data?.event || '').toLowerCase();
+  const title = String(data?.title || '').toLowerCase();
+
+  // Restaurant operational alert: new incoming order to cook (30-40s long alarm)
+  if (type === 'ORDER_NEW' || event === 'order:new' || title.includes('new order')) {
+    return 'kitchen_order';
+  }
+
+  // Rider operational alert: new delivery opportunity in zone (30-40s long alarm)
+  if (
+    type === 'ORDER_AVAILABLE' ||
+    event === 'order:available' ||
+    title.includes('delivery offer') ||
+    title.includes('opportunity')
+  ) {
+    return 'rider_offer';
+  }
+
+  // Cancellation warning tone (single-shot)
+  if (type === 'ORDER_CANCELLED' || event === 'order:cancelled' || title.includes('cancel')) {
+    return 'cancellation';
+  }
+
+  // Customer order status alert: food ready or out for delivery (single-shot pleasant chime)
+  if (
+    type === 'FOOD_READY' ||
+    type === 'ORDER_PICKED_UP' ||
+    event === 'order:food_ready' ||
+    event === 'order:picked_up'
+  ) {
+    return 'food_ready_delivery';
+  }
+
+  // Persona fallbacks if priority is ALARM
+  if (data?.role === 'RESTAURANT_OWNER') {
+    return 'kitchen_order';
+  }
+  if (data?.role === 'RIDER') {
+    return 'rider_offer';
+  }
+
+  return 'food_ready_delivery';
+}
+
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const { user, role, isAuthenticated } = useAuth();
   const [activeToasts, setActiveToasts] = useState<ToastNotification[]>([]);
   const [mounted, setMounted] = useState(false);
   const seenNotificationIdsRef = useRef<Map<string, number>>(new Map());
+  const alarmToastIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -62,11 +117,14 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const { data: riderData } = useRiderProfileQuery(isRider);
   const rider = riderData?.rider;
   const riderId = rider?._id || rider?.id;
-  const assignedZones = Array.isArray(rider?.assigned_zones) ? rider.assigned_zones : [];
 
   const dismissToast = useCallback((toastId: string) => {
     setActiveToasts((prev) => prev.filter((t) => t.toastId !== toastId));
-    stopActiveAlarm();
+    // only stop alarm if this toast was the one that initiated the active alarm
+    if (alarmToastIdRef.current === toastId) {
+      stopAlarmSound();
+      alarmToastIdRef.current = null;
+    }
   }, []);
 
   const handleIncomingNotification = useCallback(
@@ -94,28 +152,21 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       }
 
       const isAlarm = data.priority === 'ALARM' || data.has_alarm === true;
-      const soundVariant = data.metadata?.sound_variant || 'food_ready_delivery';
+      const soundVariant = resolveSoundVariant(data);
+      const isLongAlarm = isAlarm && (soundVariant === 'kitchen_order' || soundVariant === 'rider_offer');
 
-      // 30-40 second continuous alarm loop for rider and restaurant
-      const isRiderOrRestaurant =
-        role === 'RIDER' ||
-        role === 'RESTAURANT_OWNER' ||
-        data.role === 'RIDER' ||
-        data.role === 'RESTAURANT_OWNER' ||
-        soundVariant === 'kitchen_order' ||
-        soundVariant === 'rider_offer';
+      const toastId = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
-      const isLongAlarm = isAlarm && isRiderOrRestaurant;
-
-      // 1. play audible alarm if priority is ALARM (35s continuous loop for rider/restaurant)
+      // 1. play audible alarm if priority is ALARM
       if (isAlarm) {
-        playAlarmSound(soundVariant, { isLongAlarm, durationSeconds: 35 });
+        alarmToastIdRef.current = toastId;
+        playAlarmSound(soundVariant);
       }
 
       // 2. add to floating active toasts
-      const toastId = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
       const toastItem: ToastNotification = {
         toastId,
+        isLongAlarm,
         id: data.id || toastId,
         _id: data.id || toastId,
         recipient_id: data.recipient_id || userId,
@@ -144,8 +195,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         return [toastItem, ...prev.slice(0, 2)];
       });
 
-      // auto dismiss: 35s for long alarms (matching alarm duration), 10s for customer alarms, 6s for silent updates
-      const timeoutMs = isLongAlarm ? 35000 : isAlarm ? 10000 : 6000;
+      // auto dismiss: 35 seconds for long alarms (30-40s), 8 seconds for short alarms, 6 seconds for silent
+      const timeoutMs = isLongAlarm ? 35000 : isAlarm ? 8000 : 6000;
       setTimeout(() => {
         dismissToast(toastId);
       }, timeoutMs);
@@ -277,18 +328,24 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
           <div className="fixed top-4 right-4 z-[110] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-2">
             {activeToasts.map((toast) => {
               const isAlarm = toast.priority === 'ALARM';
+              const isLongAlarm = toast.isLongAlarm;
+
               return (
                 <div
                   key={toast.toastId}
                   className={`pointer-events-auto rounded-3xl p-3.5 shadow-xl border backdrop-blur-md transition-all duration-300 animate-in slide-in-from-top-3 flex items-start gap-3 ${
-                    isAlarm
+                    isLongAlarm
+                      ? 'bg-white/95 border-rose-400 ring-4 ring-rose-500/25 animate-pulse'
+                      : isAlarm
                       ? 'bg-white/95 border-rose-300 ring-2 ring-rose-500/20'
                       : 'bg-white/95 border-slate-200'
                   }`}
                 >
                   <div
                     className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
-                      isAlarm
+                      isLongAlarm
+                        ? 'bg-rose-100 border-rose-300 ring-2 ring-rose-300 animate-bounce'
+                        : isAlarm
                         ? 'bg-rose-50 border-rose-200 ring-2 ring-rose-100 animate-pulse'
                         : 'bg-slate-50 border-slate-200/80'
                     }`}
@@ -297,29 +354,39 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <h4 className="text-xs font-black text-slate-900 truncate">
                         {toast.title}
                       </h4>
-                      {isAlarm && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider flex items-center gap-0.5 shrink-0">
-                          <Volume2 className="w-2.5 h-2.5 text-rose-600 animate-pulse" /> Alarm
+                      {isLongAlarm ? (
+                        <span className="px-1.5 py-0.5 rounded-md bg-rose-600 text-white text-[9px] font-black uppercase tracking-wider flex items-center gap-0.5 shrink-0 animate-pulse">
+                          <Volume2 className="w-2.5 h-2.5" /> Urgent Alarm
                         </span>
-                      )}
+                      ) : isAlarm ? (
+                        <span className="px-1.5 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[9px] font-black uppercase tracking-wider flex items-center gap-0.5 shrink-0">
+                          <Volume2 className="w-2.5 h-2.5 text-rose-600" /> Alert
+                        </span>
+                      ) : null}
                     </div>
                     <p className="text-[11px] text-slate-600 leading-snug">
                       {toast.message}
                     </p>
 
-                    {isAlarm && (
-                      <button
-                        type="button"
-                        onClick={() => dismissToast(toast.toastId)}
-                        className="mt-1 px-2.5 py-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold flex items-center gap-1 transition cursor-pointer shadow-xs w-fit"
-                      >
-                        <VolumeX className="w-3 h-3" />
-                        <span>Silence Alarm</span>
-                      </button>
+                    {isLongAlarm && (
+                      <div className="pt-1.5 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            stopAlarmSound();
+                            alarmToastIdRef.current = null;
+                            dismissToast(toast.toastId);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-[11px] font-black shadow-sm transition cursor-pointer"
+                        >
+                          <VolumeX className="w-3.5 h-3.5" />
+                          Silence Alarm
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -340,4 +407,3 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     </NotificationContext.Provider>
   );
 }
-

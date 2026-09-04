@@ -3,7 +3,7 @@ import Pusher from 'pusher-js';
 
 let pusherClientInstance: Pusher | null = null;
 
-export const PUSHER_KEY = process.env.NEXT_PUBLIC_PUSHER_KEY || '5b2f6bed1958ab26a224';
+export const PUSHER_KEY = process.env.NEXT_PUBLIC_PUSHER_KEY || '';
 export const PUSHER_CLUSTER = process.env.NEXT_PUBLIC_PUSHER_CLUSTER || 'ap2';
 
 /**
@@ -12,6 +12,10 @@ export const PUSHER_CLUSTER = process.env.NEXT_PUBLIC_PUSHER_CLUSTER || 'ap2';
  */
 export function getPusherClient(): Pusher | null {
   if (typeof window === 'undefined') {
+    return null;
+  }
+
+  if (!PUSHER_KEY) {
     return null;
   }
 

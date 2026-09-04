@@ -10,8 +10,8 @@ import {
   useMarkAllNotificationsReadMutation,
 } from '@/hooks/queries/use-notification-queries';
 import { useAuth } from '@/hooks/use-auth';
+import { stopAlarmSound } from '@/lib/audio-chime';
 import type { NotificationItem } from '@/types';
-import { stopActiveAlarm } from '@/lib/audio-chime';
 import {
   Bell,
   X,
@@ -70,7 +70,7 @@ export function NotificationBell() {
   const notifications = notificationsData?.notifications || [];
 
   const handleNotificationClick = (item: NotificationItem) => {
-    stopActiveAlarm();
+    stopAlarmSound();
     if (!item.is_read) {
       markReadMutation.mutate(item.id || item._id);
     }
@@ -121,7 +121,7 @@ export function NotificationBell() {
       <button
         type="button"
         onClick={() => {
-          stopActiveAlarm();
+          stopAlarmSound();
           setIsOpen(true);
         }}
         className="relative p-2 rounded-2xl bg-white/80 hover:bg-slate-100 border border-slate-200/80 text-slate-700 transition cursor-pointer shadow-xs focus:outline-none"
@@ -208,10 +208,7 @@ export function NotificationBell() {
                   <button
                     type="button"
                     disabled={markAllReadMutation.isPending}
-                    onClick={() => {
-                      stopActiveAlarm();
-                      markAllReadMutation.mutate();
-                    }}
+                    onClick={() => markAllReadMutation.mutate()}
                     className="text-[11px] font-bold text-slate-500 hover:text-rose-600 flex items-center gap-1 transition cursor-pointer disabled:opacity-50"
                   >
                     <CheckCheck className="w-3.5 h-3.5" />
@@ -246,8 +243,16 @@ export function NotificationBell() {
                     return (
                       <div
                         key={item.id || item._id}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => handleNotificationClick(item)}
-                        className={`p-3 rounded-2xl flex items-start gap-3 transition border ${
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleNotificationClick(item);
+                          }
+                        }}
+                        className={`p-3 rounded-2xl flex items-start gap-3 transition border cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-rose-500/20 ${
                           !item.is_read
                             ? isAlarm
                               ? 'bg-rose-50/40 border-rose-200/80 shadow-xs'
