@@ -582,39 +582,45 @@ export const riderUnassignOrder = async (orderId, reason, riderUserId) => {
   const unassignReason = reason?.trim() || 'courier unassigned';
   const previousStatus = order.status;
 
-  // Clear rider assignment
-  order.rider_id = null;
-  order.rider_accepted_at = null;
+  const nextStatus =
+    previousStatus === ORDER_STATUS.RIDER_ACCEPTED
+      ? ORDER_STATUS.LOOKING_FOR_RIDER
+      : previousStatus;
 
-  // If order was in RIDER_ACCEPTED, return to LOOKING_FOR_RIDER
-  if (previousStatus === ORDER_STATUS.RIDER_ACCEPTED) {
-    order.status = ORDER_STATUS.LOOKING_FOR_RIDER;
+  // Atomic conditional update to prevent race conditions with cancelOrder or concurrent state changes
+  const released = await Order.findOneAndUpdate(
+    { _id: order._id, rider_id: rider._id, status: previousStatus },
+    {
+      $set: {
+        rider_id: null,
+        rider_accepted_at: null,
+        status: nextStatus,
+        rider_release_reason: unassignReason,
+      },
+    },
+    { new: true }
+  ).populate('restaurant_id');
+
+  if (!released) {
+    throw ApiError.badRequest('order state changed; release could not be applied');
   }
-  // If order was in PREPARING or READY_FOR_PICKUP, preserve that status so kitchen doesn't lose progress!
 
-  const auditNote = `[Courier unassigned: ${unassignReason}]`;
-  order.special_notes = order.special_notes
-    ? `${order.special_notes.trim()} ${auditNote}`
-    : auditNote;
-
-  await order.save();
-
-  const restaurant = order.restaurant_id;
+  const restaurant = released.restaurant_id;
 
   // 1. Notify Restaurant (ALARM)
   if (restaurant?.owner_id) {
     dispatchNotification({
       recipientId: restaurant.owner_id,
       role: USER_ROLES.RESTAURANT_OWNER,
-      orderId: order._id,
+      orderId: released._id,
       type: NOTIFICATION_TYPES.RIDER_UNASSIGNED,
       priority: NOTIFICATION_PRIORITIES.ALARM,
-      title: `Courier Unassigned from #${order.order_number}`,
-      message: `Courier had to release order #${order.order_number} (${unassignReason}). Re-queued for another courier.`,
+      title: `Courier Unassigned from #${released.order_number}`,
+      message: `Courier had to release order #${released.order_number} (${unassignReason}). Re-queued for another courier.`,
       metadata: {
-        order_id: order._id,
-        order_number: order.order_number,
-        status: order.status,
+        order_id: released._id,
+        order_number: released.order_number,
+        status: released.status,
         reason: unassignReason,
       },
       channels: [`restaurant-${restaurant._id}`],
@@ -624,43 +630,43 @@ export const riderUnassignOrder = async (orderId, reason, riderUserId) => {
 
   // 2. Notify Customer (SILENT / Informative)
   dispatchNotification({
-    recipientId: order.customer_id,
+    recipientId: released.customer_id,
     role: USER_ROLES.CUSTOMER,
-    orderId: order._id,
+    orderId: released._id,
     type: NOTIFICATION_TYPES.RIDER_UNASSIGNED,
     priority: NOTIFICATION_PRIORITIES.SILENT,
     title: 'Finding Replacement Courier',
-    message: `Your courier encountered an issue (${unassignReason}). Finding another nearby courier for Order #${order.order_number}.`,
+    message: `Your courier encountered an issue (${unassignReason}). Finding another nearby courier for Order #${released.order_number}.`,
     metadata: {
-      order_id: order._id,
-      order_number: order.order_number,
-      status: order.status,
+      order_id: released._id,
+      order_number: released.order_number,
+      status: released.status,
       reason: unassignReason,
     },
-    channels: [`customer-${order.customer_id}`, `order-${order._id}`],
+    channels: [`customer-${released.customer_id}`, `order-${released._id}`],
     event: 'order:rider_unassigned',
   }).catch(() => {});
 
   // 3. Broadcast to Zone Riders so it immediately shows up on radar
-  if (order.delivery_zone_id) {
+  if (released.delivery_zone_id) {
     dispatchNotification({
       role: USER_ROLES.RIDER,
-      orderId: order._id,
+      orderId: released._id,
       type: NOTIFICATION_TYPES.ORDER_AVAILABLE,
       priority: NOTIFICATION_PRIORITIES.SILENT,
       title: 'Delivery Available!',
-      message: `Order #${order.order_number} is available for delivery in your zone.`,
+      message: `Order #${released.order_number} is available for delivery in your zone.`,
       metadata: {
-        order_id: order._id,
-        order_number: order.order_number,
-        status: order.status,
+        order_id: released._id,
+        order_number: released.order_number,
+        status: released.status,
       },
-      channels: [`zone-${order.delivery_zone_id}`],
+      channels: [`zone-${released.delivery_zone_id}`],
       event: 'order:available',
     }).catch(() => {});
   }
 
-  return order;
+  return released;
 };
 
 /**

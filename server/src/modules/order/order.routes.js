@@ -69,7 +69,7 @@ router.post(
 router.post(
   '/:id/rider-cancel',
   authenticate,
-  authorize(USER_ROLES.RIDER, USER_ROLES.ADMIN),
+  authorize(USER_ROLES.RIDER),
   handleRiderCancelOrder
 );
 

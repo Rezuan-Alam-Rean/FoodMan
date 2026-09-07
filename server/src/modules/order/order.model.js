@@ -174,6 +174,11 @@ const orderSchema = new mongoose.Schema(
       default: null,
       trim: true,
     },
+    rider_release_reason: {
+      type: String,
+      default: null,
+      trim: true,
+    },
   },
   {
     timestamps: true,
