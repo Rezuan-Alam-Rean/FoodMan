@@ -11,6 +11,7 @@ import {
   handleGetUserDetails,
   handleCreateAdminUser,
   handleUpdateAdminUser,
+  handleUpdateAdminRiderZones,
   handleGetAdminOrders,
   handleAdminCancelOrder,
 } from './adminDesk.controller.js';
@@ -37,6 +38,8 @@ router.put('/payments/:paymentId/verify', handleVerifyMfsPayment);
 router.get('/users', handleGetAdminUsersList);
 router.post('/users', handleCreateAdminUser);
 router.put('/users/:id', handleUpdateAdminUser);
+router.put('/users/:id/zones', handleUpdateAdminRiderZones);
+router.put('/riders/:id/zones', handleUpdateAdminRiderZones);
 
 // customer deep-dive
 router.get('/users/customers/:id', handleGetCustomerDetails);

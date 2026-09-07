@@ -583,7 +583,13 @@ export const createAdminUser = async ({
  * @returns {object}
  */
 export const updateAdminUser = async (userId, payload = {}) => {
-  const user = await User.findById(userId);
+  let user = await User.findById(userId);
+  if (!user) {
+    const rider = await Rider.findById(userId);
+    if (rider) {
+      user = await User.findById(rider.user_id);
+    }
+  }
   if (!user) {
     throw ApiError.notFound('user not found');
   }
@@ -643,17 +649,27 @@ export const updateAdminUser = async (userId, payload = {}) => {
   if (user.role === USER_ROLES.RIDER) {
     riderProfile = await Rider.findOne({ user_id: user._id });
     if (!riderProfile) {
+      let assignedZoneIds = [];
+      if (Array.isArray(payload.assigned_zones) && payload.assigned_zones.length > 0) {
+        const validZones = await Zone.find({ _id: { $in: payload.assigned_zones }, is_active: true });
+        assignedZoneIds = validZones.map((z) => z._id);
+      }
       riderProfile = await Rider.create({
         user_id: user._id,
         vehicle_type: payload.vehicle_type || 'MOTORCYCLE',
-        assigned_zones: Array.isArray(payload.assigned_zones) ? payload.assigned_zones : [],
+        assigned_zones: assignedZoneIds,
         cash_in_hand_limit: Number(payload.cash_in_hand_limit) || 3000,
       });
     } else {
       if (payload.vehicle_type !== undefined) riderProfile.vehicle_type = payload.vehicle_type;
       if (payload.driving_license_no !== undefined) riderProfile.driving_license_no = payload.driving_license_no ? payload.driving_license_no.trim() : null;
       if (payload.nid_number !== undefined) riderProfile.nid_number = payload.nid_number ? payload.nid_number.trim() : null;
-      if (payload.assigned_zones !== undefined && Array.isArray(payload.assigned_zones)) riderProfile.assigned_zones = payload.assigned_zones;
+      if (payload.assigned_zones !== undefined && Array.isArray(payload.assigned_zones)) {
+        const validZones = payload.assigned_zones.length > 0
+          ? await Zone.find({ _id: { $in: payload.assigned_zones }, is_active: true })
+          : [];
+        riderProfile.assigned_zones = validZones.map((z) => z._id);
+      }
       if (payload.cash_in_hand_limit !== undefined) {
         const limit = Number(payload.cash_in_hand_limit);
         if (Number.isFinite(limit) && limit >= 0) riderProfile.cash_in_hand_limit = limit;
@@ -661,6 +677,7 @@ export const updateAdminUser = async (userId, payload = {}) => {
       if (payload.is_online !== undefined) riderProfile.is_online = Boolean(payload.is_online);
       await riderProfile.save();
     }
+    await riderProfile.populate('assigned_zones');
   }
 
   // update restaurant specifications if user is a restaurant owner
@@ -668,29 +685,47 @@ export const updateAdminUser = async (userId, payload = {}) => {
   if (user.role === USER_ROLES.RESTAURANT_OWNER) {
     restaurantProfile = await Restaurant.findOne({ owner_id: user._id });
     if (!restaurantProfile) {
-      throw ApiError.notFound('restaurant profile not found for this owner account');
+      const rawSlug = (payload.restaurant_name || user.name)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      let slug = rawSlug || `rest-${Date.now().toString().slice(-4)}`;
+      const existingSlug = await Restaurant.findOne({ slug });
+      if (existingSlug) {
+        slug = `${slug}-${Date.now().toString().slice(-4)}`;
+      }
+
+      restaurantProfile = await Restaurant.create({
+        owner_id: user._id,
+        zone_id: payload.zone_id,
+        name: (payload.restaurant_name || user.name).trim(),
+        slug,
+        description: payload.description ? payload.description.trim() : '',
+        address: (payload.restaurant_address || '').trim(),
+        commission_rate: Math.max(0, Math.min(100, Number(payload.commission_rate) || 10)),
+      });
+    } else {
+      if (payload.restaurant_name && typeof payload.restaurant_name === 'string' && payload.restaurant_name.trim()) {
+        restaurantProfile.name = payload.restaurant_name.trim();
+      }
+      if (payload.zone_id) {
+        restaurantProfile.zone_id = payload.zone_id;
+      }
+      if (payload.restaurant_address && typeof payload.restaurant_address === 'string' && payload.restaurant_address.trim()) {
+        restaurantProfile.address = payload.restaurant_address.trim();
+      }
+      if (payload.commission_rate !== undefined) {
+        const comm = Number(payload.commission_rate);
+        if (Number.isFinite(comm) && comm >= 0 && comm <= 100) restaurantProfile.commission_rate = comm;
+      }
+      if (payload.description !== undefined) {
+        restaurantProfile.description = payload.description ? payload.description.trim() : '';
+      }
+      if (payload.is_open !== undefined) {
+        restaurantProfile.is_open = Boolean(payload.is_open);
+      }
+      await restaurantProfile.save();
     }
-    if (payload.restaurant_name && typeof payload.restaurant_name === 'string' && payload.restaurant_name.trim()) {
-      restaurantProfile.name = payload.restaurant_name.trim();
-    }
-    if (payload.zone_id) {
-      const zoneExists = await Zone.findById(payload.zone_id);
-      if (zoneExists) restaurantProfile.zone_id = payload.zone_id;
-    }
-    if (payload.restaurant_address && typeof payload.restaurant_address === 'string' && payload.restaurant_address.trim()) {
-      restaurantProfile.address = payload.restaurant_address.trim();
-    }
-    if (payload.commission_rate !== undefined) {
-      const comm = Number(payload.commission_rate);
-      if (Number.isFinite(comm) && comm >= 0 && comm <= 100) restaurantProfile.commission_rate = comm;
-    }
-    if (payload.description !== undefined) {
-      restaurantProfile.description = payload.description ? payload.description.trim() : '';
-    }
-    if (payload.is_open !== undefined) {
-      restaurantProfile.is_open = Boolean(payload.is_open);
-    }
-    await restaurantProfile.save();
   }
 
   const userObj = user.toJSON();
@@ -701,4 +736,37 @@ export const updateAdminUser = async (userId, payload = {}) => {
     riderProfile,
     restaurantProfile,
   };
+};
+
+/**
+ * admin updates assigned operational delivery zones for a rider
+ * @param {string} userIdOrRiderId
+ * @param {Array<string>} zoneIds
+ * @returns {object}
+ */
+export const updateAdminRiderZones = async (userIdOrRiderId, zoneIds = []) => {
+  if (!Array.isArray(zoneIds)) {
+    throw ApiError.badRequest('zone_ids must be an array of zone IDs');
+  }
+
+  let rider = await Rider.findOne({ user_id: userIdOrRiderId });
+  if (!rider) {
+    rider = await Rider.findById(userIdOrRiderId);
+  }
+  if (!rider) {
+    throw ApiError.notFound('rider profile not found');
+  }
+
+  const validZones = zoneIds.length > 0
+    ? await Zone.find({ _id: { $in: zoneIds }, is_active: true })
+    : [];
+
+  if (zoneIds.length > 0 && validZones.length !== zoneIds.length) {
+    throw ApiError.badRequest('one or more zone ids are invalid or inactive');
+  }
+
+  rider.assigned_zones = validZones.map((z) => z._id);
+  await rider.save();
+
+  return rider.populate(['assigned_zones', { path: 'user_id', select: '-password_hash' }]);
 };

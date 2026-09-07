@@ -11,6 +11,7 @@ import {
   getAdminUserDetails,
   createAdminUser,
   updateAdminUser,
+  updateAdminRiderZones,
 } from './adminUsers.service.js';
 import { getAdminAllOrders, adminCancelOrder } from '../order/order.service.js';
 import { catchAsync } from '../../utils/catchAsync.js';
@@ -121,6 +122,17 @@ export const handleUpdateAdminUser = catchAsync(async (req, res) => {
   return ApiResponse.success(res, {
     statusCode: HTTP_STATUS.OK,
     message: 'user updated successfully',
+    data: result,
+  });
+});
+
+export const handleUpdateAdminRiderZones = catchAsync(async (req, res) => {
+  const zoneIds = req.body.zone_ids || req.body.assigned_zones || [];
+  const result = await updateAdminRiderZones(req.params.id, zoneIds);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: 'rider operational zones updated successfully',
     data: result,
   });
 });

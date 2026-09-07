@@ -33,9 +33,18 @@ const VEHICLE_TYPES = [
 ];
 
 export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps) {
-  const user = userData?.user || userData;
+  const customer = userData?.customer;
   const riderProfile = userData?.riderProfile || userData?.rider;
   const restaurantProfile = userData?.restaurantProfile || userData?.restaurant;
+  const user =
+    userData?.user ||
+    customer ||
+    riderProfile?.user_id ||
+    restaurantProfile?.owner_id ||
+    userData;
+  const role =
+    user?.role ||
+    (customer ? 'CUSTOMER' : riderProfile ? 'RIDER' : restaurantProfile ? 'RESTAURANT_OWNER' : 'USER');
 
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -98,8 +107,6 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
   }, [user, riderProfile, restaurantProfile]);
 
   if (!isOpen || !user) return null;
-
-  const role = user.role;
 
   const toggleZone = (zId: string) => {
     setSelectedZones((prev) =>
