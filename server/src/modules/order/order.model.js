@@ -27,7 +27,7 @@ const orderItemSchema = new mongoose.Schema(
     selected_variant: {
       group_title: String,
       option_name: String,
-      price_delta: Number,
+      price: Number,
     },
     selected_add_ons: [
       {

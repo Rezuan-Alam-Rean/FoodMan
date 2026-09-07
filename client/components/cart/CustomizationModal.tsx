@@ -24,11 +24,12 @@ export function CustomizationModal({
   if (!isOpen || !item) return null;
 
   // default to first variant if exists
-  const initialVariant = item.variants?.[0]?.options?.[0]
+  const firstOpt = item.variants?.[0]?.options?.[0];
+  const initialVariant = firstOpt
     ? {
         group_title: item.variants[0].title,
-        option_name: item.variants[0].options[0].name,
-        price_delta: item.variants[0].options[0].price_delta || 0,
+        option_name: firstOpt.name,
+        price: Number(firstOpt.price) || item.base_price || 0,
       }
     : null;
 
@@ -36,10 +37,13 @@ export function CustomizationModal({
   const [selectedAddOns, setSelectedAddOns] = useState<CartItemAddOn[]>([]);
   const [quantity, setQuantity] = useState<number>(1);
 
-  const basePrice = item.base_price || 0;
-  const variantDelta = selectedVariant?.price_delta || 0;
+  // In absolute pricing, if a variant is selected, its price supersedes base_price.
+  const activeBasePrice =
+    selectedVariant != null && selectedVariant.price !== undefined
+      ? selectedVariant.price
+      : item.base_price || 0;
   const addOnsTotal = selectedAddOns.reduce((sum, a) => sum + a.price, 0);
-  const unitPrice = basePrice + variantDelta + addOnsTotal;
+  const unitPrice = activeBasePrice + addOnsTotal;
   const totalPrice = unitPrice * quantity;
 
   const toggleAddOn = (addOn: { name: string; price: number }) => {
@@ -55,7 +59,7 @@ export function CustomizationModal({
     onAddToCart({
       food_item_id: item.id || item._id,
       name: item.name,
-      base_price: item.base_price,
+      base_price: activeBasePrice,
       unit_price: unitPrice,
       quantity,
       selected_variant: selectedVariant,
@@ -117,7 +121,7 @@ export function CustomizationModal({
               </p>
             </div>
             <span className="text-base font-black text-rose-600 dark:text-rose-400 font-mono shrink-0">
-              {formatBDT(item.base_price)}
+              {formatBDT(unitPrice)}
             </span>
           </div>
         </div>
@@ -141,6 +145,7 @@ export function CustomizationModal({
                       const isSelected =
                         selectedVariant?.group_title === group.title &&
                         selectedVariant?.option_name === option.name;
+                      const optPrice = Number(option.price) || item.base_price || 0;
                       return (
                         <button
                           key={optIdx}
@@ -149,7 +154,7 @@ export function CustomizationModal({
                             setSelectedVariant({
                               group_title: group.title,
                               option_name: option.name,
-                              price_delta: option.price_delta || 0,
+                              price: optPrice,
                             })
                           }
                           className={`flex items-center justify-between p-3 rounded-2xl border text-xs font-semibold transition cursor-pointer ${
@@ -168,8 +173,8 @@ export function CustomizationModal({
                             </div>
                             <span>{option.name}</span>
                           </div>
-                          <span className="text-xs font-bold text-slate-500">
-                            {option.price_delta > 0 ? `+${formatBDT(option.price_delta)}` : 'Included'}
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono">
+                            {formatBDT(optPrice)}
                           </span>
                         </button>
                       );
