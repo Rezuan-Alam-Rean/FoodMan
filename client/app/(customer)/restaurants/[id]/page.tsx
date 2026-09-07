@@ -59,7 +59,10 @@ export default function RestaurantPage() {
   }
 
   const { restaurant, menu } = data;
-  const categories: MenuCategory[] = menu || [];
+  const categories: MenuCategory[] = (menu || []).map((c) => ({
+    ...c,
+    items: (c.items || []).filter((item) => item.is_available !== false),
+  }));
   const allItems: FoodItem[] = categories.flatMap((c) => c.items || []);
 
   const handleAddItemClick = (item: FoodItem) => {

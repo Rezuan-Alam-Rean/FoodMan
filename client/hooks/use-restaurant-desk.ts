@@ -26,7 +26,7 @@ export function useRestaurantDesk() {
   const restaurantId = restaurant?.id || restaurant?._id || '';
 
   const liveOrdersQuery = useRestaurantLiveOrdersQuery(restaurantId, !!restaurantId);
-  const menuDetailsQuery = useRestaurantDetailsQuery(restaurantId);
+  const menuDetailsQuery = useRestaurantDetailsQuery(restaurantId, { includeUnavailable: true });
   const globalCategoriesQuery = useCategoriesQuery({ is_active: true });
   const walletQuery = useMyWalletQuery(!!restaurantId);
 
