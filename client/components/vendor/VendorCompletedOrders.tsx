@@ -124,9 +124,16 @@ export function VendorCompletedOrders() {
                         {item.quantity}x {item.name || 'Food Item'}
                         {item.selected_variant && ` (${item.selected_variant.option_name})`}
                       </span>
-                      <span className="font-bold text-slate-900">
-                        {formatBDT(item.total_price)}
-                      </span>
+                      <div className="text-right">
+                        <span className="font-bold text-slate-900 block">
+                          {formatBDT(item.total_price)}
+                        </span>
+                        {item.original_unit_price && item.original_unit_price > item.unit_price && (
+                          <span className="text-[10px] text-slate-400 line-through block">
+                            {formatBDT(item.original_unit_price * item.quantity)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                   {order.special_notes && (

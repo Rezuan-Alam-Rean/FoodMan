@@ -100,7 +100,19 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
       throw ApiError.badRequest(`item '${item.name || item.food_item_id}' is unavailable or invalid for this restaurant`);
     }
 
+    let original_unit_price = null;
     let unit_price = foodItem.base_price;
+    if (
+      foodItem.discount_price !== null &&
+      foodItem.discount_price !== undefined &&
+      !isNaN(Number(foodItem.discount_price)) &&
+      Number(foodItem.discount_price) >= 0 &&
+      Number(foodItem.discount_price) < foodItem.base_price
+    ) {
+      original_unit_price = foodItem.base_price;
+      unit_price = Number(foodItem.discount_price);
+    }
+
     let selected_variant = null;
 
     if (item.selected_variant) {
@@ -127,11 +139,27 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
       }
 
       const variantPrice = Number(option.price);
-      unit_price = variantPrice;
+      let effectiveVariantPrice = variantPrice;
+      let originalVariantPrice = null;
+
+      if (
+        option.discount_price !== null &&
+        option.discount_price !== undefined &&
+        !isNaN(Number(option.discount_price)) &&
+        Number(option.discount_price) >= 0 &&
+        Number(option.discount_price) < variantPrice
+      ) {
+        originalVariantPrice = variantPrice;
+        effectiveVariantPrice = Number(option.discount_price);
+      }
+
+      unit_price = effectiveVariantPrice;
+      original_unit_price = originalVariantPrice;
       selected_variant = {
         group_title: variantGroup.title,
         option_name: option.name,
-        price: variantPrice,
+        price: effectiveVariantPrice,
+        original_price: originalVariantPrice,
       };
     }
 
@@ -149,6 +177,9 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
         }
 
         unit_price += Number(found.price || 0);
+        if (original_unit_price !== null) {
+          original_unit_price += Number(found.price || 0);
+        }
         matchedAddOns.push({
           name: found.name,
           price: Number(found.price || 0),
@@ -163,6 +194,7 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
       food_item_id: foodItem._id,
       name: foodItem.name,
       unit_price,
+      original_unit_price,
       quantity,
       selected_variant,
       selected_add_ons: matchedAddOns,

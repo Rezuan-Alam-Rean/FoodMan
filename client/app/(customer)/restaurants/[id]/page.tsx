@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRestaurantDetailsQuery } from '@/hooks/queries/use-restaurant-queries';
 import { useCart } from '@/hooks/use-cart';
 import { CustomizationModal } from '@/components/cart/CustomizationModal';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, hasValidDiscount } from '@/lib/utils';
 import type { FoodItem, MenuCategory, CartItem } from '@/types';
 import {
   Star,
@@ -202,7 +202,22 @@ export default function RestaurantPage() {
                       </div>
 
                       <div className="flex items-center justify-between pt-1">
-                        <span className="font-black text-rose-600 text-xs font-mono">{formatBDT(item.base_price)}</span>
+                        <div className="flex items-baseline gap-1">
+                          {hasValidDiscount(item.base_price, item.discount_price) ? (
+                            <>
+                              <span className="font-black text-rose-600 text-xs font-mono">
+                                {formatBDT(item.discount_price)}
+                              </span>
+                              <span className="text-[10px] font-semibold text-slate-400 line-through font-mono">
+                                {formatBDT(item.base_price)}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="font-black text-rose-600 text-xs font-mono">
+                              {formatBDT(item.base_price)}
+                            </span>
+                          )}
+                        </div>
                         <button
                           type="button"
                           onClick={(e) => {

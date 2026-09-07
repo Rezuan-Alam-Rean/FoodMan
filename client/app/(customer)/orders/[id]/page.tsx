@@ -364,9 +364,16 @@ export default function OrderTrackingPage() {
                   )}
                 </div>
 
-                <span className="font-mono text-xs font-bold text-slate-900 shrink-0">
-                  ৳{item.total_price || item.unit_price * item.quantity}
-                </span>
+                <div className="text-right shrink-0">
+                  <span className="font-mono text-xs font-bold text-slate-900 block">
+                    ৳{item.total_price || item.unit_price * item.quantity}
+                  </span>
+                  {item.original_unit_price && item.original_unit_price > item.unit_price && (
+                    <span className="font-mono text-[10px] text-slate-400 line-through block">
+                      ৳{item.original_unit_price * item.quantity}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>

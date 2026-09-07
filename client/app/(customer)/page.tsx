@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useInfiniteFoodItemsQuery, useCategoriesQuery } from '@/hooks/queries/use-menu-queries';
 import { useInfiniteRestaurantsQuery } from '@/hooks/queries/use-restaurant-queries';
 import { useZoneStore } from '@/lib/store/zone-store';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, hasValidDiscount } from '@/lib/utils';
 import {
   Search,
   Star,
@@ -324,9 +324,22 @@ export default function CustomerHomePage() {
                       </div>
 
                       <div className="pt-2 flex items-center justify-between">
-                        <span className="text-xs font-black text-rose-600 font-mono">
-                          {formatBDT(item.base_price)}
-                        </span>
+                        <div className="flex items-baseline gap-1">
+                          {hasValidDiscount(item.base_price, item.discount_price) ? (
+                            <>
+                              <span className="text-xs font-black text-rose-600 font-mono">
+                                {formatBDT(item.discount_price)}
+                              </span>
+                              <span className="text-[10px] font-semibold text-slate-400 line-through font-mono">
+                                {formatBDT(item.base_price)}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-xs font-black text-rose-600 font-mono">
+                              {formatBDT(item.base_price)}
+                            </span>
+                          )}
+                        </div>
                         <span className="inline-flex items-center text-[10px] font-bold text-slate-500 group-hover:text-rose-600 transition">
                           Order <ChevronRight className="w-3 h-3 ml-0.5" />
                         </span>
