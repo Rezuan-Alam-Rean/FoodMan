@@ -18,12 +18,14 @@ export function RiderBottomNav() {
   const { data: profileData } = useRiderProfileQuery();
 
   const rider = profileData?.rider;
-  const activeDelivery = profileData?.active_delivery;
-  const hasActiveTrip = Boolean(activeDelivery);
+  const activeDeliveries =
+    profileData?.active_deliveries ||
+    (profileData?.active_delivery ? [profileData.active_delivery] : []);
+  const activeDeliveryCount = activeDeliveries.length;
   const isOnline = rider?.is_online || false;
 
   const { data: availableOrders = [] } = useRiderAvailableOrdersQuery(
-    isOnline && !hasActiveTrip
+    isOnline
   );
   const availableOrdersCount = availableOrders.length;
 
@@ -33,14 +35,15 @@ export function RiderBottomNav() {
       label: 'Radar',
       icon: Radar,
       isActive: pathname === '/rider',
-      badge: availableOrdersCount > 0 && !hasActiveTrip ? availableOrdersCount : null,
+      badge: availableOrdersCount > 0 ? availableOrdersCount : null,
     },
     {
       href: '/rider/trip',
-      label: 'Trip',
+      label: activeDeliveryCount > 1 ? 'Trips' : 'Trip',
       icon: Bike,
       isActive: pathname === '/rider/trip',
-      dotBadge: hasActiveTrip,
+      badge: activeDeliveryCount > 0 ? activeDeliveryCount : null,
+      dotBadge: false,
     },
     {
       href: '/rider/cash',

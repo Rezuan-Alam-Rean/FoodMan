@@ -224,6 +224,13 @@ export interface Rider {
   assigned_zones: Zone[];
 }
 
+export interface RiderProfileResponse {
+  rider: Rider;
+  active_delivery?: Order | null;
+  active_deliveries?: Order[];
+  active_delivery_count?: number;
+}
+
 export interface Wallet {
   id: string;
   _id: string;
