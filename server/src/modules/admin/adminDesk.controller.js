@@ -16,6 +16,7 @@ import {
 import { getAdminAllOrders, adminCancelOrder } from '../order/order.service.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
+import { ApiError } from '../../utils/apiError.js';
 import { HTTP_STATUS } from '../../constants/index.js';
 
 export const handleGetAdminDeskCounts = catchAsync(async (req, res) => {
@@ -127,7 +128,10 @@ export const handleUpdateAdminUser = catchAsync(async (req, res) => {
 });
 
 export const handleUpdateAdminRiderZones = catchAsync(async (req, res) => {
-  const zoneIds = req.body.zone_ids || req.body.assigned_zones || [];
+  const zoneIds = req.body.zone_ids ?? req.body.assigned_zones;
+  if (!Array.isArray(zoneIds) || zoneIds.some((id) => typeof id !== 'string')) {
+    throw ApiError.badRequest('zone_ids must be an array of zone id strings');
+  }
   const result = await updateAdminRiderZones(req.params.id, zoneIds);
 
   return ApiResponse.success(res, {

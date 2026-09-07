@@ -37,17 +37,19 @@ export function EditRiderZonesModal({
   const { data: zones = [], isLoading: isLoadingZones } = useZonesQuery();
   const updateZonesMutation = useUpdateAdminRiderZonesMutation();
 
+  const initialZoneIdsKey = (initialZones || [])
+    .map((z: any) => (typeof z === 'string' ? z : z?._id))
+    .filter(Boolean)
+    .join(',');
+
   useEffect(() => {
     if (isOpen) {
-      const initialIds = (initialZones || []).map((z: any) =>
-        typeof z === 'string' ? z : z._id
-      );
-      setSelectedZoneIds(initialIds);
+      setSelectedZoneIds(initialZoneIdsKey ? initialZoneIdsKey.split(',') : []);
       setSearchQuery('');
       setError('');
       setSuccess(false);
     }
-  }, [isOpen, initialZones]);
+  }, [isOpen, initialZoneIdsKey]);
 
   const filteredZones = useMemo(() => {
     if (!searchQuery.trim()) return zones;

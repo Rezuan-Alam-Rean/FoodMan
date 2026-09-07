@@ -86,16 +86,16 @@ export const getRestaurantDetails = async (restaurantIdOrSlug, options = {}) => 
     throw ApiError.notFound('restaurant not found');
   }
 
-  let includeUnavailable = Boolean(options.includeUnavailable);
+  let includeUnavailable = false;
 
-  if (!includeUnavailable && options.user) {
+  if (options.user) {
     const isOwner =
       restaurant.owner_id &&
       options.user._id &&
       restaurant.owner_id.toString() === options.user._id.toString();
     const isAdmin = options.user.role === USER_ROLES.ADMIN;
     if ((isOwner || isAdmin) && options.asCustomer !== true) {
-      includeUnavailable = true;
+      includeUnavailable = Boolean(options.includeUnavailable ?? true);
     }
   }
 

@@ -29,14 +29,16 @@ async function migrate() {
             option.price = 60;
           } else if (option.name.includes('Full Murgi')) {
             option.price = 90;
-          } else {
-            option.price = option.price || item.base_price;
+          } else if (option.price === undefined || option.price === null) {
+            option.price = item.base_price;
           }
           modified = true;
         } else {
           // Standard conversion for other dishes
-          if (option.price === undefined || option.price === null || option.price === 0) {
-            option.price = item.base_price;
+          if (option.price === undefined || option.price === null) {
+            const rawOpt = option._doc || option;
+            const delta = rawOpt.price_delta !== undefined ? Number(rawOpt.price_delta) : 0;
+            option.price = item.base_price + delta;
             modified = true;
           }
         }

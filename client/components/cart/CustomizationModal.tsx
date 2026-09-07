@@ -23,13 +23,18 @@ export function CustomizationModal({
 }: CustomizationModalProps) {
   if (!isOpen || !item) return null;
 
+  const resolveOptionPrice = (price: unknown) => {
+    const parsed = Number(price);
+    return Number.isFinite(parsed) ? parsed : item.base_price || 0;
+  };
+
   // default to first variant if exists
   const firstOpt = item.variants?.[0]?.options?.[0];
   const initialVariant = firstOpt
     ? {
         group_title: item.variants[0].title,
         option_name: firstOpt.name,
-        price: Number(firstOpt.price) || item.base_price || 0,
+        price: resolveOptionPrice(firstOpt.price),
       }
     : null;
 
@@ -145,7 +150,7 @@ export function CustomizationModal({
                       const isSelected =
                         selectedVariant?.group_title === group.title &&
                         selectedVariant?.option_name === option.name;
-                      const optPrice = Number(option.price) || item.base_price || 0;
+                      const optPrice = resolveOptionPrice(option.price);
                       return (
                         <button
                           key={optIdx}

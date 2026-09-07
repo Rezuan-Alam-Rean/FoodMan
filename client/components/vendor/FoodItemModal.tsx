@@ -191,10 +191,13 @@ export function FoodItemModal({
         const newOptions = g.options.map((opt, oIdx) => {
           if (oIdx !== optionIndex) return opt;
           if (field === 'price') {
-            const numVal = value === '' ? 0 : Number(value);
+            if (value === '') {
+              return { ...opt, price: '' as any };
+            }
+            const numVal = Number(value);
             return {
               ...opt,
-              price: isNaN(numVal) ? 0 : numVal,
+              price: isNaN(numVal) ? ('' as any) : numVal,
             };
           }
           return {
