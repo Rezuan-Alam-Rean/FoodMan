@@ -224,10 +224,30 @@ export interface Rider {
   assigned_zones: Zone[];
 }
 
+export interface RiderActiveDeliveryRestaurant {
+  id?: string;
+  _id?: string;
+  name: string;
+  address?: string;
+  phone_number?: string;
+}
+
+export interface RiderActiveDeliveryCustomer {
+  id?: string;
+  _id?: string;
+  name: string;
+  phone_number?: string;
+}
+
+export type RiderActiveOrder = Omit<Order, 'restaurant_id' | 'customer_id'> & {
+  restaurant_id: RiderActiveDeliveryRestaurant;
+  customer_id?: RiderActiveDeliveryCustomer | string | null;
+};
+
 export interface RiderProfileResponse {
   rider: Rider;
-  active_delivery?: Order | null;
-  active_deliveries?: Order[];
+  active_delivery?: RiderActiveOrder | null;
+  active_deliveries?: RiderActiveOrder[];
   active_delivery_count?: number;
 }
 

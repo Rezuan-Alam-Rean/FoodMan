@@ -5,7 +5,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRiderProfileQuery } from '@/hooks/queries/use-rider-queries';
 import { ActiveDeliveryCard } from '@/components/rider/ActiveDeliveryCard';
-import type { Order } from '@/types';
+import type { RiderActiveOrder } from '@/types';
 import { formatBDT } from '@/lib/utils';
 import {
   Radar,
@@ -19,7 +19,7 @@ export default function RiderTripPage() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const rider = profileData?.rider;
-  const activeDeliveries: Order[] = useMemo(() => {
+  const activeDeliveries: RiderActiveOrder[] = useMemo(() => {
     return (
       profileData?.active_deliveries ||
       (profileData?.active_delivery ? [profileData.active_delivery] : [])
