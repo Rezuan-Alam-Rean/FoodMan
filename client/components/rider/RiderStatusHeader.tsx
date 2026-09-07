@@ -62,7 +62,7 @@ export function RiderStatusHeader({
             <p className="text-[11px] text-slate-400 font-medium">
               {isOnline
                 ? activeDeliveryCount > 0
-                  ? '1 active delivery in progress'
+                  ? `${activeDeliveryCount} active ${activeDeliveryCount === 1 ? 'delivery' : 'deliveries'} in progress`
                   : 'Radar scanning for orders'
                 : 'Turn on toggle to receive orders'}
             </p>

@@ -725,6 +725,10 @@ export const riderAcceptOrder = async (orderId, riderUserId) => {
     throw ApiError.notFound('rider profile not found');
   }
 
+  if (!rider.is_online) {
+    throw ApiError.badRequest('you must be online to accept delivery tasks');
+  }
+
   // Find candidate order available for claim
   const targetOrder = await Order.findOne({
     _id: orderId,

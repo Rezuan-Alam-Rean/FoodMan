@@ -1,7 +1,7 @@
 // rider profile, zone radar, and operational status query hooks
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
-import type { Rider, Order } from '@/types';
+import type { Rider, Order, RiderProfileResponse } from '@/types';
 
 export const RIDER_KEYS = {
   me: ['riders', 'me'] as const,
@@ -11,8 +11,8 @@ export const RIDER_KEYS = {
 export function useRiderProfileQuery(enabled = true) {
   return useQuery({
     queryKey: RIDER_KEYS.me,
-    queryFn: async (): Promise<{ rider: Rider; active_delivery?: Order | null }> => {
-      const data = await apiClient.get<any, { rider: Rider; active_delivery?: Order | null }>(
+    queryFn: async (): Promise<RiderProfileResponse> => {
+      const data = await apiClient.get<any, RiderProfileResponse>(
         '/riders/me'
       );
       return data;

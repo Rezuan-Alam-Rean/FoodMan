@@ -22,7 +22,12 @@ import {
 export function useRiderRadar() {
   const profileQuery = useRiderProfileQuery();
   const rider = profileQuery.data?.rider;
-  const activeDelivery = profileQuery.data?.active_delivery;
+  const activeDeliveries =
+    profileQuery.data?.active_deliveries ||
+    (profileQuery.data?.active_delivery ? [profileQuery.data.active_delivery] : []);
+  const activeDelivery = activeDeliveries[0] || null;
+  const activeDeliveryCount = activeDeliveries.length;
+  const hasActiveDelivery = activeDeliveryCount > 0;
   const isOnline = !!rider?.is_online;
 
   const availableOrdersQuery = useRiderAvailableOrdersQuery(isOnline);
@@ -98,6 +103,9 @@ export function useRiderRadar() {
   return {
     rider,
     activeDelivery,
+    activeDeliveries,
+    activeDeliveryCount,
+    hasActiveDelivery,
     isOnline,
     availableOrders,
     wallet,

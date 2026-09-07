@@ -24,8 +24,8 @@ export const getRiderProfile = async (userId) => {
     rider = await rider.populate(['user_id', 'assigned_zones']);
   }
 
-  // check if rider has any active delivery in progress
-  const activeOrder = await Order.findOne({
+  // check if rider has any active deliveries in progress
+  const activeOrders = await Order.find({
     rider_id: rider._id,
     status: {
       $in: [
@@ -39,11 +39,14 @@ export const getRiderProfile = async (userId) => {
     .populate('restaurant_id', 'name address phone_number')
     .populate('customer_id', 'name phone_number')
     .populate('delivery_zone_id')
-    .populate('delivery_subzone_id');
+    .populate('delivery_subzone_id')
+    .sort({ createdAt: 1 });
 
   return {
     rider,
-    active_delivery: activeOrder,
+    active_deliveries: activeOrders,
+    active_delivery: activeOrders[0] || null,
+    active_delivery_count: activeOrders.length,
   };
 };
 

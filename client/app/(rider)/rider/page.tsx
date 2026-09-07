@@ -22,10 +22,13 @@ export default function RiderRadarPage() {
   const { data: profileData, isLoading: isProfileLoading } = useRiderProfileQuery();
 
   const rider = profileData?.rider;
-  const activeDelivery = profileData?.active_delivery;
+  const activeDeliveries =
+    profileData?.active_deliveries ||
+    (profileData?.active_delivery ? [profileData.active_delivery] : []);
+  const activeDeliveryCount = activeDeliveries.length;
+  const hasActiveDelivery = activeDeliveryCount > 0;
 
   const isOnline = rider?.is_online || false;
-  const hasActiveDelivery = Boolean(activeDelivery);
   const assignedZones = Array.isArray(rider?.assigned_zones) ? rider.assigned_zones : [];
 
   if (isProfileLoading) {
@@ -82,24 +85,38 @@ export default function RiderRadarPage() {
       </div>
 
       {hasActiveDelivery && (
-        <div className="p-4 rounded-3xl bg-rose-500 text-white shadow-md flex items-center justify-between gap-3 animate-in fade-in duration-200">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center">
+        <div className="p-4 rounded-3xl bg-gradient-to-r from-rose-600 to-rose-500 text-white shadow-md flex items-center justify-between gap-3 animate-in fade-in duration-200">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
               <Bike className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <p className="text-xs font-black leading-tight">Delivery in Progress</p>
-              <p className="text-[11px] text-rose-100">
-                Order #{activeDelivery?.order_number}
+            <div className="min-w-0">
+              <p className="text-xs font-black leading-tight">
+                {activeDeliveryCount === 1 ? '1 Active Delivery' : `${activeDeliveryCount} Active Deliveries`} in Progress
               </p>
+              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                {activeDeliveries.slice(0, 3).map((o: any) => (
+                  <span
+                    key={o._id || o.id}
+                    className="px-2 py-0.5 rounded-lg bg-white/20 text-[10px] font-bold text-white tracking-wide"
+                  >
+                    #{o.order_number}
+                  </span>
+                ))}
+                {activeDeliveries.length > 3 && (
+                  <span className="text-[10px] font-bold text-rose-100">
+                    +{activeDeliveries.length - 3} more
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
           <Link
             href="/rider/trip"
-            className="px-3 py-1.5 rounded-xl bg-white text-rose-600 hover:bg-rose-50 text-xs font-black transition flex items-center gap-1 shrink-0 cursor-pointer"
+            className="px-3.5 py-2 rounded-2xl bg-white text-rose-600 hover:bg-rose-50 text-xs font-black transition flex items-center gap-1 shrink-0 shadow-xs cursor-pointer"
           >
-            <span>View Trip</span>
+            <span>View Trips</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -108,6 +125,7 @@ export default function RiderRadarPage() {
       <AvailableOrdersRadar
         isOnline={isOnline}
         hasActiveDelivery={hasActiveDelivery}
+        activeDeliveryCount={activeDeliveryCount}
         onOrderAccepted={() => router.push('/rider/trip')}
       />
 

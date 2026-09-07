@@ -7,7 +7,7 @@ import {
   useRiderDeliverMutation,
   useRiderCancelOrderMutation,
 } from '@/hooks/queries/use-order-queries';
-import type { Order } from '@/types';
+import type { Order, RiderActiveOrder } from '@/types';
 import { formatBDT } from '@/lib/utils';
 import {
   Store,
@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 
 interface ActiveDeliveryCardProps {
-  order: Order;
+  order: Order | RiderActiveOrder;
 }
 
 export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {

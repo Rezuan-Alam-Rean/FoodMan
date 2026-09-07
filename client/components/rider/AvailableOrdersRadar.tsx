@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRiderAvailableOrdersQuery } from '@/hooks/queries/use-rider-queries';
 import { useRiderAcceptOrderMutation } from '@/hooks/queries/use-order-queries';
 import type { Order } from '@/types';
@@ -16,21 +17,23 @@ import {
   AlertCircle,
   Loader2,
   Package,
+  Bike,
 } from 'lucide-react';
 
 interface AvailableOrdersRadarProps {
   isOnline: boolean;
-  hasActiveDelivery: boolean;
+  hasActiveDelivery?: boolean;
+  activeDeliveryCount?: number;
   onOrderAccepted?: () => void;
 }
 
 export function AvailableOrdersRadar({
   isOnline,
-  hasActiveDelivery,
+  activeDeliveryCount = 0,
   onOrderAccepted,
 }: AvailableOrdersRadarProps) {
   const { data: availableOrders = [], isLoading, isFetching } = useRiderAvailableOrdersQuery(
-    isOnline && !hasActiveDelivery
+    isOnline
   );
   const acceptMutation = useRiderAcceptOrderMutation();
   const [acceptingOrderId, setAcceptingOrderId] = useState<string | null>(null);
@@ -68,18 +71,26 @@ export function AvailableOrdersRadar({
     );
   }
 
-  if (hasActiveDelivery) {
-    return (
-      <div className="p-6 rounded-3xl bg-slate-100/80 border border-slate-200 text-center space-y-2">
-        <p className="text-xs font-bold text-slate-600">
-          Delivery task in progress. Complete your active order to receive new radar requests.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-3">
+      {activeDeliveryCount > 0 && (
+        <div className="p-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 text-emerald-900 text-xs font-medium flex items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="truncate">
+              <strong>{activeDeliveryCount}</strong> active {activeDeliveryCount === 1 ? 'trip' : 'trips'} in progress. Claim more orders below to batch deliveries!
+            </span>
+          </div>
+          <Link
+            href="/rider/trip"
+            className="inline-flex items-center gap-1 text-xs font-black text-emerald-700 hover:text-emerald-900 shrink-0 cursor-pointer"
+          >
+            <span>Trips</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+      )}
+
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />

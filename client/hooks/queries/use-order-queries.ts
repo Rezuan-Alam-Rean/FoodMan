@@ -165,7 +165,16 @@ export function useRiderCancelOrderMutation() {
     onSuccess: (_, variables) => {
       queryClient.setQueryData(['riders', 'me'], (prev: any) => {
         if (!prev) return prev;
-        return { ...prev, active_delivery: null };
+        const currentDeliveries = prev.active_deliveries || (prev.active_delivery ? [prev.active_delivery] : []);
+        const updated = currentDeliveries.filter(
+          (o: any) => o._id !== variables.orderId && o.id !== variables.orderId
+        );
+        return {
+          ...prev,
+          active_deliveries: updated,
+          active_delivery: updated[0] || null,
+          active_delivery_count: updated.length,
+        };
       });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(variables.orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
@@ -242,7 +251,23 @@ export function useRiderAcceptOrderMutation() {
     onSuccess: (acceptedOrder, orderId) => {
       queryClient.setQueryData(['riders', 'me'], (prev: any) => {
         if (!prev) return prev;
-        return { ...prev, active_delivery: acceptedOrder };
+        const currentDeliveries = prev.active_deliveries || (prev.active_delivery ? [prev.active_delivery] : []);
+        const exists = currentDeliveries.some(
+          (o: any) => o._id === acceptedOrder._id || o.id === acceptedOrder.id || o._id === orderId || o.id === orderId
+        );
+        const updated = exists
+          ? currentDeliveries.map((o: any) =>
+              o._id === acceptedOrder._id || o.id === acceptedOrder.id || o._id === orderId || o.id === orderId
+                ? acceptedOrder
+                : o
+            )
+          : [...currentDeliveries, acceptedOrder];
+        return {
+          ...prev,
+          active_deliveries: updated,
+          active_delivery: updated[0] || null,
+          active_delivery_count: updated.length,
+        };
       });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });
@@ -262,7 +287,18 @@ export function useRiderPickupMutation() {
     onSuccess: (updatedOrder, orderId) => {
       queryClient.setQueryData(['riders', 'me'], (prev: any) => {
         if (!prev) return prev;
-        return { ...prev, active_delivery: updatedOrder };
+        const currentDeliveries = prev.active_deliveries || (prev.active_delivery ? [prev.active_delivery] : []);
+        const updated = currentDeliveries.map((o: any) =>
+          o._id === updatedOrder._id || o.id === updatedOrder.id || o._id === orderId || o.id === orderId
+            ? updatedOrder
+            : o
+        );
+        return {
+          ...prev,
+          active_deliveries: updated,
+          active_delivery: updated[0] || null,
+          active_delivery_count: updated.length,
+        };
       });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
@@ -284,7 +320,16 @@ export function useRiderDeliverMutation() {
     onSuccess: (_, orderId) => {
       queryClient.setQueryData(['riders', 'me'], (prev: any) => {
         if (!prev) return prev;
-        return { ...prev, active_delivery: null };
+        const currentDeliveries = prev.active_deliveries || (prev.active_delivery ? [prev.active_delivery] : []);
+        const updated = currentDeliveries.filter(
+          (o: any) => o._id !== orderId && o.id !== orderId
+        );
+        return {
+          ...prev,
+          active_deliveries: updated,
+          active_delivery: updated[0] || null,
+          active_delivery_count: updated.length,
+        };
       });
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(orderId) });
       queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
