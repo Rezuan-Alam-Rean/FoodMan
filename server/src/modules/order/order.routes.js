@@ -11,6 +11,7 @@ import {
   handleRestaurantFoodReady,
   handleRiderPickupOrder,
   handleRiderDeliverOrder,
+  handleRiderCancelOrder,
 } from './order.controller.js';
 import {
   authenticate,
@@ -63,6 +64,13 @@ router.post(
   authenticate,
   authorize(USER_ROLES.RIDER, USER_ROLES.ADMIN),
   handleRiderAcceptOrder
+);
+
+router.post(
+  '/:id/rider-cancel',
+  authenticate,
+  authorize(USER_ROLES.RIDER),
+  handleRiderCancelOrder
 );
 
 router.post(

@@ -114,7 +114,13 @@ export const getAvailableZoneOrders = async (userId) => {
 
   // query orders looking for rider in rider's assigned operational zones (fifo oldest first)
   const orders = await Order.find({
-    status: ORDER_STATUS.LOOKING_FOR_RIDER,
+    status: {
+      $in: [
+        ORDER_STATUS.LOOKING_FOR_RIDER,
+        ORDER_STATUS.PREPARING,
+        ORDER_STATUS.READY_FOR_PICKUP,
+      ],
+    },
     delivery_zone_id: { $in: rider.assigned_zones },
     rider_id: null,
   })
