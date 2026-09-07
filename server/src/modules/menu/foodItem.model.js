@@ -13,6 +13,11 @@ const variantOptionSchema = new mongoose.Schema(
       required: [true, 'variant option price is required'],
       min: [0, 'variant price cannot be negative'],
     },
+    discount_price: {
+      type: Number,
+      default: null,
+      min: [0, 'variant discount price cannot be negative'],
+    },
   },
   { _id: true }
 );
@@ -84,6 +89,11 @@ const foodItemSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'base price is required'],
       min: [0, 'price cannot be negative'],
+    },
+    discount_price: {
+      type: Number,
+      default: null,
+      min: [0, 'discount price cannot be negative'],
     },
     is_available: {
       type: Boolean,

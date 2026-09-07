@@ -21,3 +21,20 @@ export function formatPhone(phone: string | null | undefined): string {
   }
   return phone;
 }
+
+// check if item or variant has an active discount
+export function hasValidDiscount(regularPrice: number, discountPrice?: number | null): boolean {
+  if (discountPrice === null || discountPrice === undefined || isNaN(Number(discountPrice))) {
+    return false;
+  }
+  const discount = Number(discountPrice);
+  return discount >= 0 && discount < regularPrice;
+}
+
+// returns effective price (discount price if active, otherwise regular price)
+export function getEffectivePrice(regularPrice: number, discountPrice?: number | null): number {
+  if (hasValidDiscount(regularPrice, discountPrice)) {
+    return Number(discountPrice);
+  }
+  return regularPrice;
+}

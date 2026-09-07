@@ -19,6 +19,10 @@ const orderItemSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    original_unit_price: {
+      type: Number,
+      default: null,
+    },
     quantity: {
       type: Number,
       required: true,
@@ -28,6 +32,7 @@ const orderItemSchema = new mongoose.Schema(
       group_title: String,
       option_name: String,
       price: Number,
+      original_price: Number,
     },
     selected_add_ons: [
       {

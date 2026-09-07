@@ -647,9 +647,16 @@ export default function CheckoutPage() {
                       </p>
                     )}
                   </div>
-                  <span className="font-mono font-bold text-slate-900 shrink-0">
-                    {formatBDT(item.total_price)}
-                  </span>
+                  <div className="text-right shrink-0">
+                    <span className="font-mono font-bold text-slate-900 block">
+                      {formatBDT(item.total_price)}
+                    </span>
+                    {item.original_unit_price && item.original_unit_price > item.unit_price && (
+                      <span className="font-mono text-[10px] text-slate-400 line-through block">
+                        {formatBDT(item.original_unit_price * item.quantity)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

@@ -360,7 +360,14 @@ export function AdminOrdersDesk() {
                           <span className="font-semibold">
                             {item.name || item.food_item_id?.name || 'Item'} × {item.quantity}
                           </span>
-                          <span className="font-bold text-slate-900">{formatBDT(item.total_price)}</span>
+                          <div className="text-right">
+                            <span className="font-bold text-slate-900 block">{formatBDT(item.total_price)}</span>
+                            {item.original_unit_price && item.original_unit_price > item.unit_price && (
+                              <span className="text-[10px] text-slate-400 line-through block">
+                                {formatBDT(item.original_unit_price * item.quantity)}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

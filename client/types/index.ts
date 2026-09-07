@@ -62,16 +62,23 @@ export interface UserAddress {
 }
 
 export interface VariantOption {
+  _id?: string;
+  id?: string;
   name: string;
   price: number;
+  discount_price?: number | null;
 }
 
 export interface VariantGroup {
+  _id?: string;
+  id?: string;
   title: string;
   options: VariantOption[];
 }
 
 export interface AddOn {
+  _id?: string;
+  id?: string;
   name: string;
   price: number;
 }
@@ -85,6 +92,7 @@ export interface FoodItem {
   description: string;
   image_url?: string | null;
   base_price: number;
+  discount_price?: number | null;
   variants: VariantGroup[];
   add_ons: AddOn[];
   is_vegetarian: boolean;
@@ -125,6 +133,7 @@ export interface CartItemOption {
   group_title: string;
   option_name: string;
   price: number;
+  original_price?: number | null;
 }
 
 export interface CartItemAddOn {
@@ -137,6 +146,7 @@ export interface CartItem {
   name: string;
   base_price: number;
   unit_price: number;
+  original_unit_price?: number | null;
   quantity: number;
   selected_variant?: CartItemOption | null;
   selected_add_ons?: CartItemAddOn[];
@@ -148,6 +158,7 @@ export interface OrderItem {
   food_item_id: string;
   name: string;
   unit_price: number;
+  original_unit_price?: number | null;
   quantity: number;
   selected_variant?: CartItemOption | null;
   selected_add_ons?: CartItemAddOn[];

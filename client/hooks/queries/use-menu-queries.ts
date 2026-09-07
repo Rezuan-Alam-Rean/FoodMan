@@ -135,6 +135,7 @@ export function useCreateFoodItemMutation(restaurantId: string) {
       description?: string;
       image_url?: string | null;
       base_price: number;
+      discount_price?: number | null;
       variants?: any[];
       add_ons?: any[];
       is_vegetarian?: boolean;

@@ -141,9 +141,16 @@ export default function CartPage() {
                 </p>
               )}
 
-              <p className="text-xs font-extrabold text-rose-600 dark:text-rose-400 mt-1 font-mono">
-                {formatBDT(item.total_price)}
-              </p>
+              <div className="flex items-baseline gap-1.5 mt-1">
+                <span className="text-xs font-extrabold text-rose-600 dark:text-rose-400 font-mono">
+                  {formatBDT(item.total_price)}
+                </span>
+                {item.original_unit_price && item.original_unit_price > item.unit_price && (
+                  <span className="text-[10px] text-slate-400 line-through font-mono">
+                    {formatBDT(item.original_unit_price * item.quantity)}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl p-1 shrink-0">

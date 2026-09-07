@@ -50,7 +50,14 @@ export function FoodItemModal({
   const [categoryId, setCategoryId] = useState(initialCategoryId || '');
   const [description, setDescription] = useState(initialItem?.description || '');
   const [basePrice, setBasePrice] = useState<string>(
-    initialItem?.base_price !== undefined ? String(initialItem.base_price) : ''
+    initialItem?.base_price !== undefined && initialItem?.base_price !== null
+      ? String(initialItem.base_price)
+      : ''
+  );
+  const [discountPrice, setDiscountPrice] = useState<string>(
+    initialItem?.discount_price !== undefined && initialItem?.discount_price !== null
+      ? String(initialItem.discount_price)
+      : ''
   );
   const [isVegetarian, setIsVegetarian] = useState(initialItem?.is_vegetarian || false);
   const [isAvailable, setIsAvailable] = useState(
@@ -63,6 +70,10 @@ export function FoodItemModal({
       options: (g.options || []).map((o) => ({
         name: o.name,
         price: Number(o.price) || 0,
+        discount_price:
+          o.discount_price !== undefined && o.discount_price !== null
+            ? Number(o.discount_price)
+            : null,
       })),
     }))
   );
@@ -109,7 +120,16 @@ export function FoodItemModal({
       setName(initialItem.name || '');
       setCategoryId(catId || '');
       setDescription(initialItem.description || '');
-      setBasePrice(String(initialItem.base_price || ''));
+      setBasePrice(
+        initialItem.base_price !== null && initialItem.base_price !== undefined
+          ? String(initialItem.base_price)
+          : ''
+      );
+      setDiscountPrice(
+        initialItem.discount_price !== undefined && initialItem.discount_price !== null
+          ? String(initialItem.discount_price)
+          : ''
+      );
       setIsVegetarian(initialItem.is_vegetarian || false);
       setIsAvailable(initialItem.is_available ?? true);
       setVariants(
@@ -118,6 +138,10 @@ export function FoodItemModal({
           options: (g.options || []).map((o) => ({
             name: o.name,
             price: Number(o.price) || 0,
+            discount_price:
+              o.discount_price !== undefined && o.discount_price !== null
+                ? Number(o.discount_price)
+                : null,
           })),
         }))
       );
@@ -128,6 +152,7 @@ export function FoodItemModal({
       setCategoryId(categories[0]?.id || categories[0]?._id || '');
       setDescription('');
       setBasePrice('');
+      setDiscountPrice('');
       setIsVegetarian(false);
       setIsAvailable(true);
       setVariants([]);
@@ -182,7 +207,7 @@ export function FoodItemModal({
   const handleUpdateOption = (
     groupIndex: number,
     optionIndex: number,
-    field: 'name' | 'price',
+    field: 'name' | 'price' | 'discount_price',
     value: string | number
   ) => {
     setVariants((prev) =>
@@ -198,6 +223,16 @@ export function FoodItemModal({
             return {
               ...opt,
               price: isNaN(numVal) ? ('' as any) : numVal,
+            };
+          }
+          if (field === 'discount_price') {
+            if (value === '' || value === null || value === undefined) {
+              return { ...opt, discount_price: null };
+            }
+            const numVal = Number(value);
+            return {
+              ...opt,
+              discount_price: isNaN(numVal) ? ('' as any) : numVal,
             };
           }
           return {
@@ -277,7 +312,21 @@ export function FoodItemModal({
       return;
     }
 
-    // validate variant prices
+    let parsedDiscountPrice: number | null = null;
+    if (discountPrice.trim()) {
+      const dNum = Number(discountPrice);
+      if (isNaN(dNum) || dNum < 0) {
+        setError('Discount price must be a non-negative number');
+        return;
+      }
+      if (dNum >= priceNum) {
+        setError(`Discount price (৳${dNum}) must be strictly less than base price (৳${priceNum})`);
+        return;
+      }
+      parsedDiscountPrice = dNum;
+    }
+
+    // validate variant prices and discount prices
     for (const g of variants) {
       if (g.title.trim()) {
         for (const o of g.options) {
@@ -286,6 +335,21 @@ export function FoodItemModal({
             if (isNaN(optPrice) || optPrice < 0 || (o.price as any) === '' || (o.price as any) === undefined) {
               setError(`Price is required for variant "${o.name.trim()}" in group "${g.title.trim()}"`);
               return;
+            }
+            if (
+              o.discount_price !== null &&
+              o.discount_price !== undefined &&
+              (o.discount_price as any) !== ''
+            ) {
+              const optDisc = Number(o.discount_price);
+              if (isNaN(optDisc) || optDisc < 0) {
+                setError(`Discount price for variant "${o.name.trim()}" must be non-negative`);
+                return;
+              }
+              if (optDisc >= optPrice) {
+                setError(`Discount price (৳${optDisc}) for variant "${o.name.trim()}" must be strictly less than regular price (৳${optPrice})`);
+                return;
+              }
             }
           }
         }
@@ -302,6 +366,13 @@ export function FoodItemModal({
           .map((o) => ({
             name: o.name.trim(),
             price: Number(o.price) || 0,
+            discount_price:
+              o.discount_price !== null &&
+              o.discount_price !== undefined &&
+              (o.discount_price as any) !== '' &&
+              !isNaN(Number(o.discount_price))
+                ? Number(o.discount_price)
+                : null,
           })),
       }))
       .filter((g) => g.options.length > 0);
@@ -334,6 +405,7 @@ export function FoodItemModal({
       category_id: categoryId,
       description: description.trim(),
       base_price: priceNum,
+      discount_price: parsedDiscountPrice,
       is_vegetarian: isVegetarian,
       is_available: isAvailable,
       image_url: trimmedImageUrl || null,
@@ -567,7 +639,7 @@ export function FoodItemModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                 Base Price (BDT) *
@@ -578,12 +650,32 @@ export function FoodItemModal({
                 </span>
                 <input
                   type="number"
-                  min="1"
+                  min="0"
                   step="1"
                   required
                   value={basePrice}
                   onChange={(e) => setBasePrice(e.target.value)}
                   placeholder="250"
+                  className="w-full pl-8 pr-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                Discount Price (BDT) <span className="text-slate-400 font-normal lowercase">(optional)</span>
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-bold text-slate-400">
+                  ৳
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={discountPrice}
+                  onChange={(e) => setDiscountPrice(e.target.value)}
+                  placeholder="e.g. 199"
                   className="w-full pl-8 pr-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
                 />
               </div>
@@ -680,6 +772,13 @@ export function FoodItemModal({
                     </div>
 
                     <div className="space-y-1.5 pl-2 border-l-2 border-slate-200">
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase px-1">
+                        <span className="flex-1">Option Name</span>
+                        <span className="w-16 text-right">Price</span>
+                        <span className="w-16 text-right">Discount</span>
+                        {group.options.length > 1 && <span className="w-5" />}
+                      </div>
+
                       {group.options.map((opt, oIdx) => (
                         <div key={oIdx} className="flex items-center gap-2 min-w-0">
                           <input
@@ -691,7 +790,7 @@ export function FoodItemModal({
                             placeholder="Option (e.g. Large)"
                             className="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-medium focus:outline-hidden focus:ring-1 focus:ring-rose-500"
                           />
-                          <div className="flex items-center gap-1 shrink-0 bg-white border border-slate-200 rounded-xl px-2 py-1">
+                          <div className="flex items-center gap-1 shrink-0 bg-white border border-slate-200 rounded-xl px-2 py-1" title="Regular Price">
                             <span className="text-[10px] text-slate-400 font-bold">৳</span>
                             <input
                               type="number"
@@ -702,7 +801,20 @@ export function FoodItemModal({
                                 handleUpdateOption(gIdx, oIdx, 'price', e.target.value)
                               }
                               placeholder="Price"
-                              className="w-14 bg-transparent text-slate-800 text-xs font-bold focus:outline-hidden text-right"
+                              className="w-12 bg-transparent text-slate-800 text-xs font-bold focus:outline-hidden text-right"
+                            />
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0 bg-white border border-slate-200 rounded-xl px-2 py-1" title="Discount Price (Optional)">
+                            <span className="text-[10px] text-slate-400 font-bold">৳</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={opt.discount_price !== null && opt.discount_price !== undefined ? opt.discount_price : ''}
+                              onChange={(e) =>
+                                handleUpdateOption(gIdx, oIdx, 'discount_price', e.target.value)
+                              }
+                              placeholder="Disc."
+                              className="w-12 bg-transparent text-slate-800 text-xs font-bold focus:outline-hidden text-right"
                             />
                           </div>
                           {group.options.length > 1 && (

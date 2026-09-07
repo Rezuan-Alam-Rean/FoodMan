@@ -12,7 +12,7 @@ import {
 } from '@/hooks/queries/use-menu-queries';
 import { FoodItemModal } from './FoodItemModal';
 import type { Restaurant, FoodItem, MenuCategory } from '@/types';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, hasValidDiscount } from '@/lib/utils';
 import {
   BookOpen,
   Plus,
@@ -252,9 +252,22 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                             </span>
                           )}
                         </div>
-                        <p className="text-xs font-black text-rose-600">
-                          {formatBDT(item.base_price)}
-                        </p>
+                        <div className="flex items-baseline gap-1.5 pt-0.5">
+                          {hasValidDiscount(item.base_price, item.discount_price) ? (
+                            <>
+                              <span className="text-xs font-black text-rose-600 font-mono">
+                                {formatBDT(item.discount_price)}
+                              </span>
+                              <span className="text-[11px] font-semibold text-slate-400 line-through font-mono">
+                                {formatBDT(item.base_price)}
+                              </span>
+                            </>
+                          ) : (
+                            <p className="text-xs font-black text-rose-600 font-mono">
+                              {formatBDT(item.base_price)}
+                            </p>
+                          )}
+                        </div>
                       </div>
 
                       <button

@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import type { FoodItem, Restaurant, CartItem, CartItemOption, CartItemAddOn } from '@/types';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, hasValidDiscount, getEffectivePrice } from '@/lib/utils';
 import { X, Plus, Minus, Check, UtensilsCrossed, Sparkles } from 'lucide-react';
 
 interface CustomizationModalProps {
@@ -23,18 +23,24 @@ export function CustomizationModal({
 }: CustomizationModalProps) {
   if (!isOpen || !item) return null;
 
-  const resolveOptionPrice = (price: unknown) => {
-    const parsed = Number(price);
-    return Number.isFinite(parsed) ? parsed : item.base_price || 0;
+  const resolveOptionPricing = (option: { price: unknown; discount_price?: unknown }) => {
+    const regular = Number(option.price);
+    const regularPrice = Number.isFinite(regular) ? regular : item.base_price || 0;
+    const hasDiscount = hasValidDiscount(regularPrice, option.discount_price as number | null | undefined);
+    const effectivePrice = hasDiscount ? Number(option.discount_price) : regularPrice;
+    const originalPrice = hasDiscount ? regularPrice : null;
+    return { regularPrice, effectivePrice, originalPrice, hasDiscount };
   };
 
   // default to first variant if exists
   const firstOpt = item.variants?.[0]?.options?.[0];
-  const initialVariant = firstOpt
+  const firstOptPricing = firstOpt ? resolveOptionPricing(firstOpt) : null;
+  const initialVariant: CartItemOption | null = firstOpt && firstOptPricing
     ? {
         group_title: item.variants[0].title,
         option_name: firstOpt.name,
-        price: resolveOptionPrice(firstOpt.price),
+        price: firstOptPricing.effectivePrice,
+        original_price: firstOptPricing.originalPrice,
       }
     : null;
 
@@ -42,13 +48,24 @@ export function CustomizationModal({
   const [selectedAddOns, setSelectedAddOns] = useState<CartItemAddOn[]>([]);
   const [quantity, setQuantity] = useState<number>(1);
 
+  const itemBaseHasDiscount = hasValidDiscount(item.base_price, item.discount_price);
+  const itemEffectiveBasePrice = getEffectivePrice(item.base_price, item.discount_price);
+  const itemOriginalBasePrice = itemBaseHasDiscount ? item.base_price : null;
+
   // In absolute pricing, if a variant is selected, its price supersedes base_price.
   const activeBasePrice =
     selectedVariant != null && selectedVariant.price !== undefined
       ? selectedVariant.price
-      : item.base_price || 0;
+      : itemEffectiveBasePrice;
+
+  const activeOriginalBasePrice =
+    selectedVariant != null && selectedVariant.price !== undefined
+      ? selectedVariant.original_price ?? null
+      : itemOriginalBasePrice;
+
   const addOnsTotal = selectedAddOns.reduce((sum, a) => sum + a.price, 0);
   const unitPrice = activeBasePrice + addOnsTotal;
+  const originalUnitPrice = activeOriginalBasePrice !== null ? activeOriginalBasePrice + addOnsTotal : null;
   const totalPrice = unitPrice * quantity;
 
   const toggleAddOn = (addOn: { name: string; price: number }) => {
@@ -66,6 +83,7 @@ export function CustomizationModal({
       name: item.name,
       base_price: activeBasePrice,
       unit_price: unitPrice,
+      original_unit_price: originalUnitPrice,
       quantity,
       selected_variant: selectedVariant,
       selected_add_ons: selectedAddOns,
@@ -125,9 +143,16 @@ export function CustomizationModal({
                 {item.description || 'Prepared fresh with high quality ingredients.'}
               </p>
             </div>
-            <span className="text-base font-black text-rose-600 dark:text-rose-400 font-mono shrink-0">
-              {formatBDT(unitPrice)}
-            </span>
+            <div className="flex items-baseline gap-1.5 shrink-0">
+              <span className="text-base font-black text-rose-600 dark:text-rose-400 font-mono">
+                {formatBDT(unitPrice)}
+              </span>
+              {originalUnitPrice !== null && (
+                <span className="text-xs font-semibold text-slate-400 line-through font-mono">
+                  {formatBDT(originalUnitPrice)}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -150,7 +175,7 @@ export function CustomizationModal({
                       const isSelected =
                         selectedVariant?.group_title === group.title &&
                         selectedVariant?.option_name === option.name;
-                      const optPrice = resolveOptionPrice(option.price);
+                      const optPricing = resolveOptionPricing(option);
                       return (
                         <button
                           key={optIdx}
@@ -159,7 +184,8 @@ export function CustomizationModal({
                             setSelectedVariant({
                               group_title: group.title,
                               option_name: option.name,
-                              price: optPrice,
+                              price: optPricing.effectivePrice,
+                              original_price: optPricing.originalPrice,
                             })
                           }
                           className={`flex items-center justify-between p-3 rounded-2xl border text-xs font-semibold transition cursor-pointer ${
@@ -178,9 +204,16 @@ export function CustomizationModal({
                             </div>
                             <span>{option.name}</span>
                           </div>
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono">
-                            {formatBDT(optPrice)}
-                          </span>
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono">
+                              {formatBDT(optPricing.effectivePrice)}
+                            </span>
+                            {optPricing.hasDiscount && (
+                              <span className="text-[10px] font-semibold text-slate-400 line-through font-mono">
+                                {formatBDT(optPricing.regularPrice)}
+                              </span>
+                            )}
+                          </div>
                         </button>
                       );
                     })}
