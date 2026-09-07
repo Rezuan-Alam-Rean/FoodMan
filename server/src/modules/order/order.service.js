@@ -422,26 +422,47 @@ export const cancelOrder = async (orderId, reason, user) => {
   // authorize caller
   const isOwner = order.customer_id.toString() === user._id.toString();
   const isRestaurant = order.restaurant_id?.owner_id?.toString() === user._id.toString();
-  if (user.role !== USER_ROLES.ADMIN && !isOwner && !isRestaurant) {
+  const isAdmin = user.role === USER_ROLES.ADMIN;
+  if (!isAdmin && !isOwner && !isRestaurant) {
     throw ApiError.forbidden('you do not have permission to cancel this order');
   }
 
-  // strictly forbid cancellation once food is in preparation or dual acceptance is locked
-  if (
-    order.cancellation_locked ||
-    order.status === ORDER_STATUS.PREPARING ||
-    order.status === ORDER_STATUS.READY_FOR_PICKUP ||
-    order.status === ORDER_STATUS.PICKED_UP ||
-    order.status === ORDER_STATUS.DELIVERED
-  ) {
-    throw ApiError.badRequest(
-      'order cancellation is locked: food preparation is already in progress'
-    );
+  if (order.status === ORDER_STATUS.CANCELLED) {
+    throw ApiError.badRequest('order is already cancelled');
   }
 
+  if (order.status === ORDER_STATUS.DELIVERED) {
+    throw ApiError.badRequest('cannot cancel an already delivered order');
+  }
+
+  // Customer cancellation rule: strictly forbidden once cooking begins or dual acceptance locked
+  if (isOwner && !isAdmin) {
+    if (
+      order.cancellation_locked ||
+      order.status === ORDER_STATUS.PREPARING ||
+      order.status === ORDER_STATUS.READY_FOR_PICKUP ||
+      order.status === ORDER_STATUS.PICKED_UP
+    ) {
+      throw ApiError.badRequest(
+        'order cancellation is locked: food preparation is already in progress'
+      );
+    }
+  }
+
+  // Restaurant cancellation rule: forbidden once food is picked up and on the road
+  if (isRestaurant && !isAdmin) {
+    if (order.status === ORDER_STATUS.PICKED_UP) {
+      throw ApiError.badRequest(
+        'cannot cancel order: food has already been picked up by the courier and is on the road'
+      );
+    }
+  }
+
+  const cancelledByRole = isAdmin ? 'admin' : isRestaurant ? 'restaurant' : 'customer';
   order.status = ORDER_STATUS.CANCELLED;
   order.cancelled_at = new Date();
-  order.cancellation_reason = reason || 'cancelled by user';
+  order.cancellation_reason = reason?.trim() || `cancelled by ${cancelledByRole}`;
+  order.cancellation_locked = false;
   await order.save();
 
   const populatedOrder = await Order.findById(order._id).populate('restaurant_id');
@@ -454,7 +475,7 @@ export const cancelOrder = async (orderId, reason, user) => {
     orderId: order._id,
     type: NOTIFICATION_TYPES.ORDER_CANCELLED,
     priority: NOTIFICATION_PRIORITIES.ALARM,
-    title: 'Order Cancelled',
+    title: isRestaurant ? 'Order Cancelled by Restaurant' : 'Order Cancelled',
     message: `Order #${order.order_number} was cancelled. Reason: ${order.cancellation_reason}`,
     metadata: {
       order_id: order._id,
@@ -475,7 +496,7 @@ export const cancelOrder = async (orderId, reason, user) => {
       type: NOTIFICATION_TYPES.ORDER_CANCELLED,
       priority: NOTIFICATION_PRIORITIES.ALARM,
       title: `Order #${order.order_number} Cancelled`,
-      message: `Order #${order.order_number} was cancelled. Reason: ${order.cancellation_reason}`,
+      message: `Order #${order.order_number} was cancelled by ${cancelledByRole}. Reason: ${order.cancellation_reason}`,
       metadata: {
         order_id: order._id,
         order_number: order.order_number,
@@ -497,8 +518,8 @@ export const cancelOrder = async (orderId, reason, user) => {
           orderId: order._id,
           type: NOTIFICATION_TYPES.ORDER_CANCELLED,
           priority: NOTIFICATION_PRIORITIES.ALARM,
-          title: `Order #${order.order_number} Cancelled`,
-          message: `Delivery #${order.order_number} was cancelled by user.`,
+          title: `Delivery #${order.order_number} Cancelled`,
+          message: `Delivery #${order.order_number} was cancelled by ${cancelledByRole}. Reason: ${order.cancellation_reason}`,
           metadata: {
             order_id: order._id,
             order_number: order.order_number,
@@ -521,6 +542,121 @@ export const cancelOrder = async (orderId, reason, user) => {
       metadata: { order_id: order._id, order_number: order.order_number },
       channels: [`zone-${order.delivery_zone_id}`],
       event: 'order:claimed',
+    }).catch(() => {});
+  }
+
+  return order;
+};
+
+/**
+ * rider releases / unassigns from an order before pickup, returning it to the radar queue
+ * @param {string} orderId
+ * @param {string} reason
+ * @param {string} riderUserId
+ * @returns {object}
+ */
+export const riderUnassignOrder = async (orderId, reason, riderUserId) => {
+  const rider = await Rider.findOne({ user_id: riderUserId });
+  if (!rider) {
+    throw ApiError.notFound('rider profile not found');
+  }
+
+  const order = await Order.findById(orderId).populate('restaurant_id');
+  if (!order) {
+    throw ApiError.notFound('order not found');
+  }
+
+  if (!order.rider_id || order.rider_id.toString() !== rider._id.toString()) {
+    throw ApiError.forbidden('you are not the assigned courier for this order');
+  }
+
+  // Strictly forbid releasing once food has been picked up
+  if (order.status === ORDER_STATUS.PICKED_UP) {
+    throw ApiError.badRequest('cannot release order after food has been picked up from restaurant');
+  }
+
+  if (order.status === ORDER_STATUS.DELIVERED || order.status === ORDER_STATUS.CANCELLED) {
+    throw ApiError.badRequest(`cannot release order in status "${order.status}"`);
+  }
+
+  const unassignReason = reason?.trim() || 'courier unassigned';
+  const previousStatus = order.status;
+
+  // Clear rider assignment
+  order.rider_id = null;
+  order.rider_accepted_at = null;
+
+  // If order was in RIDER_ACCEPTED, return to LOOKING_FOR_RIDER
+  if (previousStatus === ORDER_STATUS.RIDER_ACCEPTED) {
+    order.status = ORDER_STATUS.LOOKING_FOR_RIDER;
+  }
+  // If order was in PREPARING or READY_FOR_PICKUP, preserve that status so kitchen doesn't lose progress!
+
+  const auditNote = `[Courier unassigned: ${unassignReason}]`;
+  order.special_notes = order.special_notes
+    ? `${order.special_notes.trim()} ${auditNote}`
+    : auditNote;
+
+  await order.save();
+
+  const restaurant = order.restaurant_id;
+
+  // 1. Notify Restaurant (ALARM)
+  if (restaurant?.owner_id) {
+    dispatchNotification({
+      recipientId: restaurant.owner_id,
+      role: USER_ROLES.RESTAURANT_OWNER,
+      orderId: order._id,
+      type: NOTIFICATION_TYPES.RIDER_UNASSIGNED,
+      priority: NOTIFICATION_PRIORITIES.ALARM,
+      title: `Courier Unassigned from #${order.order_number}`,
+      message: `Courier had to release order #${order.order_number} (${unassignReason}). Re-queued for another courier.`,
+      metadata: {
+        order_id: order._id,
+        order_number: order.order_number,
+        status: order.status,
+        reason: unassignReason,
+      },
+      channels: [`restaurant-${restaurant._id}`],
+      event: 'order:rider_unassigned',
+    }).catch(() => {});
+  }
+
+  // 2. Notify Customer (SILENT / Informative)
+  dispatchNotification({
+    recipientId: order.customer_id,
+    role: USER_ROLES.CUSTOMER,
+    orderId: order._id,
+    type: NOTIFICATION_TYPES.RIDER_UNASSIGNED,
+    priority: NOTIFICATION_PRIORITIES.SILENT,
+    title: 'Finding Replacement Courier',
+    message: `Your courier encountered an issue (${unassignReason}). Finding another nearby courier for Order #${order.order_number}.`,
+    metadata: {
+      order_id: order._id,
+      order_number: order.order_number,
+      status: order.status,
+      reason: unassignReason,
+    },
+    channels: [`customer-${order.customer_id}`, `order-${order._id}`],
+    event: 'order:rider_unassigned',
+  }).catch(() => {});
+
+  // 3. Broadcast to Zone Riders so it immediately shows up on radar
+  if (order.delivery_zone_id) {
+    dispatchNotification({
+      role: USER_ROLES.RIDER,
+      orderId: order._id,
+      type: NOTIFICATION_TYPES.ORDER_AVAILABLE,
+      priority: NOTIFICATION_PRIORITIES.SILENT,
+      title: 'Delivery Available!',
+      message: `Order #${order.order_number} is available for delivery in your zone.`,
+      metadata: {
+        order_id: order._id,
+        order_number: order.order_number,
+        status: order.status,
+      },
+      channels: [`zone-${order.delivery_zone_id}`],
+      event: 'order:available',
     }).catch(() => {});
   }
 
@@ -583,14 +719,38 @@ export const riderAcceptOrder = async (orderId, riderUserId) => {
     throw ApiError.notFound('rider profile not found');
   }
 
+  // Find candidate order available for claim
+  const targetOrder = await Order.findOne({
+    _id: orderId,
+    rider_id: null,
+    status: {
+      $in: [
+        ORDER_STATUS.LOOKING_FOR_RIDER,
+        ORDER_STATUS.PREPARING,
+        ORDER_STATUS.READY_FOR_PICKUP,
+      ],
+    },
+  });
+
+  if (!targetOrder) {
+    throw ApiError.badRequest('order is no longer available or already claimed by another rider');
+  }
+
+  // If order was in LOOKING_FOR_RIDER, advance to RIDER_ACCEPTED.
+  // If order was already PREPARING or READY_FOR_PICKUP, maintain that cooking/ready state!
+  const nextStatus =
+    targetOrder.status === ORDER_STATUS.LOOKING_FOR_RIDER
+      ? ORDER_STATUS.RIDER_ACCEPTED
+      : targetOrder.status;
+
   // atomic claim condition
   const claimedOrder = await Order.findOneAndUpdate(
-    { _id: orderId, status: ORDER_STATUS.LOOKING_FOR_RIDER, rider_id: null },
+    { _id: orderId, status: targetOrder.status, rider_id: null },
     {
       $set: {
         rider_id: rider._id,
         rider_accepted_at: new Date(),
-        status: ORDER_STATUS.RIDER_ACCEPTED,
+        status: nextStatus,
       },
     },
     { new: true }
@@ -625,6 +785,11 @@ export const riderAcceptOrder = async (orderId, riderUserId) => {
 
     // 2. Notify Restaurant (SILENT status update)
     if (restaurant?.owner_id) {
+      const restMsg =
+        claimedOrder.status === ORDER_STATUS.RIDER_ACCEPTED
+          ? `Courier ${riderUser?.name || 'Rider'} assigned. Kitchen can now accept and start cooking!`
+          : `New courier ${riderUser?.name || 'Rider'} assigned to in-progress Order #${claimedOrder.order_number}.`;
+
       dispatchNotification({
         recipientId: restaurant.owner_id,
         role: USER_ROLES.RESTAURANT_OWNER,
@@ -632,7 +797,7 @@ export const riderAcceptOrder = async (orderId, riderUserId) => {
         type: NOTIFICATION_TYPES.RIDER_ASSIGNED,
         priority: NOTIFICATION_PRIORITIES.SILENT,
         title: `Rider Assigned to #${claimedOrder.order_number}`,
-        message: `Courier ${riderUser?.name || 'Rider'} assigned. Kitchen can now accept and start cooking!`,
+        message: restMsg,
         metadata: {
           order_id: claimedOrder._id,
           order_number: claimedOrder.order_number,

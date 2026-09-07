@@ -71,3 +71,6 @@ export function useUpdateRiderZonesMutation() {
     },
   });
 }
+
+export { useRiderCancelOrderMutation } from './use-order-queries';
+

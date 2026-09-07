@@ -10,6 +10,7 @@ import {
   restaurantFoodReady,
   riderPickupOrder,
   riderDeliverOrder,
+  riderUnassignOrder,
 } from './order.service.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
@@ -111,6 +112,16 @@ export const handleRiderDeliverOrder = catchAsync(async (req, res) => {
   return ApiResponse.success(res, {
     statusCode: HTTP_STATUS.OK,
     message: 'order delivered successfully and earnings credited',
+    data: order,
+  });
+});
+
+export const handleRiderCancelOrder = catchAsync(async (req, res) => {
+  const order = await riderUnassignOrder(req.params.id, req.body.reason, req.user._id);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: 'order released and returned to delivery radar successfully',
     data: order,
   });
 });

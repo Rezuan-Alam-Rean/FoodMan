@@ -129,7 +129,7 @@ export function useLiveOrderStatusQuery(orderId: string, enabled = true) {
   });
 }
 
-export function useCancelOrderMutation() {
+export function useCancelOrderMutation(restaurantId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ orderId, reason }: { orderId: string; reason?: string }) => {
@@ -138,6 +138,40 @@ export function useCancelOrderMutation() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(variables.orderId) });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders', 'restaurant-live'] });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
+      if (restaurantId) {
+        queryClient.invalidateQueries({ queryKey: ORDER_KEYS.restaurantLive(restaurantId) });
+      }
+    },
+  });
+}
+
+export function useRestaurantCancelOrderMutation(restaurantId?: string) {
+  return useCancelOrderMutation(restaurantId);
+}
+
+export function useRiderCancelOrderMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ orderId, reason }: { orderId: string; reason?: string }) => {
+      const data = await apiClient.post<any, Order>(`/orders/${orderId}/rider-cancel`, {
+        reason,
+      });
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.setQueryData(['riders', 'me'], (prev: any) => {
+        if (!prev) return prev;
+        return { ...prev, active_delivery: null };
+      });
+      queryClient.invalidateQueries({ queryKey: ORDER_KEYS.status(variables.orderId) });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['riders', 'available-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders', 'restaurant-live'] });
     },
   });
 }

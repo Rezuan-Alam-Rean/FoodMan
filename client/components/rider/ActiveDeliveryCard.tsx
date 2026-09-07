@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import {
   useRiderPickupMutation,
   useRiderDeliverMutation,
+  useRiderCancelOrderMutation,
 } from '@/hooks/queries/use-order-queries';
 import type { Order } from '@/types';
 import { formatBDT } from '@/lib/utils';
@@ -23,6 +24,8 @@ import {
   Check,
   X,
   Flame,
+  Undo2,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface ActiveDeliveryCardProps {
@@ -31,6 +34,9 @@ interface ActiveDeliveryCardProps {
 
 export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
   const [confirmDeliverModalOpen, setConfirmDeliverModalOpen] = useState(false);
+  const [releaseModalOpen, setReleaseModalOpen] = useState(false);
+  const [releaseReason, setReleaseReason] = useState('');
+  const [selectedPresetReason, setSelectedPresetReason] = useState('Vehicle breakdown / flat tire');
   const [actionError, setActionError] = useState('');
   const [contactModal, setContactModal] = useState<{
     name: string;
@@ -41,6 +47,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
 
   const pickupMutation = useRiderPickupMutation();
   const deliverMutation = useRiderDeliverMutation();
+  const riderCancelMutation = useRiderCancelOrderMutation();
 
   const isPickedUp = order.status === 'PICKED_UP';
   const isFoodReady = order.status === 'READY_FOR_PICKUP';
@@ -68,6 +75,31 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
         setActionError(err.message || 'failed to complete delivery');
       },
     });
+  };
+
+  const handleConfirmRelease = () => {
+    setActionError('');
+    const finalReason =
+      selectedPresetReason === 'Other'
+        ? releaseReason.trim() || 'Courier released delivery'
+        : releaseReason.trim()
+        ? `${selectedPresetReason}: ${releaseReason.trim()}`
+        : selectedPresetReason;
+
+    riderCancelMutation.mutate(
+      {
+        orderId: order.id || order._id,
+        reason: finalReason,
+      },
+      {
+        onSuccess: () => {
+          setReleaseModalOpen(false);
+        },
+        onError: (err: any) => {
+          setActionError(err.message || 'Failed to release order');
+        },
+      }
+    );
   };
 
   const handleCopyPhone = async () => {
@@ -306,6 +338,20 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
               <span>Complete Delivery & Hand Over</span>
             </button>
           )}
+
+          {!isPickedUp && (
+            <button
+              type="button"
+              onClick={() => {
+                setActionError('');
+                setReleaseModalOpen(true);
+              }}
+              className="w-full mt-2.5 py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100/70 text-rose-700 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+              <span>Release Trip / Can't Deliver</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -418,6 +464,107 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   'Confirm Done'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {releaseModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 leading-tight">
+                    Release Delivery Trip
+                  </h3>
+                  <p className="text-xs text-slate-400 font-medium">Order #{order.order_number}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReleaseModalOpen(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 space-y-1">
+              <p className="font-bold">What happens when you release?</p>
+              <p className="text-amber-800 text-[11px] leading-relaxed">
+                This order will be immediately returned to the delivery radar for another courier to accept. The kitchen will preserve cooking progress.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 block">
+                Select reason for releasing trip:
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  'Vehicle breakdown / flat tire',
+                  'Severe rain / bad weather',
+                  'Personal emergency',
+                  'Traffic jam / road blocked',
+                  'Other',
+                ].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setSelectedPresetReason(preset)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                      selectedPresetReason === preset
+                        ? 'bg-rose-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
+
+              {selectedPresetReason === 'Other' && (
+                <textarea
+                  rows={2}
+                  value={releaseReason}
+                  onChange={(e) => setReleaseReason(e.target.value)}
+                  placeholder="Explain why you cannot complete this pickup..."
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-rose-500 focus:ring-1 focus:ring-rose-500 mt-2"
+                />
+              )}
+            </div>
+
+            {actionError && (
+              <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{actionError}</span>
+              </div>
+            )}
+
+            <div className="pt-2 flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setReleaseModalOpen(false)}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition cursor-pointer"
+              >
+                Keep Delivery
+              </button>
+              <button
+                type="button"
+                disabled={riderCancelMutation.isPending}
+                onClick={handleConfirmRelease}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+              >
+                {riderCancelMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  'Confirm & Release'
                 )}
               </button>
             </div>
