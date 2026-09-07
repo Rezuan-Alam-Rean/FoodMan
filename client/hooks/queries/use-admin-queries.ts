@@ -284,6 +284,21 @@ export function useUpdateAdminUserMutation() {
   });
 }
 
+export function useUpdateAdminRiderZonesMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, zone_ids }: { userId: string; zone_ids: string[] }) =>
+      apiClient.put(`/admin/users/${userId}/zones`, { zone_ids }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'user', variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'rider', variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ['riders'] });
+      queryClient.invalidateQueries({ queryKey: ['zones'] });
+    },
+  });
+}
+
 export function useAdminAllOrdersQuery(params?: {
   status?: string;
   search?: string;

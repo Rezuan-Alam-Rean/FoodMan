@@ -6,7 +6,10 @@ import type { Restaurant, MenuCategory } from '@/types';
 export const RESTAURANT_KEYS = {
   all: (params?: { search?: string; is_open?: boolean | string }) =>
     ['restaurants', params] as const,
-  detail: (idOrSlug: string) => ['restaurant', idOrSlug] as const,
+  detail: (idOrSlug: string, options?: { includeUnavailable?: boolean }) =>
+    options?.includeUnavailable
+      ? (['restaurant', idOrSlug, 'all'] as const)
+      : (['restaurant', idOrSlug] as const),
   myRestaurant: ['restaurant', 'me'] as const,
 };
 
@@ -63,12 +66,18 @@ export function useRestaurantsQuery(params?: {
   });
 }
 
-export function useRestaurantDetailsQuery(idOrSlug: string) {
+export function useRestaurantDetailsQuery(
+  idOrSlug: string,
+  options?: { includeUnavailable?: boolean }
+) {
   return useQuery({
-    queryKey: RESTAURANT_KEYS.detail(idOrSlug),
+    queryKey: RESTAURANT_KEYS.detail(idOrSlug, options),
     queryFn: async (): Promise<{ restaurant: Restaurant; menu: MenuCategory[] }> => {
       const data = await apiClient.get<any, { restaurant: Restaurant; menu: MenuCategory[] }>(
-        `/restaurants/${idOrSlug}`
+        `/restaurants/${idOrSlug}`,
+        {
+          params: options?.includeUnavailable ? { includeUnavailable: true } : undefined,
+        }
       );
       return data;
     },

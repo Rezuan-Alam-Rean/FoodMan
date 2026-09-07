@@ -23,6 +23,7 @@ import {
 import { useAdminUserDetailsQuery } from '@/hooks/queries/use-admin-queries';
 import { DisbursePayoutModal } from './DisbursePayoutModal';
 import { EditUserModal } from './EditUserModal';
+import { EditRiderZonesModal } from './EditRiderZonesModal';
 import { formatBDT } from '@/lib/utils';
 
 interface AdminUserDetailsViewProps {
@@ -67,6 +68,7 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
   const [riderTab, setRiderTab] = useState<'trips' | 'remittances'>('trips');
   const [isPayoutOpen, setIsPayoutOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isZonesModalOpen, setIsZonesModalOpen] = useState(false);
 
   const { data, isLoading, isError, refetch } = useAdminUserDetailsQuery(userId);
 
@@ -299,19 +301,46 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Cash In Hand Limit</p>
                 <p className="font-bold text-slate-900 mt-0.5">{formatBDT(rider?.cash_in_hand_limit || 3000)}</p>
               </div>
-              {rider?.assigned_zones && rider.assigned_zones.length > 0 && (
-                <div className="col-span-2 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase mb-1.5">Operational Zones</p>
-                  <div className="flex flex-wrap gap-2">
+              <div className="col-span-2 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">
+                    Operational Zones
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsZonesModalOpen(true)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold transition cursor-pointer"
+                  >
+                    <Edit className="w-3 h-3" />
+                    <span>Edit Zones</span>
+                  </button>
+                </div>
+
+                {rider?.assigned_zones && rider.assigned_zones.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
                     {rider.assigned_zones.map((z: any) => (
-                      <span key={z._id} className="px-2.5 py-1 rounded-xl bg-blue-100 text-blue-700 text-xs font-bold">
-                        <MapPin className="w-3 h-3 inline mr-1" />
-                        {z.name}
+                      <span
+                        key={typeof z === 'string' ? z : z._id}
+                        className="px-2.5 py-1 rounded-xl bg-indigo-100/80 text-indigo-800 text-xs font-bold inline-flex items-center gap-1"
+                      >
+                        <MapPin className="w-3 h-3 text-indigo-600" />
+                        <span>{typeof z === 'string' ? z : z.name}</span>
                       </span>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="flex items-center justify-between py-1 text-slate-400 text-xs font-medium">
+                    <span>No operational zones assigned.</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsZonesModalOpen(true)}
+                      className="text-indigo-600 hover:text-indigo-700 font-bold underline cursor-pointer"
+                    >
+                      Assign now
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -480,6 +509,16 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
           isOpen={isEditOpen}
           onClose={() => setIsEditOpen(false)}
           userData={data}
+        />
+      )}
+
+      {isZonesModalOpen && (
+        <EditRiderZonesModal
+          isOpen={isZonesModalOpen}
+          onClose={() => setIsZonesModalOpen(false)}
+          userId={user?._id || userId}
+          riderName={user?.name}
+          initialZones={rider?.assigned_zones || []}
         />
       )}
     </div>

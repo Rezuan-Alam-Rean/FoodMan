@@ -22,7 +22,16 @@ export const handleGetRestaurants = catchAsync(async (req, res) => {
 });
 
 export const handleGetRestaurantDetails = catchAsync(async (req, res) => {
-  const restaurant = await getRestaurantDetails(req.params.idOrSlug);
+  const queryWantsAll =
+    req.query.includeUnavailable === 'true' ||
+    req.query.include_unavailable === 'true' ||
+    req.query.all === 'true';
+
+  const restaurant = await getRestaurantDetails(req.params.idOrSlug, {
+    includeUnavailable: queryWantsAll,
+    user: req.user,
+    asCustomer: req.query.asCustomer === 'true',
+  });
 
   return ApiResponse.success(res, {
     statusCode: HTTP_STATUS.OK,

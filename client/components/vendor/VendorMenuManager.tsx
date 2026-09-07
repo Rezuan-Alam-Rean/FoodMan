@@ -42,7 +42,7 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
   const {
     data: restaurantDetails,
     isLoading: isMenuLoading,
-  } = useRestaurantDetailsQuery(restaurantSlug);
+  } = useRestaurantDetailsQuery(restaurantSlug, { includeUnavailable: true });
   const { data: globalCategories = [] } = useCategoriesQuery();
 
   const updateItemMutation = useUpdateFoodItemMutation(restaurantId);

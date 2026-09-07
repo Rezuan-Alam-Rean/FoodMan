@@ -5,12 +5,13 @@ const variantOptionSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, 'variant option name is required'],
       trim: true,
     },
-    price_delta: {
+    price: {
       type: Number,
-      default: 0,
+      required: [true, 'variant option price is required'],
+      min: [0, 'variant price cannot be negative'],
     },
   },
   { _id: true }

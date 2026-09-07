@@ -8,14 +8,14 @@ import {
   handleToggleRestaurantStatus,
   handleUpdateRestaurantProfile,
 } from './restaurant.controller.js';
-import { authenticate, authorize } from '../../middlewares/auth.js';
+import { authenticate, authorize, optionalAuthenticate } from '../../middlewares/auth.js';
 import { USER_ROLES } from '../../constants/index.js';
 
 const router = Router();
 
 // public catalog discovery routes
 router.get('/', handleGetRestaurants);
-router.get('/:idOrSlug', handleGetRestaurantDetails);
+router.get('/:idOrSlug', optionalAuthenticate, handleGetRestaurantDetails);
 
 // vendor authenticated profile route
 router.get(

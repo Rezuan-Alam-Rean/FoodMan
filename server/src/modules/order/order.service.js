@@ -121,11 +121,17 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
         throw ApiError.badRequest(`variant option "${optionName}" not found in group "${groupTitle}" for item "${foodItem.name}"`);
       }
 
-      unit_price += Number(option.price_delta || 0);
+      // Absolute variant pricing: variant price replaces base_price.
+      if (option.price === undefined || option.price === null || isNaN(Number(option.price))) {
+        throw ApiError.badRequest(`variant option "${optionName}" in group "${groupTitle}" has no valid price`);
+      }
+
+      const variantPrice = Number(option.price);
+      unit_price = variantPrice;
       selected_variant = {
         group_title: variantGroup.title,
         option_name: option.name,
-        price_delta: Number(option.price_delta || 0),
+        price: variantPrice,
       };
     }
 

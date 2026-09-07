@@ -70,7 +70,7 @@ export const getAllRestaurants = async ({ search, is_open, page, limit } = {}) =
  * @param {string} restaurantIdOrSlug
  * @returns {object}
  */
-export const getRestaurantDetails = async (restaurantIdOrSlug) => {
+export const getRestaurantDetails = async (restaurantIdOrSlug, options = {}) => {
   if (!restaurantIdOrSlug || typeof restaurantIdOrSlug !== 'string') {
     throw ApiError.badRequest('valid restaurant id or slug is required');
   }
@@ -86,10 +86,25 @@ export const getRestaurantDetails = async (restaurantIdOrSlug) => {
     throw ApiError.notFound('restaurant not found');
   }
 
-  const foodItems = await FoodItem.find({
-    restaurant_id: restaurant._id,
-    is_available: true,
-  })
+  let includeUnavailable = false;
+
+  if (options.user) {
+    const isOwner =
+      restaurant.owner_id &&
+      options.user._id &&
+      restaurant.owner_id.toString() === options.user._id.toString();
+    const isAdmin = options.user.role === USER_ROLES.ADMIN;
+    if ((isOwner || isAdmin) && options.asCustomer !== true) {
+      includeUnavailable = Boolean(options.includeUnavailable ?? true);
+    }
+  }
+
+  const itemQuery = { restaurant_id: restaurant._id };
+  if (!includeUnavailable) {
+    itemQuery.is_available = true;
+  }
+
+  const foodItems = await FoodItem.find(itemQuery)
     .populate('category_id')
     .sort({ name: 1 });
 

@@ -63,7 +63,7 @@ export interface UserAddress {
 
 export interface VariantOption {
   name: string;
-  price_delta: number;
+  price: number;
 }
 
 export interface VariantGroup {
@@ -124,7 +124,7 @@ export interface Restaurant {
 export interface CartItemOption {
   group_title: string;
   option_name: string;
-  price_delta: number;
+  price: number;
 }
 
 export interface CartItemAddOn {

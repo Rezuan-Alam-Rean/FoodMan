@@ -60,7 +60,10 @@ export function FoodItemModal({
   const [variants, setVariants] = useState<VariantGroup[]>(() =>
     (initialItem?.variants || []).map((g) => ({
       title: g.title,
-      options: (g.options || []).map((o) => ({ ...o })),
+      options: (g.options || []).map((o) => ({
+        name: o.name,
+        price: Number(o.price) || 0,
+      })),
     }))
   );
   const [addOns, setAddOns] = useState<AddOn[]>(() =>
@@ -112,7 +115,10 @@ export function FoodItemModal({
       setVariants(
         (initialItem.variants || []).map((g) => ({
           title: g.title,
-          options: (g.options || []).map((o) => ({ ...o })),
+          options: (g.options || []).map((o) => ({
+            name: o.name,
+            price: Number(o.price) || 0,
+          })),
         }))
       );
       setAddOns((initialItem.add_ons || []).map((a) => ({ ...a })));
@@ -138,7 +144,7 @@ export function FoodItemModal({
       ...prev,
       {
         title: '',
-        options: [{ name: '', price_delta: 0 }],
+        options: [{ name: '', price: 0 }],
       },
     ]);
   };
@@ -157,7 +163,7 @@ export function FoodItemModal({
     setVariants((prev) =>
       prev.map((g, idx) =>
         idx === groupIndex
-          ? { ...g, options: [...g.options, { name: '', price_delta: 0 }] }
+          ? { ...g, options: [...g.options, { name: '', price: 0 }] }
           : g
       )
     );
@@ -176,7 +182,7 @@ export function FoodItemModal({
   const handleUpdateOption = (
     groupIndex: number,
     optionIndex: number,
-    field: 'name' | 'price_delta',
+    field: 'name' | 'price',
     value: string | number
   ) => {
     setVariants((prev) =>
@@ -184,9 +190,19 @@ export function FoodItemModal({
         if (idx !== groupIndex) return g;
         const newOptions = g.options.map((opt, oIdx) => {
           if (oIdx !== optionIndex) return opt;
+          if (field === 'price') {
+            if (value === '') {
+              return { ...opt, price: '' as any };
+            }
+            const numVal = Number(value);
+            return {
+              ...opt,
+              price: isNaN(numVal) ? ('' as any) : numVal,
+            };
+          }
           return {
             ...opt,
-            [field]: field === 'price_delta' ? Number(value) || 0 : String(value),
+            [field]: String(value),
           };
         });
         return { ...g, options: newOptions };
@@ -261,6 +277,21 @@ export function FoodItemModal({
       return;
     }
 
+    // validate variant prices
+    for (const g of variants) {
+      if (g.title.trim()) {
+        for (const o of g.options) {
+          if (o.name.trim()) {
+            const optPrice = Number(o.price);
+            if (isNaN(optPrice) || optPrice < 0 || (o.price as any) === '' || (o.price as any) === undefined) {
+              setError(`Price is required for variant "${o.name.trim()}" in group "${g.title.trim()}"`);
+              return;
+            }
+          }
+        }
+      }
+    }
+
     // clean variants
     const cleanedVariants = variants
       .filter((g) => g.title.trim())
@@ -270,7 +301,7 @@ export function FoodItemModal({
           .filter((o) => o.name.trim())
           .map((o) => ({
             name: o.name.trim(),
-            price_delta: Number(o.price_delta) || 0,
+            price: Number(o.price) || 0,
           })),
       }))
       .filter((g) => g.options.length > 0);
@@ -661,15 +692,17 @@ export function FoodItemModal({
                             className="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-medium focus:outline-hidden focus:ring-1 focus:ring-rose-500"
                           />
                           <div className="flex items-center gap-1 shrink-0 bg-white border border-slate-200 rounded-xl px-2 py-1">
-                            <span className="text-[10px] text-slate-400 font-bold">+৳</span>
+                            <span className="text-[10px] text-slate-400 font-bold">৳</span>
                             <input
                               type="number"
-                              value={opt.price_delta}
+                              min="0"
+                              required
+                              value={opt.price}
                               onChange={(e) =>
-                                handleUpdateOption(gIdx, oIdx, 'price_delta', e.target.value)
+                                handleUpdateOption(gIdx, oIdx, 'price', e.target.value)
                               }
-                              placeholder="0"
-                              className="w-12 bg-transparent text-slate-800 text-xs font-bold focus:outline-hidden text-right"
+                              placeholder="Price"
+                              className="w-14 bg-transparent text-slate-800 text-xs font-bold focus:outline-hidden text-right"
                             />
                           </div>
                           {group.options.length > 1 && (
