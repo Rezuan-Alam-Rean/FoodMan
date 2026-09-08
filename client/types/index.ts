@@ -37,6 +37,8 @@ export interface Zone {
   fixed_delivery_fee: number;
   is_active: boolean;
   subzones?: Subzone[];
+  active_riders_count?: number;
+  has_active_riders?: boolean;
 }
 
 export interface Subzone {

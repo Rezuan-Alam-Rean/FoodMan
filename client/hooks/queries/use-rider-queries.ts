@@ -50,6 +50,7 @@ export function useToggleRiderStatusMutation() {
       queryClient.invalidateQueries({ queryKey: RIDER_KEYS.me });
       queryClient.invalidateQueries({ queryKey: RIDER_KEYS.available });
       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['zones'] });
     },
   });
 }
@@ -68,6 +69,7 @@ export function useUpdateRiderZonesMutation() {
       });
       queryClient.invalidateQueries({ queryKey: RIDER_KEYS.me });
       queryClient.invalidateQueries({ queryKey: RIDER_KEYS.available });
+      queryClient.invalidateQueries({ queryKey: ['zones'] });
     },
   });
 }

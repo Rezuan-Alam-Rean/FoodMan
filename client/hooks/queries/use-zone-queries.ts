@@ -7,14 +7,15 @@ export const ZONE_KEYS = {
   all: ['zones'] as const,
 };
 
-export function useZonesQuery() {
+export function useZonesQuery(options?: { refetchInterval?: number | false }) {
   return useQuery({
     queryKey: ZONE_KEYS.all,
     queryFn: async (): Promise<Zone[]> => {
       const data = await apiClient.get<any, Zone[]>('/zones');
       return data;
     },
-    staleTime: 1000 * 60 * 10, // cache window
+    staleTime: 1000 * 15, // 15s cache window for dynamic rider availability
+    refetchInterval: options?.refetchInterval,
   });
 }
 
