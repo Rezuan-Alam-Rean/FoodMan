@@ -21,6 +21,7 @@ import {
   Banknote,
   ArrowLeft,
   AlertCircle,
+  AlertTriangle,
   ShieldCheck,
   User,
   Home,
@@ -47,7 +48,7 @@ export default function CheckoutPage() {
 
   const { user, isAuthenticated } = useAuth();
   const setAuth = useAuthStore((s) => s.setAuth);
-  const { data: zones = [] } = useZonesQuery();
+  const { data: zones = [] } = useZonesQuery({ refetchInterval: 10000 });
   const { data: addresses = [] } = useAddressesQuery(isAuthenticated);
   const createOrderMutation = useCreateOrderMutation();
   const [formError, setFormError] = useState('');
@@ -86,6 +87,10 @@ export default function CheckoutPage() {
     selectedZone ||
     zones[0];
 
+  const isZoneRiderAvailable = activeCheckoutZone
+    ? activeCheckoutZone.has_active_riders !== false
+    : true;
+
   const activeCheckoutSubzone = (() => {
     const found = activeCheckoutZone?.subzones?.find(
       (s) => String(s.id || s._id) === String(watchedSubzoneId)
@@ -116,7 +121,23 @@ export default function CheckoutPage() {
 
     if (addresses.length > 0) {
       hasInitializedAddress.current = true;
-      const defaultAddr = addresses.find((a) => a.is_default) || addresses[0];
+      const getZoneForAddr = (addr: any) => {
+        const zId = addr.zone_id
+          ? String(
+              typeof addr.zone_id === 'object'
+                ? (addr.zone_id as any)._id || (addr.zone_id as any).id
+                : addr.zone_id
+            )
+          : '';
+        return zones.find((z) => String(z.id || z._id) === zId);
+      };
+
+      const defaultAddr =
+        addresses.find((a) => a.is_default && getZoneForAddr(a)?.has_active_riders !== false) ||
+        addresses.find((a) => getZoneForAddr(a)?.has_active_riders !== false) ||
+        addresses.find((a) => a.is_default) ||
+        addresses[0];
+
       if (defaultAddr) {
         const addrId = defaultAddr.id || defaultAddr._id;
         setSelectedAddressId(addrId);
@@ -156,14 +177,14 @@ export default function CheckoutPage() {
       }
     } else if (zones.length > 0 && !watchedZoneId) {
       hasInitializedAddress.current = true;
-      const firstZ = zones[0];
-      setSelectedZone(firstZ);
-      setValue('delivery_zone_id', String(firstZ.id || firstZ._id));
-      if (firstZ.subzones && firstZ.subzones.length > 0) {
-        setSelectedSubzone(firstZ.subzones[0]);
+      const firstActiveZone = zones.find((z) => z.has_active_riders !== false) || zones[0];
+      setSelectedZone(firstActiveZone);
+      setValue('delivery_zone_id', String(firstActiveZone.id || firstActiveZone._id));
+      if (firstActiveZone.subzones && firstActiveZone.subzones.length > 0) {
+        setSelectedSubzone(firstActiveZone.subzones[0]);
         setValue(
           'delivery_subzone_id',
-          String(firstZ.subzones[0].id || firstZ.subzones[0]._id)
+          String(firstActiveZone.subzones[0].id || firstActiveZone.subzones[0]._id)
         );
       }
     }
@@ -200,6 +221,10 @@ export default function CheckoutPage() {
     const targetZone = zones.find((z) => String(z.id || z._id) === values.delivery_zone_id);
     if (!targetZone) {
       setFormError('Please select a valid delivery zone');
+      return;
+    }
+    if (targetZone.has_active_riders === false) {
+      setFormError('No delivery riders are currently active in the selected zone. Please choose a different delivery location.');
       return;
     }
     const targetSubzone = targetZone.subzones?.find((s) => String(s.id || s._id) === values.delivery_subzone_id);
@@ -351,11 +376,19 @@ export default function CheckoutPage() {
                     const zoneName = typeof addr.zone_id === 'object' ? addr.zone_id?.name : 'Dhaka';
                     const subzoneName = typeof addr.subzone_id === 'object' ? addr.subzone_id?.name : '';
 
+                    const addrZoneId = addr.zone_id
+                      ? String(typeof addr.zone_id === 'object' ? (addr.zone_id as any)._id || (addr.zone_id as any).id : addr.zone_id)
+                      : '';
+                    const addrZoneObj = zones.find((z) => String(z.id || z._id) === addrZoneId);
+                    const isRiderOnline = addrZoneObj ? addrZoneObj.has_active_riders !== false : true;
+
                     return (
                       <button
                         key={addrId}
                         type="button"
+                        disabled={!isRiderOnline}
                         onClick={() => {
+                          if (!isRiderOnline) return;
                           setSelectedAddressId(addrId);
                           setValue('delivery_address_text', addr.detailed_address, { shouldValidate: true });
                           const zoneId = addr.zone_id
@@ -380,20 +413,28 @@ export default function CheckoutPage() {
                             setValue('delivery_subzone_id', subId, { shouldValidate: true });
                           }
                         }}
-                        className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between space-y-1 cursor-pointer ${
-                          isSelected
-                            ? 'border-rose-600 bg-rose-50/70 ring-1 ring-rose-500 text-rose-800'
-                            : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                        className={`p-2.5 rounded-xl border text-left transition flex flex-col justify-between space-y-1 ${
+                          !isRiderOnline
+                            ? 'opacity-60 cursor-not-allowed bg-slate-50 border-slate-200 text-slate-400'
+                            : isSelected
+                            ? 'border-rose-600 bg-rose-50/70 ring-1 ring-rose-500 text-rose-800 cursor-pointer'
+                            : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-900 text-white">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${!isRiderOnline ? 'bg-slate-300 text-slate-700' : 'bg-slate-900 text-white'}`}>
                               {addr.address_label || 'HOME'}
                             </span>
                             {addr.is_default && (
                               <span className="text-[9px] font-extrabold text-rose-600 bg-rose-100 px-1 py-0.5 rounded">
                                 Default
+                              </span>
+                            )}
+                            {!isRiderOnline && (
+                              <span className="text-[9px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                <AlertTriangle className="w-2.5 h-2.5 text-amber-600" />
+                                No Riders Online
                               </span>
                             )}
                           </div>
@@ -407,6 +448,18 @@ export default function CheckoutPage() {
                       </button>
                     );
                   })}
+                </div>
+              </div>
+            )}
+
+            {!isZoneRiderAvailable && (
+              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-2.5 text-amber-800 text-xs">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="font-bold">No Delivery Riders Currently Online</p>
+                  <p className="text-[11px] text-amber-700 leading-snug">
+                    There are no active riders in <span className="font-semibold">{activeCheckoutZone?.name}</span> right now. Please select another delivery zone or address to place your order.
+                  </p>
                 </div>
               </div>
             )}
@@ -449,11 +502,19 @@ export default function CheckoutPage() {
                   }}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm focus:outline-hidden cursor-pointer"
                 >
-                  {zones.map((z) => (
-                    <option key={z.id || z._id} value={z.id || z._id} className="text-slate-900">
-                      {z.name} (৳{z.fixed_delivery_fee} fee)
-                    </option>
-                  ))}
+                  {zones.map((z) => {
+                    const isZoneActive = z.has_active_riders !== false;
+                    return (
+                      <option
+                        key={z.id || z._id}
+                        value={z.id || z._id}
+                        disabled={!isZoneActive}
+                        className={!isZoneActive ? 'text-slate-400 bg-slate-100 italic' : 'text-slate-900'}
+                      >
+                        {z.name} {!isZoneActive ? '— (No Riders Online)' : `(৳${z.fixed_delivery_fee} fee)`}
+                      </option>
+                    );
+                  })}
                 </select>
                 {errors.delivery_zone_id && (
                   <p className="text-[11px] text-rose-600 font-semibold mt-1">
@@ -706,11 +767,16 @@ export default function CheckoutPage() {
 
             <button
               type="submit"
-              disabled={createOrderMutation.isPending}
-              className="w-full py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-md transition disabled:opacity-50 active:scale-[0.99] flex items-center justify-center gap-2"
+              disabled={createOrderMutation.isPending || !isZoneRiderAvailable}
+              className="w-full py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99] flex items-center justify-center gap-2"
             >
               {createOrderMutation.isPending ? (
                 <span>Placing Your Order...</span>
+              ) : !isZoneRiderAvailable ? (
+                <span className="flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-200" />
+                  No Riders Available in Zone
+                </span>
               ) : (
                 <>
                   <span>Confirm Order</span>

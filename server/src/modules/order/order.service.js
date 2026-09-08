@@ -62,6 +62,17 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     throw ApiError.badRequest('selected delivery zone is inactive or invalid');
   }
 
+  // verify that at least one rider is online in this delivery zone
+  const activeRidersCount = await Rider.countDocuments({
+    is_online: true,
+    assigned_zones: zone._id,
+  });
+  if (activeRidersCount === 0) {
+    throw ApiError.badRequest(
+      `no delivery riders are currently online in ${zone.name}; please try again later or select another delivery zone`
+    );
+  }
+
   if (!payload.delivery_subzone_id) {
     throw ApiError.badRequest('delivery subzone is required');
   }

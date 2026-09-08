@@ -65,7 +65,7 @@ export default function RiderLayout({
               <span className="text-base font-black tracking-tight text-slate-900 leading-none flex items-center">
                 Food<span className="text-rose-600">Man</span>
               </span>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+              <p className="text-[10px] font-bold text-slate-400 tracking-wider leading-none">
                 Rider Portal
               </p>
             </div>

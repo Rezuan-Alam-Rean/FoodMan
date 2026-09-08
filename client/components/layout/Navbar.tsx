@@ -59,7 +59,7 @@ export function Navbar() {
               <option value="" disabled>Select delivery zone</option>
               {zones.map((z) => (
                 <option key={z.id || z._id} value={z.id || z._id} className="dark:bg-slate-900 text-slate-900 dark:text-white">
-                  {z.name} (Fee: {formatBDT(z.fixed_delivery_fee)})
+                  {z.name} {z.has_active_riders === false ? '(No Riders)' : `(Fee: ${formatBDT(z.fixed_delivery_fee)})`}
                 </option>
               ))}
             </select>

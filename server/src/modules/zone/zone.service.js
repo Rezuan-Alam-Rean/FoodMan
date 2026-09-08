@@ -1,19 +1,37 @@
 // delivery zone and subzone business logic
 import { Zone } from './zone.model.js';
 import { Subzone } from './subzone.model.js';
+import { Rider } from '../rider/rider.model.js';
 import { ApiError } from '../../utils/apiError.js';
 
 /**
- * get all active zones with populated subzones
+ * get all active zones with populated subzones and live rider availability
  * @returns {Array}
  */
 export const getAllActiveZones = async () => {
   const zones = await Zone.find({ is_active: true }).sort({ name: 1 });
   const subzones = await Subzone.find({ is_active: true }).sort({ name: 1 });
 
-  // map subzones under respective zones
+  // aggregate online riders covering each assigned zone
+  const onlineRiderCounts = await Rider.aggregate([
+    { $match: { is_online: true } },
+    { $unwind: '$assigned_zones' },
+    { $group: { _id: '$assigned_zones', count: { $sum: 1 } } },
+  ]);
+
+  const riderCountMap = {};
+  onlineRiderCounts.forEach((item) => {
+    if (item._id) {
+      riderCountMap[item._id.toString()] = item.count;
+    }
+  });
+
+  // map subzones and rider availability under respective zones
   const zonesWithSubzones = zones.map((zone) => {
     const zoneObj = zone.toJSON();
+    const activeCount = riderCountMap[zone._id.toString()] || 0;
+    zoneObj.active_riders_count = activeCount;
+    zoneObj.has_active_riders = activeCount > 0;
     zoneObj.subzones = subzones.filter(
       (sub) => sub.zone_id.toString() === zone._id.toString()
     );
