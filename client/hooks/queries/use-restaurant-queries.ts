@@ -121,6 +121,9 @@ export function useToggleRestaurantStatusMutation() {
       queryClient.invalidateQueries({ queryKey: ['restaurants-infinite'] });
       queryClient.invalidateQueries({ queryKey: ['food-items'] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'user'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'restaurant'] });
     },
   });
 }
