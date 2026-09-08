@@ -8,6 +8,7 @@ import { useToggleRiderStatusMutation } from '@/hooks/queries/use-rider-queries'
 import { RiderZoneModal } from './RiderZoneModal';
 import { SetPasswordModal } from '@/components/auth/SetPasswordModal';
 import type { Rider } from '@/types';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import { formatBDT } from '@/lib/utils';
 import {
   User,
@@ -74,7 +75,11 @@ export function RiderProfileCard({ rider }: RiderProfileCardProps) {
             <Phone className="w-4 h-4 text-rose-600 shrink-0" />
             <div>
               <span className="text-[10px] font-bold text-slate-400 block uppercase">Phone Number</span>
-              <span className="font-black text-slate-900">{user?.phone_number || 'N/A'}</span>
+              {user?.phone_number ? (
+                <WhatsAppPhoneLink phone={user.phone_number} className="font-black text-slate-900" />
+              ) : (
+                <span className="font-black text-slate-900">N/A</span>
+              )}
             </div>
           </div>
 

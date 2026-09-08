@@ -7,6 +7,7 @@ import {
   usePendingMfsPaymentsQuery,
   useVerifyMfsPaymentMutation,
 } from '@/hooks/queries/use-admin-queries';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import { formatBDT } from '@/lib/utils';
 
 function formatDate(d: string): string {
@@ -88,9 +89,15 @@ export function AdminMfsVerificationDesk() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-0.5 min-w-0">
                     <p className="text-sm font-black text-slate-900">{order?.order_number || 'Order'}</p>
-                    <p className="text-xs font-semibold text-slate-600">
-                      {order?.customer_id?.name} • {order?.customer_id?.phone_number}
-                    </p>
+                    <div className="text-xs font-semibold text-slate-600 flex items-center gap-1.5 flex-wrap">
+                      <span>{order?.customer_id?.name || order?.customer_name || 'Customer'}</span>
+                      {(order?.customer_id?.phone_number || order?.customer_phone) && (
+                        <>
+                          <span>•</span>
+                          <WhatsAppPhoneLink phone={order?.customer_id?.phone_number || order?.customer_phone} />
+                        </>
+                      )}
+                    </div>
                     <p className="text-[11px] text-slate-400 truncate">
                       {order?.restaurant_id?.name} • {order?.delivery_zone_id?.name}
                     </p>
@@ -104,7 +111,13 @@ export function AdminMfsVerificationDesk() {
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 font-medium">Sender Number</span>
-                    <span className="font-bold text-slate-900">{payment.sender_number || '—'}</span>
+                    <span className="font-bold text-slate-900">
+                      {payment.sender_number ? (
+                        <WhatsAppPhoneLink phone={payment.sender_number} />
+                      ) : (
+                        '—'
+                      )}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 font-medium">Transaction ID</span>

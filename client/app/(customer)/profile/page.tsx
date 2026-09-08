@@ -14,6 +14,7 @@ import {
   useDeleteAddressMutation,
 } from '@/hooks/queries/use-address-queries';
 import { SetPasswordModal } from '@/components/auth/SetPasswordModal';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import { formatBDT } from '@/lib/utils';
 import {
   User,
@@ -171,9 +172,9 @@ export default function CustomerProfilePage() {
                 {role || 'Customer'}
               </span>
             </div>
-            <p className="text-xs font-mono font-medium text-slate-500 mt-0.5">
-              {user.phone_number}
-            </p>
+            <div className="text-xs font-mono font-medium text-slate-500 mt-0.5">
+              <WhatsAppPhoneLink phone={user.phone_number} />
+            </div>
           </div>
         </div>
 
@@ -191,7 +192,7 @@ export default function CustomerProfilePage() {
               <Phone className="w-3.5 h-3.5 text-slate-400" />
               <span>Mobile Number</span>
             </span>
-            <span className="font-mono font-bold text-slate-800">{user.phone_number}</span>
+            <WhatsAppPhoneLink phone={user.phone_number} className="font-mono font-bold text-slate-800" />
           </div>
 
           {user.email ? (
@@ -382,8 +383,10 @@ export default function CustomerProfilePage() {
                       {addr.detailed_address}
                     </p>
 
-                    <p className="text-[11px] text-slate-500 font-mono">
-                      {addr.contact_person_name} • {addr.contact_phone}
+                    <p className="text-[11px] text-slate-500 font-mono flex items-center gap-1.5 flex-wrap">
+                      <span>{addr.contact_person_name}</span>
+                      <span>•</span>
+                      <WhatsAppPhoneLink phone={addr.contact_phone} />
                     </p>
                   </div>
 

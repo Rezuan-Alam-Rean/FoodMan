@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useAdminAllOrdersQuery, useAdminCancelOrderMutation } from '@/hooks/queries/use-admin-queries';
 import { useZonesQuery } from '@/hooks/queries/use-zone-queries';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import { formatBDT } from '@/lib/utils';
 
 type StatusFilter =
@@ -307,8 +308,14 @@ export function AdminOrdersDesk() {
                       <User className="w-3 h-3" />
                       <span>Customer</span>
                     </div>
-                    <p className="font-bold text-slate-900">{order.customer_id?.name || 'Guest'}</p>
-                    <p className="text-[11px] text-slate-500">{order.customer_id?.phone_number || '—'}</p>
+                    <p className="font-bold text-slate-900">{order.customer_id?.name || order.customer_name || 'Guest'}</p>
+                    <div className="text-[11px] text-slate-500">
+                      {order.customer_id?.phone_number || order.customer_phone ? (
+                        <WhatsAppPhoneLink phone={order.customer_id?.phone_number || order.customer_phone} />
+                      ) : (
+                        <span>—</span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-0.5">
@@ -318,6 +325,11 @@ export function AdminOrdersDesk() {
                     </div>
                     <p className="font-bold text-slate-900">{order.restaurant_id?.name || '—'}</p>
                     <p className="text-[11px] text-slate-500 truncate">{order.restaurant_id?.address || '—'}</p>
+                    {order.restaurant_id?.phone_number && (
+                      <div className="text-[11px] text-slate-500">
+                        <WhatsAppPhoneLink phone={order.restaurant_id.phone_number} />
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-0.5">
@@ -328,7 +340,9 @@ export function AdminOrdersDesk() {
                     {riderUser ? (
                       <>
                         <p className="font-bold text-slate-900">{riderUser.name}</p>
-                        <p className="text-[11px] text-slate-500">{riderUser.phone_number}</p>
+                        <div className="text-[11px] text-slate-500">
+                          <WhatsAppPhoneLink phone={riderUser.phone_number} />
+                        </div>
                       </>
                     ) : (
                       <p className="text-[11px] text-amber-600 font-bold italic">Not assigned yet</p>

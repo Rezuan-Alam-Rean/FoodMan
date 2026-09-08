@@ -38,3 +38,21 @@ export function getEffectivePrice(regularPrice: number, discountPrice?: number |
   }
   return regularPrice;
 }
+
+// generate WhatsApp chat direct URL with normalized international phone number
+export function getWhatsAppUrl(phone: string | null | undefined, message?: string): string {
+  if (!phone) return '#';
+  const clean = phone.replace(/\D/g, '');
+  if (!clean) return '#';
+  let international = clean;
+  if (clean.startsWith('01') && clean.length === 11) {
+    international = `88${clean}`;
+  } else if (clean.startsWith('1') && clean.length === 10) {
+    international = `880${clean}`;
+  }
+  const baseUrl = `https://wa.me/${international}`;
+  if (message) {
+    return `${baseUrl}?text=${encodeURIComponent(message)}`;
+  }
+  return baseUrl;
+}

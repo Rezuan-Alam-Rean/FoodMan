@@ -11,6 +11,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { Badge } from '@/components/ui/Badge';
 import { reviewSchema, type ReviewFormValues } from '@/lib/validations/review';
 import { SetPasswordModal } from '@/components/auth/SetPasswordModal';
+import { WhatsAppPhoneLink, WhatsAppIcon } from '@/components/ui/WhatsAppPhoneLink';
+import { getWhatsAppUrl } from '@/lib/utils';
 import {
   Bike,
   Store,
@@ -296,13 +298,29 @@ export default function OrderTrackingPage() {
           </div>
 
           {order.rider_id.user_id?.phone_number && (
-            <a
-              href={`tel:${order.rider_id.user_id.phone_number}`}
-              className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition flex items-center gap-1 text-xs font-bold shrink-0"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              <span>Call</span>
-            </a>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <a
+                href={getWhatsAppUrl(
+                  order.rider_id.user_id.phone_number,
+                  `Hello! Regarding order #${order.order_number || order._id?.slice(-6) || ''}`
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition flex items-center gap-1.5 text-xs font-bold shadow-xs"
+                title="Chat on WhatsApp"
+              >
+                <WhatsAppIcon className="w-3.5 h-3.5" />
+                <span>WhatsApp</span>
+              </a>
+              <a
+                href={`tel:${order.rider_id.user_id.phone_number}`}
+                className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition flex items-center gap-1 text-xs font-bold"
+                title="Direct Phone Call"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Call</span>
+              </a>
+            </div>
           )}
         </div>
       )}
@@ -317,6 +335,11 @@ export default function OrderTrackingPage() {
             {order.restaurant_id?.name}
           </h4>
           <p className="text-[11px] text-slate-500">{order.restaurant_id?.address}</p>
+          {order.restaurant_id?.phone_number && (
+            <div className="pt-0.5">
+              <WhatsAppPhoneLink phone={order.restaurant_id.phone_number} />
+            </div>
+          )}
         </div>
 
         <div className="space-y-1 pt-2 sm:pt-0 sm:pl-3">
@@ -324,8 +347,13 @@ export default function OrderTrackingPage() {
             <MapPin className="w-3 h-3 text-rose-500" />
             <span>Delivery Destination</span>
           </div>
-          <h4 className="font-bold text-slate-900 text-xs sm:text-sm">
-            {order.customer_name} ({order.customer_phone})
+          <h4 className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5 flex-wrap">
+            <span>{order.customer_name}</span>
+            {order.customer_phone && (
+              <span className="text-slate-500 font-normal">
+                (<WhatsAppPhoneLink phone={order.customer_phone} />)
+              </span>
+            )}
           </h4>
           <p className="text-[11px] text-slate-500">{order.delivery_address_text}</p>
         </div>

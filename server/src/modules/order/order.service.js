@@ -11,6 +11,7 @@ import { LedgerTransaction } from '../wallet/ledgerTransaction.model.js';
 import { UserAddress } from '../address/address.model.js';
 import { resolveGuestCheckoutAuth } from '../auth/auth.service.js';
 import { User } from '../user/user.model.js';
+import { SystemSetting } from '../setting/setting.model.js';
 import { dispatchNotification } from '../notification/notification.service.js';
 import { ApiError } from '../../utils/apiError.js';
 import { normalizePhoneNumber } from '../../utils/phone.js';
@@ -263,10 +264,20 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     }
   }
 
-  const service_fee = 10; // fixed platform service charge
+  const systemSettings = await SystemSetting.getSettings();
+  const service_fee =
+    typeof systemSettings?.platform_service_fee === 'number' && systemSettings.platform_service_fee >= 0
+      ? systemSettings.platform_service_fee
+      : 10;
   const grand_total = food_subtotal + delivery_fee + service_fee;
 
   const paymentMethod = payload.payment_method || PAYMENT_METHODS.COD;
+  if (paymentMethod !== PAYMENT_METHODS.COD && systemSettings?.is_mfs_active === false) {
+    throw new ApiError(
+      HTTP_STATUS.BAD_REQUEST,
+      'Digital MFS payment is currently unavailable. Please choose Cash on Delivery.'
+    );
+  }
   // TODO: for non-cod payment methods, automated gateway verification is not yet integrated so orders proceed immediately to looking for rider; update to pending_payment workflow once payment gateway webhooks are added
   const initialOrderStatus = ORDER_STATUS.LOOKING_FOR_RIDER;
   const initialPaymentStatus = PAYMENT_STATUS.PENDING;

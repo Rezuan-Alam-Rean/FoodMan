@@ -8,6 +8,7 @@ import {
   usePayoutHistoryQuery,
 } from '@/hooks/queries/use-admin-queries';
 import { DisbursePayoutModal } from './DisbursePayoutModal';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import { formatBDT } from '@/lib/utils';
 
 function formatDate(d: string): string {
@@ -93,7 +94,13 @@ export function AdminTreasuryDesk() {
 
                       <div className="flex-1 min-w-0 space-y-0.5">
                         <p className="text-xs font-black text-slate-900 truncate">{user?.name}</p>
-                        <p className="text-[11px] text-slate-500 font-medium">{user?.phone_number}</p>
+                        <div className="text-[11px] text-slate-500 font-medium">
+                          {user?.phone_number ? (
+                            <WhatsAppPhoneLink phone={user.phone_number} />
+                          ) : (
+                            <span>—</span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-3 text-[11px] font-medium text-slate-400">
                           <span>Lifetime: <span className="text-slate-700 font-bold">{formatBDT(wallet.lifetime_earnings || 0)}</span></span>
                           <span>Settled: <span className="text-slate-700 font-bold">{formatBDT(wallet.total_settled_by_admin || 0)}</span></span>
@@ -146,7 +153,14 @@ export function AdminTreasuryDesk() {
                     <div className="flex items-center justify-between">
                       <div className="min-w-0">
                         <p className="text-xs font-black text-slate-900">{recipient?.name}</p>
-                        <p className="text-[11px] text-slate-500">{recipient?.phone_number} • {recipient?.role}</p>
+                        <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                          {recipient?.phone_number ? (
+                            <WhatsAppPhoneLink phone={recipient.phone_number} />
+                          ) : (
+                            <span>—</span>
+                          )}
+                          <span>• {recipient?.role}</span>
+                        </div>
                       </div>
                       <p className="text-sm font-black text-emerald-600 shrink-0">-{formatBDT(payout.amount)}</p>
                     </div>

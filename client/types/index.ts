@@ -371,3 +371,15 @@ export interface PaginatedNotificationsResponse {
   };
 }
 
+export interface SystemSettings {
+  id?: string;
+  _id?: string;
+  platform_service_fee: number;
+  official_mfs_number: string;
+  official_mfs_provider?: string;
+  official_mfs_instructions?: string;
+  is_mfs_active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
