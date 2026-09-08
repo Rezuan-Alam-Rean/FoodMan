@@ -10,16 +10,15 @@ import type { CartItem, Restaurant } from '@/types';
 export function useCart() {
   const cartStore = useCartStore();
   const zoneStore = useZoneStore();
-  const { data: settings } = useSystemSettingsQuery();
+  const { data: settings, isLoading: isSettingsLoading } = useSystemSettingsQuery();
 
   const subtotal = cartStore.getSubtotal();
   const itemCount = cartStore.getItemCount();
   const deliveryFee = zoneStore.getDeliveryFee();
-  const configuredFee =
-    typeof settings?.platform_service_fee === 'number' && settings.platform_service_fee >= 0
-      ? settings.platform_service_fee
-      : 10;
-  const serviceFee = itemCount > 0 ? configuredFee : 0;
+  const hasLoadedSettings =
+    typeof settings?.platform_service_fee === 'number' && settings.platform_service_fee >= 0;
+  const configuredFee = hasLoadedSettings ? settings.platform_service_fee : 0;
+  const serviceFee = itemCount > 0 ? (hasLoadedSettings ? configuredFee : 0) : 0;
   const grandTotal = subtotal > 0 ? subtotal + deliveryFee + serviceFee : 0;
 
   const isCartEmpty = cartStore.items.length === 0;
@@ -53,6 +52,7 @@ export function useCart() {
     serviceFee,
     grandTotal,
     settings,
+    isSettingsLoading,
 
     selectedZone: zoneStore.selectedZone,
     selectedSubzone: zoneStore.selectedSubzone,

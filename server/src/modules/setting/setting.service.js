@@ -18,9 +18,17 @@ export const updateSystemSettings = async (updates = {}) => {
   const settings = await SystemSetting.getSettings();
 
   if (updates.platform_service_fee !== undefined) {
-    const fee = Number(updates.platform_service_fee);
-    if (isNaN(fee) || fee < 0) {
-      throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'platform service fee must be a non-negative number');
+    const rawFee = updates.platform_service_fee;
+    const fee = typeof rawFee === 'string' ? Number(rawFee.trim()) : rawFee;
+    if (
+      typeof rawFee === 'boolean' ||
+      rawFee === null ||
+      (typeof rawFee === 'string' && rawFee.trim() === '') ||
+      typeof fee !== 'number' ||
+      !Number.isFinite(fee) ||
+      fee < 0
+    ) {
+      throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'platform service fee must be a valid non-negative number');
     }
     settings.platform_service_fee = fee;
   }

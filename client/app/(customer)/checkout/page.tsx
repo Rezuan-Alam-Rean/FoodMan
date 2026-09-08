@@ -42,6 +42,7 @@ export default function CheckoutPage() {
     serviceFee,
     grandTotal,
     settings,
+    isSettingsLoading,
     specialNotes,
     clearCart,
     selectedZone,
@@ -83,6 +84,14 @@ export default function CheckoutPage() {
   });
 
   const paymentMethod = watch('payment_method');
+  const isMfsActive = settings?.is_mfs_active !== false;
+
+  // auto-reset payment method to COD if MFS is deactivated
+  useEffect(() => {
+    if (settings && settings.is_mfs_active === false && paymentMethod !== 'COD') {
+      setValue('payment_method', 'COD');
+    }
+  }, [settings, paymentMethod, setValue]);
   const watchedZoneId = watch('delivery_zone_id');
   const watchedSubzoneId = watch('delivery_subzone_id');
   const watchedSpecialNotes = watch('special_notes');
@@ -252,6 +261,10 @@ export default function CheckoutPage() {
     const targetSubzone = targetZone.subzones?.find((s) => String(s.id || s._id) === values.delivery_subzone_id);
     if (!targetSubzone) {
       setFormError('Selected subzone does not belong to the selected delivery zone');
+      return;
+    }
+    if (values.payment_method !== 'COD' && settings?.is_mfs_active === false) {
+      setFormError('Digital MFS payment is currently unavailable. Please select Cash on Delivery.');
       return;
     }
 
@@ -640,24 +653,37 @@ export default function CheckoutPage() {
                 </div>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setValue('payment_method', 'BKASH')}
-                className={`p-3 rounded-2xl border text-left flex flex-col justify-between space-y-1.5 transition cursor-pointer ${
-                  paymentMethod !== 'COD'
-                    ? 'border-rose-600 bg-rose-50/60 ring-1 ring-rose-600 text-rose-700'
-                    : 'border-slate-200 text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <CreditCard className="w-4 h-4 text-rose-600" />
-                <div>
-                  <div className="font-bold text-xs">{settings?.official_mfs_provider || 'bKash / Nagad / MFS'}</div>
-                  <div className="text-[10px] text-slate-400">{settings?.official_mfs_instructions || 'Manual Send Money'}</div>
+              {isMfsActive ? (
+                <button
+                  type="button"
+                  onClick={() => setValue('payment_method', 'BKASH')}
+                  className={`p-3 rounded-2xl border text-left flex flex-col justify-between space-y-1.5 transition cursor-pointer ${
+                    paymentMethod !== 'COD'
+                      ? 'border-rose-600 bg-rose-50/60 ring-1 ring-rose-600 text-rose-700'
+                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <CreditCard className="w-4 h-4 text-rose-600" />
+                  <div>
+                    <div className="font-bold text-xs">{settings?.official_mfs_provider || 'bKash / Nagad / MFS'}</div>
+                    <div className="text-[10px] text-slate-400">{settings?.official_mfs_instructions || 'Manual Send Money'}</div>
+                  </div>
+                </button>
+              ) : (
+                <div
+                  className="p-3 rounded-2xl border border-slate-200 bg-slate-50/70 text-left flex flex-col justify-between space-y-1.5 opacity-60 cursor-not-allowed select-none"
+                  title="Digital MFS payment is currently unavailable"
+                >
+                  <CreditCard className="w-4 h-4 text-slate-400" />
+                  <div>
+                    <div className="font-bold text-xs text-slate-500">{settings?.official_mfs_provider || 'Digital MFS'}</div>
+                    <div className="text-[10px] text-slate-400 font-medium">Currently Offline</div>
+                  </div>
                 </div>
-              </button>
+              )}
             </div>
 
-            {paymentMethod !== 'COD' && (
+            {isMfsActive && paymentMethod !== 'COD' && (
               <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 space-y-2.5">
                 <div className="flex items-center justify-between gap-2 flex-wrap text-amber-800 text-xs font-bold">
                   <div className="flex items-center gap-1.5 flex-wrap">
@@ -670,10 +696,14 @@ export default function CheckoutPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(settings?.official_mfs_number || '01700-000000');
-                      setCopiedMfs(true);
-                      setTimeout(() => setCopiedMfs(false), 2000);
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(settings?.official_mfs_number || '01700-000000');
+                        setCopiedMfs(true);
+                        setTimeout(() => setCopiedMfs(false), 2000);
+                      } catch {
+                        // ignore clipboard write failure gracefully
+                      }
                     }}
                     className="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-200/80 hover:bg-amber-300/90 text-amber-950 transition flex items-center gap-1 cursor-pointer shrink-0"
                     title="Copy official MFS number"
@@ -790,9 +820,11 @@ export default function CheckoutPage() {
                 </span>
                 <span className="font-bold text-slate-800">{formatBDT(checkoutDeliveryFee)}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="py-2 flex items-center justify-between text-slate-600">
                 <span>Platform Service Fee</span>
-                <span className="font-bold text-slate-800">{formatBDT(serviceFee)}</span>
+                <span className="font-bold text-slate-800">
+                  {isSettingsLoading ? '...' : formatBDT(serviceFee)}
+                </span>
               </div>
               <div className="flex justify-between items-center pt-1.5 border-t border-slate-100">
                 <span className="font-medium text-slate-600">Payment Method</span>
@@ -802,17 +834,21 @@ export default function CheckoutPage() {
               </div>
               <div className="pt-2 border-t border-slate-200 flex justify-between text-sm font-black text-slate-900">
                 <span>Grand Total</span>
-                <span className="text-rose-600 text-base">{formatBDT(checkoutGrandTotal)}</span>
+                <span className="text-rose-600 text-base">
+                  {isSettingsLoading ? '...' : formatBDT(checkoutGrandTotal)}
+                </span>
               </div>
             </div>
 
             <button
               type="submit"
-              disabled={createOrderMutation.isPending || !isZoneRiderAvailable}
+              disabled={createOrderMutation.isPending || !isZoneRiderAvailable || isSettingsLoading}
               className="w-full py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-md transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99] flex items-center justify-center gap-2"
             >
               {createOrderMutation.isPending ? (
                 <span>Placing Your Order...</span>
+              ) : isSettingsLoading ? (
+                <span>Loading Pricing...</span>
               ) : !isZoneRiderAvailable ? (
                 <span className="flex items-center gap-1.5">
                   <AlertTriangle className="w-3.5 h-3.5 text-amber-200" />

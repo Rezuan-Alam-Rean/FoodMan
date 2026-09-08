@@ -272,6 +272,12 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
   const grand_total = food_subtotal + delivery_fee + service_fee;
 
   const paymentMethod = payload.payment_method || PAYMENT_METHODS.COD;
+  if (paymentMethod !== PAYMENT_METHODS.COD && systemSettings?.is_mfs_active === false) {
+    throw new ApiError(
+      HTTP_STATUS.BAD_REQUEST,
+      'Digital MFS payment is currently unavailable. Please choose Cash on Delivery.'
+    );
+  }
   // TODO: for non-cod payment methods, automated gateway verification is not yet integrated so orders proceed immediately to looking for rider; update to pending_payment workflow once payment gateway webhooks are added
   const initialOrderStatus = ORDER_STATUS.LOOKING_FOR_RIDER;
   const initialPaymentStatus = PAYMENT_STATUS.PENDING;
