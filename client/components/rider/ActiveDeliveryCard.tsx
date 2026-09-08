@@ -8,7 +8,8 @@ import {
   useRiderCancelOrderMutation,
 } from '@/hooks/queries/use-order-queries';
 import type { Order, RiderActiveOrder } from '@/types';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, getWhatsAppUrl } from '@/lib/utils';
+import { WhatsAppPhoneLink, WhatsAppIcon } from '@/components/ui/WhatsAppPhoneLink';
 import {
   Store,
   MapPin,
@@ -383,41 +384,51 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Phone Number
               </span>
-              <p className="text-lg font-black text-slate-900 tracking-wider">
-                {contactModal.phone}
-              </p>
+              <div className="text-lg font-black text-slate-900 tracking-wider flex items-center justify-center">
+                <WhatsAppPhoneLink phone={contactModal.phone} iconClassName="w-4 h-4 text-emerald-600" />
+              </div>
             </div>
 
             <div className="space-y-2 pt-1">
-              <button
-                type="button"
-                onClick={handleCopyPhone}
-                className={`w-full py-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
-                  isCopied
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                }`}
+              <a
+                href={getWhatsAppUrl(contactModal.phone)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20"
               >
-                {isCopied ? (
-                  <>
-                    <Check className="w-4 h-4 text-emerald-600" />
-                    <span>Copied to Clipboard!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 text-slate-500" />
-                    <span>Copy Phone Number</span>
-                  </>
-                )}
-              </button>
+                <WhatsAppIcon className="w-4 h-4" />
+                <span>Chat on WhatsApp</span>
+              </a>
 
               <a
                 href={`tel:${contactModal.phone}`}
-                className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm"
+                className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-2"
               >
                 <Phone className="w-4 h-4" />
                 <span>Call Directly</span>
               </a>
+
+              <button
+                type="button"
+                onClick={handleCopyPhone}
+                className={`w-full py-2 rounded-xl border text-xs font-medium transition flex items-center justify-center gap-2 cursor-pointer ${
+                  isCopied
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-bold'
+                    : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+                }`}
+              >
+                {isCopied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Copied to Clipboard!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Copy Phone Number</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

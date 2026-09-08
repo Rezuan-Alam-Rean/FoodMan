@@ -16,4 +16,5 @@ export { PayoutSettlement } from './payout/payoutSettlement.model.js';
 export { Review } from './review/review.model.js';
 export { default as UploadConfig } from './upload/uploadConfig.model.js';
 export { Notification } from './notification/notification.model.js';
+export { SystemSetting } from './setting/setting.model.js';
 

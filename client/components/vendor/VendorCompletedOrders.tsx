@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { useMyOrdersQuery } from '@/hooks/queries/use-order-queries';
 import type { Order } from '@/types';
 import { formatBDT } from '@/lib/utils';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import {
   PackageCheck,
   User,
@@ -148,9 +149,14 @@ export function VendorCompletedOrders() {
                   <div className="flex items-center gap-2 min-w-0">
                     <User className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                     <div className="min-w-0">
-                      <p className="font-bold text-slate-800 truncate">
-                        {order.customer_name || 'Customer'}
-                      </p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-bold text-slate-800 truncate">
+                          {order.customer_name || 'Customer'}
+                        </p>
+                        {order.customer_phone && (
+                          <WhatsAppPhoneLink phone={order.customer_phone} className="text-[11px]" />
+                        )}
+                      </div>
                       <p className="text-[11px] text-slate-400 truncate">
                         {order.delivery_address_text}
                       </p>
@@ -163,9 +169,13 @@ export function VendorCompletedOrders() {
                       <p className="font-bold text-slate-800 truncate">
                         {riderUser?.name || 'Courier Partner'}
                       </p>
-                      <p className="text-[11px] text-slate-400 truncate">
-                        {riderUser?.phone_number || 'Fulfilled Delivery'}
-                      </p>
+                      <div className="text-[11px] text-slate-400 truncate">
+                        {riderUser?.phone_number ? (
+                          <WhatsAppPhoneLink phone={riderUser.phone_number} />
+                        ) : (
+                          'Fulfilled Delivery'
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

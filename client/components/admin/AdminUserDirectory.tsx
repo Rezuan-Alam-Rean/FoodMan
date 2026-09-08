@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useAdminUsersQuery } from '@/hooks/queries/use-admin-queries';
 import { CreateUserModal } from './CreateUserModal';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import { formatBDT } from '@/lib/utils';
 
 type RoleTab = 'ALL' | 'CUSTOMER' | 'RIDER' | 'RESTAURANT_OWNER';
@@ -166,7 +167,9 @@ export function AdminUserDirectory() {
                     {ROLE_LABEL[user.role] || user.role}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 font-medium truncate">{user.phone_number}</p>
+                <div className="text-xs text-slate-500 font-medium truncate">
+                  <WhatsAppPhoneLink phone={user.phone_number} />
+                </div>
 
                 {user.role === 'CUSTOMER' && user.customer_stats && (
                   <p className="text-[11px] text-slate-400 font-medium">

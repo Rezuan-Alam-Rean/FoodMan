@@ -15,6 +15,7 @@ import adminDeskRoutes from '../modules/admin/adminDesk.routes.js';
 import reviewRoutes from '../modules/review/review.routes.js';
 import uploadRoutes from '../modules/upload/upload.routes.js';
 import notificationRoutes from '../modules/notification/notification.routes.js';
+import settingRoutes from '../modules/setting/setting.routes.js';
 
 const router = Router();
 
@@ -34,6 +35,7 @@ router.use('/admin', adminDeskRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/settings', settingRoutes);
 
 
 export default router;

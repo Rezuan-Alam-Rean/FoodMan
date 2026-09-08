@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToggleRestaurantStatusMutation } from '@/hooks/queries/use-restaurant-queries';
 import { SetPasswordModal } from '@/components/auth/SetPasswordModal';
 import { EditRestaurantProfileModal } from './EditRestaurantProfileModal';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import type { Restaurant } from '@/types';
 import {
   Store,
@@ -234,7 +235,11 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
 
           <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
             <span className="text-[10px] font-bold text-slate-400 uppercase">Phone Number</span>
-            <p className="font-bold text-slate-900">{user?.phone_number || 'N/A'}</p>
+            {user?.phone_number ? (
+              <WhatsAppPhoneLink phone={user.phone_number} className="font-bold text-slate-900" />
+            ) : (
+              <p className="font-bold text-slate-900">N/A</p>
+            )}
           </div>
 
           {user?.email && (

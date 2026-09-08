@@ -9,7 +9,8 @@ import {
   useRestaurantCancelOrderMutation,
 } from '@/hooks/queries/use-order-queries';
 import type { Restaurant, Order, OrderItem } from '@/types';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, getWhatsAppUrl } from '@/lib/utils';
+import { WhatsAppPhoneLink, WhatsAppIcon } from '@/components/ui/WhatsAppPhoneLink';
 import {
   UtensilsCrossed,
   ChefHat,
@@ -552,37 +553,49 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Phone Number
               </span>
-              <p className="text-lg font-black text-slate-900 tracking-wide select-all">
-                {contactModal.phone}
-              </p>
+              <div className="text-lg font-black text-slate-900 tracking-wide flex items-center justify-center">
+                <WhatsAppPhoneLink phone={contactModal.phone} iconClassName="w-4 h-4 text-emerald-600" />
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 pt-1">
-              <button
-                type="button"
-                onClick={handleCopyPhone}
-                className="py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                {isCopied ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-emerald-700">Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Copy Number</span>
-                  </>
-                )}
-              </button>
-
+            <div className="space-y-2 pt-1">
               <a
-                href={`tel:${contactModal.phone}`}
-                className="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm text-center"
+                href={getWhatsAppUrl(contactModal.phone)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20 text-center"
               >
-                <Phone className="w-3.5 h-3.5" />
-                <span>Call Directly</span>
+                <WhatsAppIcon className="w-4 h-4" />
+                <span>Chat on WhatsApp</span>
               </a>
+
+              <div className="grid grid-cols-2 gap-2">
+                <a
+                  href={`tel:${contactModal.phone}`}
+                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5 text-center"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Call Directly</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={handleCopyPhone}
+                  className="py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  {isCopied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-700 font-bold">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

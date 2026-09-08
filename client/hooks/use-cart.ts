@@ -4,16 +4,22 @@
 import { useMemo } from 'react';
 import { useCartStore } from '@/lib/store/cart-store';
 import { useZoneStore } from '@/lib/store/zone-store';
+import { useSystemSettingsQuery } from '@/hooks/queries/use-setting-queries';
 import type { CartItem, Restaurant } from '@/types';
 
 export function useCart() {
   const cartStore = useCartStore();
   const zoneStore = useZoneStore();
+  const { data: settings } = useSystemSettingsQuery();
 
   const subtotal = cartStore.getSubtotal();
   const itemCount = cartStore.getItemCount();
   const deliveryFee = zoneStore.getDeliveryFee();
-  const serviceFee = itemCount > 0 ? 10 : 0; // fixed platform service fee
+  const configuredFee =
+    typeof settings?.platform_service_fee === 'number' && settings.platform_service_fee >= 0
+      ? settings.platform_service_fee
+      : 10;
+  const serviceFee = itemCount > 0 ? configuredFee : 0;
   const grandTotal = subtotal > 0 ? subtotal + deliveryFee + serviceFee : 0;
 
   const isCartEmpty = cartStore.items.length === 0;
@@ -46,6 +52,7 @@ export function useCart() {
     deliveryFee,
     serviceFee,
     grandTotal,
+    settings,
 
     selectedZone: zoneStore.selectedZone,
     selectedSubzone: zoneStore.selectedSubzone,

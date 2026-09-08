@@ -27,7 +27,10 @@ import {
   Home,
   Briefcase,
   Sparkles,
+  Copy,
+  Check,
 } from 'lucide-react';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -38,6 +41,7 @@ export default function CheckoutPage() {
     deliveryFee,
     serviceFee,
     grandTotal,
+    settings,
     specialNotes,
     clearCart,
     selectedZone,
@@ -53,6 +57,7 @@ export default function CheckoutPage() {
   const createOrderMutation = useCreateOrderMutation();
   const [formError, setFormError] = useState('');
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [copiedMfs, setCopiedMfs] = useState(false);
   const [guestCompletedOrderId, setGuestCompletedOrderId] = useState<string | null>(null);
   const [isGuestPasswordModalOpen, setIsGuestPasswordModalOpen] = useState(false);
 
@@ -646,17 +651,36 @@ export default function CheckoutPage() {
               >
                 <CreditCard className="w-4 h-4 text-rose-600" />
                 <div>
-                  <div className="font-bold text-xs">bKash / Nagad / MFS</div>
-                  <div className="text-[10px] text-slate-400">Manual Send Money</div>
+                  <div className="font-bold text-xs">{settings?.official_mfs_provider || 'bKash / Nagad / MFS'}</div>
+                  <div className="text-[10px] text-slate-400">{settings?.official_mfs_instructions || 'Manual Send Money'}</div>
                 </div>
               </button>
             </div>
 
             {paymentMethod !== 'COD' && (
               <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 space-y-2.5">
-                <div className="flex items-center gap-1.5 text-amber-800 text-xs font-bold">
-                  <ShieldCheck className="w-4 h-4 shrink-0" />
-                  <span>FoodMan Official MFS: 01700-000000</span>
+                <div className="flex items-center justify-between gap-2 flex-wrap text-amber-800 text-xs font-bold">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <ShieldCheck className="w-4 h-4 shrink-0" />
+                    <span>FoodMan Official MFS:</span>
+                    <WhatsAppPhoneLink
+                      phone={settings?.official_mfs_number || '01700-000000'}
+                      className="font-mono text-amber-950 font-black bg-amber-200/70 px-2 py-0.5 rounded-lg hover:bg-amber-300/80 transition"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(settings?.official_mfs_number || '01700-000000');
+                      setCopiedMfs(true);
+                      setTimeout(() => setCopiedMfs(false), 2000);
+                    }}
+                    className="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-200/80 hover:bg-amber-300/90 text-amber-950 transition flex items-center gap-1 cursor-pointer shrink-0"
+                    title="Copy official MFS number"
+                  >
+                    {copiedMfs ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedMfs ? 'Copied' : 'Copy'}</span>
+                  </button>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
                   Send Money of <span className="font-bold text-rose-600">{formatBDT(checkoutGrandTotal)}</span> and enter your sender number & TxnID.
@@ -785,7 +809,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={createOrderMutation.isPending || !isZoneRiderAvailable}
-              className="w-full py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99] flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-md transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99] flex items-center justify-center gap-2"
             >
               {createOrderMutation.isPending ? (
                 <span>Placing Your Order...</span>

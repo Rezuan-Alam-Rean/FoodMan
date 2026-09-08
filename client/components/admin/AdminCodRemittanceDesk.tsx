@@ -15,6 +15,7 @@ import {
   useAdminRemittancesQuery,
   useVerifyRemittanceMutation,
 } from '@/hooks/queries/use-admin-queries';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import { formatBDT } from '@/lib/utils';
 
 function formatDate(d: string): string {
@@ -123,7 +124,13 @@ export function AdminCodRemittanceDesk() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-0.5">
                     <p className="text-sm font-black text-slate-900">{riderUser?.name || 'Rider'}</p>
-                    <p className="text-xs text-slate-500 font-medium">{riderUser?.phone_number}</p>
+                    <div className="text-xs text-slate-500 font-medium">
+                      {riderUser?.phone_number ? (
+                        <WhatsAppPhoneLink phone={riderUser.phone_number} />
+                      ) : (
+                        <span>—</span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-base font-black text-slate-900">{formatBDT(rem.amount)}</p>
@@ -140,7 +147,13 @@ export function AdminCodRemittanceDesk() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 font-medium">Sender Account</span>
-                    <span className="font-bold text-slate-900">{rem.sender_account_no}</span>
+                    <span className="font-bold text-slate-900">
+                      {rem.sender_account_no?.startsWith('01') ? (
+                        <WhatsAppPhoneLink phone={rem.sender_account_no} />
+                      ) : (
+                        rem.sender_account_no
+                      )}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 font-medium">Transaction Ref</span>

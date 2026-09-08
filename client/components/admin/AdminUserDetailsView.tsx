@@ -25,6 +25,7 @@ import { useToggleRestaurantStatusMutation } from '@/hooks/queries/use-restauran
 import { DisbursePayoutModal } from './DisbursePayoutModal';
 import { EditUserModal } from './EditUserModal';
 import { EditRiderZonesModal } from './EditRiderZonesModal';
+import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import { formatBDT } from '@/lib/utils';
 
 interface AdminUserDetailsViewProps {
@@ -218,7 +219,10 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
                   {user?.status || 'ACTIVE'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium">{user?.phone_number} {user?.email ? `• ${user.email}` : ''}</p>
+              <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5 flex-wrap">
+                <WhatsAppPhoneLink phone={user?.phone_number} />
+                {user?.email && <span>• {user.email}</span>}
+              </div>
             </div>
           </div>
 
