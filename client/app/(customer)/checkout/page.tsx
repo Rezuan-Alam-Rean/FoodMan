@@ -48,8 +48,8 @@ export default function CheckoutPage() {
 
   const { user, isAuthenticated } = useAuth();
   const setAuth = useAuthStore((s) => s.setAuth);
-  const { data: zones = [] } = useZonesQuery({ refetchInterval: 10000 });
-  const { data: addresses = [] } = useAddressesQuery(isAuthenticated);
+  const { data: zones = [], isSuccess: isZonesSuccess } = useZonesQuery({ refetchInterval: 10000 });
+  const { data: addresses = [], isLoading: isAddressesLoading } = useAddressesQuery(isAuthenticated);
   const createOrderMutation = useCreateOrderMutation();
   const [formError, setFormError] = useState('');
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -87,9 +87,9 @@ export default function CheckoutPage() {
     selectedZone ||
     zones[0];
 
-  const isZoneRiderAvailable = activeCheckoutZone
-    ? activeCheckoutZone.has_active_riders !== false
-    : true;
+  const isZoneRiderAvailable = Boolean(
+    activeCheckoutZone && activeCheckoutZone.has_active_riders === true
+  );
 
   const activeCheckoutSubzone = (() => {
     const found = activeCheckoutZone?.subzones?.find(
@@ -118,6 +118,8 @@ export default function CheckoutPage() {
   const hasInitializedAddress = React.useRef(false);
   useEffect(() => {
     if (hasInitializedAddress.current) return;
+    if (!isZonesSuccess) return;
+    if (isAuthenticated && isAddressesLoading) return;
 
     if (addresses.length > 0) {
       hasInitializedAddress.current = true;
@@ -132,9 +134,14 @@ export default function CheckoutPage() {
         return zones.find((z) => String(z.id || z._id) === zId);
       };
 
+      const isAddressRiderAvailable = (addr: any) => {
+        const zone = getZoneForAddr(addr);
+        return Boolean(zone && zone.has_active_riders === true);
+      };
+
       const defaultAddr =
-        addresses.find((a) => a.is_default && getZoneForAddr(a)?.has_active_riders !== false) ||
-        addresses.find((a) => getZoneForAddr(a)?.has_active_riders !== false) ||
+        addresses.find((a) => a.is_default && isAddressRiderAvailable(a)) ||
+        addresses.find((a) => isAddressRiderAvailable(a)) ||
         addresses.find((a) => a.is_default) ||
         addresses[0];
 
@@ -177,7 +184,7 @@ export default function CheckoutPage() {
       }
     } else if (zones.length > 0 && !watchedZoneId) {
       hasInitializedAddress.current = true;
-      const firstActiveZone = zones.find((z) => z.has_active_riders !== false) || zones[0];
+      const firstActiveZone = zones.find((z) => z.has_active_riders === true) || zones[0];
       setSelectedZone(firstActiveZone);
       setValue('delivery_zone_id', String(firstActiveZone.id || firstActiveZone._id));
       if (firstActiveZone.subzones && firstActiveZone.subzones.length > 0) {
@@ -188,7 +195,17 @@ export default function CheckoutPage() {
         );
       }
     }
-  }, [addresses, zones, watchedZoneId, setValue, setSelectedZone, setSelectedSubzone]);
+  }, [
+    isZonesSuccess,
+    isAddressesLoading,
+    isAuthenticated,
+    addresses,
+    zones,
+    watchedZoneId,
+    setValue,
+    setSelectedZone,
+    setSelectedSubzone,
+  ]);
 
   // sync user profile initial values if inputs are empty
   const hasInitializedUser = React.useRef(false);
@@ -223,7 +240,7 @@ export default function CheckoutPage() {
       setFormError('Please select a valid delivery zone');
       return;
     }
-    if (targetZone.has_active_riders === false) {
+    if (!targetZone || targetZone.has_active_riders !== true) {
       setFormError('No delivery riders are currently active in the selected zone. Please choose a different delivery location.');
       return;
     }
@@ -380,7 +397,7 @@ export default function CheckoutPage() {
                       ? String(typeof addr.zone_id === 'object' ? (addr.zone_id as any)._id || (addr.zone_id as any).id : addr.zone_id)
                       : '';
                     const addrZoneObj = zones.find((z) => String(z.id || z._id) === addrZoneId);
-                    const isRiderOnline = addrZoneObj ? addrZoneObj.has_active_riders !== false : true;
+                    const isRiderOnline = Boolean(addrZoneObj && addrZoneObj.has_active_riders === true);
 
                     return (
                       <button
@@ -503,7 +520,7 @@ export default function CheckoutPage() {
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm focus:outline-hidden cursor-pointer"
                 >
                   {zones.map((z) => {
-                    const isZoneActive = z.has_active_riders !== false;
+                    const isZoneActive = z.has_active_riders === true;
                     return (
                       <option
                         key={z.id || z._id}
