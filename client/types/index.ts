@@ -181,6 +181,9 @@ export interface Order {
   food_subtotal: number;
   delivery_fee: number;
   service_fee: number;
+  discount_amount?: number;
+  coupon_id?: string | Coupon | null;
+  coupon_code?: string | null;
   grand_total: number;
   customer_name: string;
   customer_phone: string;
@@ -221,6 +224,7 @@ export interface Rider {
   nid_number?: string | null;
   is_online: boolean;
   cash_in_hand_limit: number;
+  commission_rate?: number;
   rating_avg: number;
   total_ratings: number;
   assigned_zones: Zone[];
@@ -381,5 +385,48 @@ export interface SystemSettings {
   is_mfs_active?: boolean;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export type DiscountType = 'PERCENTAGE' | 'FLAT';
+
+export interface Coupon {
+  id: string;
+  _id: string;
+  code: string;
+  restaurant_id: string | Restaurant;
+  title?: string;
+  description?: string;
+  discount_type: DiscountType;
+  discount_value: number;
+  min_order_amount: number;
+  max_discount_amount?: number | null;
+  start_date?: string;
+  expiry_date?: string | null;
+  usage_limit?: number | null;
+  usage_limit_per_user?: number | null;
+  usage_count: number;
+  is_active: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ValidateCouponResponse {
+  valid: boolean;
+  coupon: Coupon;
+  discount_amount: number;
+  min_order_amount: number;
+  message?: string;
+}
+
+export interface PaginatedCouponsResponse {
+  coupons: Coupon[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
 }
 

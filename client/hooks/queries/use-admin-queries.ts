@@ -328,3 +328,38 @@ export function useAdminCancelOrderMutation() {
     },
   });
 }
+
+export interface TreasurySummaryData {
+  cashflow: {
+    total_inflow: number;
+    total_outflow: number;
+    net_cash_reserve: number;
+    pending_payable_liability: number;
+    total_vendor_balance: number;
+    total_rider_balance: number;
+  };
+  profit: {
+    platform_net_profit: number;
+    vendor_commission_earned: number;
+    rider_commission_earned: number;
+    service_fees_collected: number;
+  };
+  metrics: {
+    delivered_orders_count: number;
+    total_food_volume: number;
+    total_delivery_volume: number;
+    total_discounts_granted: number;
+    total_payouts_completed: number;
+    total_vendor_wallets_count?: number;
+    total_rider_wallets_count?: number;
+  };
+}
+
+export function useAdminTreasurySummaryQuery() {
+  return useQuery({
+    queryKey: ['admin', 'treasury-summary'] as const,
+    queryFn: () => apiClient.get<any, TreasurySummaryData>('/wallets/admin/treasury-summary'),
+    staleTime: 15000,
+    refetchInterval: 15000,
+  });
+}

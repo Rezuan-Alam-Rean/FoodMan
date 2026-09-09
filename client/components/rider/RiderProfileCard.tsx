@@ -187,6 +187,11 @@ export function RiderProfileCard({ rider }: RiderProfileCardProps) {
           </div>
 
           <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+            <span className="text-[10px] font-bold text-slate-400 uppercase">Platform Commission</span>
+            <p className="font-black text-rose-600">{rider.commission_rate ?? 10}% per order</p>
+          </div>
+
+          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
             <span className="text-[10px] font-bold text-slate-400 uppercase">COD Threshold Limit</span>
             <p className="font-black text-slate-900">{formatBDT(cashLimit)}</p>
           </div>
@@ -196,7 +201,7 @@ export function RiderProfileCard({ rider }: RiderProfileCardProps) {
             <p className="font-black text-slate-900">{nidNumber}</p>
           </div>
 
-          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5 col-span-1 sm:col-span-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase">Driving License</span>
             <p className="font-black text-slate-900">{licenseNo}</p>
           </div>

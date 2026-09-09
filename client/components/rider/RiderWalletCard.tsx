@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { useMyWalletQuery } from '@/hooks/queries/use-wallet-queries';
+import { useRiderProfileQuery } from '@/hooks/queries/use-rider-queries';
 import type { LedgerTransaction } from '@/types';
 import { formatBDT } from '@/lib/utils';
 import {
@@ -13,12 +14,16 @@ import {
   ArrowDownLeft,
   Info,
   Loader2,
+  Percent,
 } from 'lucide-react';
 
 export function RiderWalletCard() {
   const { data, isLoading } = useMyWalletQuery();
+  const { data: riderData } = useRiderProfileQuery();
+
   const wallet = data?.wallet;
   const transactions = data?.transactions || [];
+  const commissionRate = riderData?.rider?.commission_rate ?? 10;
 
   return (
     <div className="space-y-5">
@@ -40,17 +45,23 @@ export function RiderWalletCard() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-700/60 text-xs">
+        <div className="grid grid-cols-3 gap-3 pt-2 border-t border-slate-700/60 text-xs">
           <div>
-            <span className="text-slate-400 text-[10px] uppercase font-bold">Lifetime Earnings</span>
-            <p className="font-black text-slate-100 mt-0.5">
+            <span className="text-slate-400 text-[10px] uppercase font-bold">Lifetime Earned</span>
+            <p className="font-black text-emerald-400 mt-0.5">
               {formatBDT(wallet?.lifetime_earnings || 0)}
             </p>
           </div>
           <div>
             <span className="text-slate-400 text-[10px] uppercase font-bold">Total Settled</span>
-            <p className="font-black text-slate-100 mt-0.5">
+            <p className="font-black text-blue-400 mt-0.5">
               {formatBDT(wallet?.total_settled_by_admin || 0)}
+            </p>
+          </div>
+          <div>
+            <span className="text-slate-400 text-[10px] uppercase font-bold">Commission</span>
+            <p className="font-black text-rose-400 mt-0.5">
+              {commissionRate}%
             </p>
           </div>
         </div>

@@ -143,178 +143,109 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
         restaurant_name: role === 'RESTAURANT_OWNER' ? restaurantName.trim() : undefined,
         zone_id: role === 'RESTAURANT_OWNER' ? zoneId : undefined,
         restaurant_address: role === 'RESTAURANT_OWNER' ? restaurantAddress.trim() : undefined,
-        commission_rate: role === 'RESTAURANT_OWNER' ? Number(commissionRate) || 10 : undefined,
+        commission_rate: (role === 'RESTAURANT_OWNER' || role === 'RIDER') ? Number(commissionRate) || 10 : undefined,
         description: role === 'RESTAURANT_OWNER' && description.trim() ? description.trim() : undefined,
       },
       {
-        onSuccess: () => {
-          setSuccess(true);
-          setTimeout(() => {
-            resetForm();
-            onClose();
-          }, 1500);
-        },
-        onError: (err: any) => {
-          setError(err.message || 'failed to create user account');
-        },
+        onSuccess: () => setSuccess(true),
+        onError: (err: any) => setError(err.message || 'failed to create user account'),
       }
     );
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-[28px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
           <div className="w-10 h-1 rounded-full bg-slate-200" />
         </div>
-
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs">
-              <Plus className="w-5 h-5" />
+        <div className="flex justify-between items-center px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 sm:w-9 h-8 sm:h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs shrink-0">
+              <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <div>
-              <h2 className="text-sm font-black text-slate-900">Add New User</h2>
-              <p className="text-[11px] text-slate-400 font-medium">create customer, rider, restaurant, or admin</p>
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-base font-black text-slate-900 leading-tight truncate">Create User</h2>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold truncate">Provision access & roles</p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer"
-          >
+          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {success ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-16 px-6 text-center">
-            <div className="w-14 h-14 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center animate-bounce">
-              <CheckCircle className="w-7 h-7" />
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-3 sm:space-y-4">
+          {error && (
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-2.5 text-rose-700 text-xs font-semibold">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
             </div>
-            <p className="text-base font-black text-slate-900">User Account Created!</p>
-            <p className="text-xs text-slate-500">The account is active and ready to log in.</p>
+          )}
+
+          {success && (
+            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center gap-2.5 text-emerald-700 text-xs font-semibold">
+              <CheckCircle className="w-4 h-4 shrink-0" />
+              <span>User created successfully</span>
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase">Role Type</label>
+            <div className="grid grid-cols-2 gap-2">
+              {ROLES.map((r) => {
+                const Icon = r.icon;
+                const isSelected = role === r.value;
+                return (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => setRole(r.value)}
+                    className={`p-3 rounded-2xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+                      isSelected
+                        ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20'
+                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-xs font-bold">{r.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 overflow-y-auto">
-            {error && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
-                Account Role
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {ROLES.map((r) => {
-                  const Icon = r.icon;
-                  const isSelected = role === r.value;
-                  return (
-                    <button
-                      key={r.value}
-                      type="button"
-                      onClick={() => setRole(r.value)}
-                      className={`py-2.5 px-3 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                        isSelected
-                          ? 'bg-slate-900 border-slate-900 text-white shadow-sm'
-                          : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      <span>{r.label}</span>
-                    </button>
-                  );
-                })}
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Full Name</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Phone Number</label>
+                <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="01712345678" className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Email (Optional)</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@example.com" className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
-                  Full Name *
-                </label>
-                <div className="relative">
-                  <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Rahim Khan"
-                    required
-                    className="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
-                  Phone Number *
-                </label>
-                <div className="relative">
-                  <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="017xxxxxxxx"
-                    required
-                    className="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition"
-                  />
-                </div>
-              </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Password {role === 'CUSTOMER' ? '(Optional)' : '(Required)'}</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={role === 'CUSTOMER' ? 'Optional (min 6 chars)' : 'Min 6 chars'} className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
-                  Password *
-                </label>
-                <div className="relative">
-                  <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Min 6 characters"
-                    required
-                    minLength={6}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
-                  Email (Optional)
-                </label>
-                <div className="relative">
-                  <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="user@example.com"
-                    className="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition"
-                  />
-                </div>
-              </div>
-            </div>
-
+            {/* Rider Specific Fields */}
             {role === 'RIDER' && (
-              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 space-y-3.5">
-                <div className="flex items-center gap-2 text-indigo-900 font-black text-xs">
-                  <Bike className="w-4 h-4 text-indigo-600" />
-                  <span>Rider Courier Specifications</span>
-                </div>
+              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 space-y-3">
+                <p className="text-xs font-black text-indigo-950 flex items-center gap-1.5">
+                  <Bike className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>Rider Specifications</span>
+                </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Vehicle Type</label>
                     <select
@@ -322,9 +253,9 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                       onChange={(e) => setVehicleType(e.target.value)}
                       className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     >
-                      {VEHICLE_TYPES.map((v) => (
-                        <option key={v.value} value={v.value}>{v.label}</option>
-                      ))}
+                      <option value="MOTORCYCLE">Motorcycle</option>
+                      <option value="BICYCLE">Bicycle</option>
+                      <option value="WALKER">Walker</option>
                     </select>
                   </div>
 
@@ -336,6 +267,18 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                       onChange={(e) => setCashLimit(e.target.value)}
                       min="500"
                       step="500"
+                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-indigo-900 uppercase">Commission (%)</label>
+                    <input
+                      type="number"
+                      value={commissionRate}
+                      onChange={(e) => setCommissionRate(e.target.value)}
+                      min="0"
+                      max="100"
                       className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
@@ -477,8 +420,8 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
               )}
               <span>{createMutation.isPending ? 'Creating User...' : `Create ${ROLES.find((r) => r.value === role)?.label || 'User'} Account`}</span>
             </button>
-          </form>
-        )}
+          </div>
+        </form>
       </div>
     </div>
   );

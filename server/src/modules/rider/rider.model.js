@@ -44,6 +44,12 @@ const riderSchema = new mongoose.Schema(
       default: 3000,
       min: [0, 'cash in hand limit cannot be negative'],
     },
+    commission_rate: {
+      type: Number,
+      default: 10,
+      min: [0, 'commission rate cannot be negative'],
+      max: [100, 'commission rate cannot exceed 100 percent'],
+    },
     rating_avg: {
       type: Number,
       default: 0,

@@ -16,6 +16,7 @@ import reviewRoutes from '../modules/review/review.routes.js';
 import uploadRoutes from '../modules/upload/upload.routes.js';
 import notificationRoutes from '../modules/notification/notification.routes.js';
 import settingRoutes from '../modules/setting/setting.routes.js';
+import couponRoutes from '../modules/coupon/coupon.routes.js';
 
 const router = Router();
 
@@ -36,6 +37,7 @@ router.use('/reviews', reviewRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/settings', settingRoutes);
+router.use('/coupons', couponRoutes);
 
 
 export default router;

@@ -11,6 +11,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { useZonesQuery } from '@/hooks/queries/use-zone-queries';
 import { useAddressesQuery } from '@/hooks/queries/use-address-queries';
 import { useCreateOrderMutation } from '@/hooks/queries/use-order-queries';
+import {
+  useValidateCouponMutation,
+  useRestaurantCouponsQuery,
+} from '@/hooks/queries/use-coupon-queries';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { formatBDT } from '@/lib/utils';
 import { checkoutSchema, type CheckoutFormValues } from '@/lib/validations/checkout';
@@ -29,6 +33,10 @@ import {
   Sparkles,
   Copy,
   Check,
+  Tag,
+  Percent,
+  X,
+  Loader2,
 } from 'lucide-react';
 import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 
@@ -40,11 +48,15 @@ export default function CheckoutPage() {
     subtotal,
     deliveryFee,
     serviceFee,
+    discountAmount,
+    appliedCoupon,
     grandTotal,
     settings,
     isSettingsLoading,
     specialNotes,
     clearCart,
+    applyCoupon,
+    removeCoupon,
     selectedZone,
     setSelectedZone,
     selectedSubzone,
@@ -56,7 +68,18 @@ export default function CheckoutPage() {
   const { data: zones = [], isSuccess: isZonesSuccess } = useZonesQuery({ refetchInterval: 10000 });
   const { data: addresses = [], isLoading: isAddressesLoading } = useAddressesQuery(isAuthenticated);
   const createOrderMutation = useCreateOrderMutation();
+  const validateCouponMutation = useValidateCouponMutation();
+
+  const currentRestaurantId = String(restaurant?.id || restaurant?._id || '');
+  const { data: availableCoupons = [] } = useRestaurantCouponsQuery(
+    currentRestaurantId,
+    Boolean(currentRestaurantId)
+  );
+
   const [formError, setFormError] = useState('');
+  const [couponInput, setCouponInput] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [copiedMfs, setCopiedMfs] = useState(false);
   const [guestCompletedOrderId, setGuestCompletedOrderId] = useState<string | null>(null);
@@ -246,6 +269,40 @@ export default function CheckoutPage() {
     );
   }
 
+  const handleApplyCoupon = async (codeToApply?: string) => {
+    const code = (codeToApply || couponInput).trim().toUpperCase();
+    if (!code) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+    setCouponError('');
+    setCouponSuccess('');
+
+    try {
+      const res = await validateCouponMutation.mutateAsync({
+        code,
+        restaurant_id: currentRestaurantId,
+        food_subtotal: subtotal,
+      });
+
+      if (res && res.valid) {
+        applyCoupon({
+          code: res.coupon.code,
+          discount_type: res.coupon.discount_type,
+          discount_value: res.coupon.discount_value,
+          min_order_amount: res.coupon.min_order_amount,
+          max_discount_amount: res.coupon.max_discount_amount,
+          discount_amount: res.discount_amount,
+          restaurant_id: currentRestaurantId,
+        });
+        setCouponSuccess(res.message || `Coupon "${res.coupon.code}" applied!`);
+        setCouponInput('');
+      }
+    } catch (err: any) {
+      setCouponError(err.message || 'Invalid coupon code');
+    }
+  };
+
   const onSubmit = async (values: CheckoutFormValues) => {
     setFormError('');
 
@@ -277,6 +334,7 @@ export default function CheckoutPage() {
         delivery_address_text: values.delivery_address_text.trim(),
         special_notes: values.special_notes?.trim() || '',
         restaurant_id: (restaurant?.id || restaurant?._id)!,
+        coupon_code: appliedCoupon ? appliedCoupon.code : undefined,
         payment_method: values.payment_method,
         mfs_sender_number: values.payment_method !== 'COD' ? values.mfs_sender_number?.trim() : undefined,
         mfs_transaction_id: values.payment_method !== 'COD' ? values.mfs_transaction_id?.trim() : undefined,
@@ -756,6 +814,130 @@ export default function CheckoutPage() {
         </div>
 
         <div className="lg:col-span-5 space-y-4">
+          {/* Promo / Coupon Box */}
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 space-y-3 shadow-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600">
+                <Tag className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-xs uppercase tracking-wider">
+                Discount Coupon
+              </h3>
+            </div>
+
+            {appliedCoupon ? (
+              <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs font-black shadow-xs shrink-0">
+                    %
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-mono font-black text-emerald-950 text-xs tracking-wider">
+                        {appliedCoupon.code}
+                      </span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-200/70 text-emerald-900">
+                        {appliedCoupon.discount_type === 'PERCENTAGE'
+                          ? `${appliedCoupon.discount_value}% OFF`
+                          : `৳${appliedCoupon.discount_value} OFF`}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-emerald-700 font-semibold mt-0.5 truncate">
+                      Saving {formatBDT(discountAmount)} on this order
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    removeCoupon();
+                    setCouponSuccess('');
+                    setCouponError('');
+                  }}
+                  className="p-1.5 rounded-xl hover:bg-emerald-100 text-emerald-700 transition cursor-pointer shrink-0"
+                  title="Remove coupon"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={couponInput}
+                      onChange={(e) => {
+                        setCouponInput(e.target.value);
+                        setCouponError('');
+                        setCouponSuccess('');
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleApplyCoupon();
+                        }
+                      }}
+                      placeholder="Enter coupon code..."
+                      className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-mono text-xs font-bold uppercase placeholder:normal-case placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    disabled={!couponInput.trim() || validateCouponMutation.isPending}
+                    onClick={() => handleApplyCoupon()}
+                    className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shadow-xs"
+                  >
+                    {validateCouponMutation.isPending ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <span>Apply</span>
+                    )}
+                  </button>
+                </div>
+
+                {couponError && (
+                  <p className="text-[11px] font-semibold text-rose-600 flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{couponError}</span>
+                  </p>
+                )}
+
+                {couponSuccess && (
+                  <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5 shrink-0" />
+                    <span>{couponSuccess}</span>
+                  </p>
+                )}
+
+                {/* Available Promo Chips for this Restaurant */}
+                {availableCoupons.length > 0 && (
+                  <div className="pt-1.5 space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Available Promos
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {availableCoupons.map((c) => (
+                        <button
+                          key={c.id || c._id}
+                          type="button"
+                          onClick={() => handleApplyCoupon(c.code)}
+                          className="px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer group"
+                        >
+                          <Sparkles className="w-3 h-3 text-rose-500" />
+                          <span className="font-mono">{c.code}</span>
+                          <span className="text-[9px] text-rose-500/80 font-normal">
+                            ({c.discount_type === 'PERCENTAGE' ? `${c.discount_value}%` : `৳${c.discount_value}`} off)
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-5 space-y-3.5 shadow-xs sticky top-20">
             <h3 className="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2.5">
               Order Summary
@@ -826,6 +1008,31 @@ export default function CheckoutPage() {
                   {isSettingsLoading ? '...' : formatBDT(serviceFee)}
                 </span>
               </div>
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between items-center text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200">
+                  <span className="flex items-center gap-1 font-bold text-xs">
+                    <Tag className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Coupon ({appliedCoupon?.code})</span>
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono font-bold text-xs">- {formatBDT(discountAmount)}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeCoupon();
+                        setCouponSuccess('');
+                        setCouponError('');
+                      }}
+                      className="text-emerald-500 hover:text-rose-600 transition cursor-pointer"
+                      title="Remove coupon"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-between items-center pt-1.5 border-t border-slate-100">
                 <span className="font-medium text-slate-600">Payment Method</span>
                 <span className="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">

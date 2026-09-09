@@ -86,23 +86,7 @@ export const getRestaurantDetails = async (restaurantIdOrSlug, options = {}) => 
     throw ApiError.notFound('restaurant not found');
   }
 
-  let includeUnavailable = false;
-
-  if (options.user) {
-    const isOwner =
-      restaurant.owner_id &&
-      options.user._id &&
-      restaurant.owner_id.toString() === options.user._id.toString();
-    const isAdmin = options.user.role === USER_ROLES.ADMIN;
-    if ((isOwner || isAdmin) && options.asCustomer !== true) {
-      includeUnavailable = Boolean(options.includeUnavailable ?? true);
-    }
-  }
-
   const itemQuery = { restaurant_id: restaurant._id };
-  if (!includeUnavailable) {
-    itemQuery.is_available = true;
-  }
 
   const foodItems = await FoodItem.find(itemQuery)
     .populate('category_id')

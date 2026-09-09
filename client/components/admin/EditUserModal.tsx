@@ -89,6 +89,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
           : [];
         setSelectedZones(currentZones);
         setCashLimit(String(riderProfile.cash_in_hand_limit || 3000));
+        setCommissionRate(String(riderProfile.commission_rate ?? 10));
         setIsOnline(Boolean(riderProfile.is_online));
       }
 
@@ -148,7 +149,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
           restaurant_name: role === 'RESTAURANT_OWNER' ? restaurantName.trim() : undefined,
           zone_id: role === 'RESTAURANT_OWNER' ? zoneId : undefined,
           restaurant_address: role === 'RESTAURANT_OWNER' ? restaurantAddress.trim() : undefined,
-          commission_rate: role === 'RESTAURANT_OWNER' ? Number(commissionRate) || 10 : undefined,
+          commission_rate: (role === 'RESTAURANT_OWNER' || role === 'RIDER') ? Number(commissionRate) || 10 : undefined,
           description: role === 'RESTAURANT_OWNER' ? description.trim() : undefined,
           is_open: role === 'RESTAURANT_OWNER' ? isOpenNow : undefined,
         },
@@ -298,7 +299,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Vehicle Type</label>
                     <select
@@ -320,6 +321,18 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                       onChange={(e) => setCashLimit(e.target.value)}
                       min="500"
                       step="500"
+                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-indigo-900 uppercase">Commission (%)</label>
+                    <input
+                      type="number"
+                      value={commissionRate}
+                      onChange={(e) => setCommissionRate(e.target.value)}
+                      min="0"
+                      max="100"
                       className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
                     />
                   </div>

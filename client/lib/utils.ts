@@ -56,3 +56,9 @@ export function getWhatsAppUrl(phone: string | null | undefined, message?: strin
   }
   return baseUrl;
 }
+
+// calculate percentage discount between base price and discount price
+export function calculateDiscountPercentage(basePrice: number, discountPrice?: number | null): number {
+  if (!discountPrice || discountPrice >= basePrice || basePrice <= 0) return 0;
+  return Math.round(((basePrice - discountPrice) / basePrice) * 100);
+}

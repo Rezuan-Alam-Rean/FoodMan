@@ -359,9 +359,14 @@ export const deleteFoodItem = async (foodItemId, user) => {
 export const getAllFoodItems = async ({
   category_id,
   search,
-  is_available = true,
+  is_available,
   is_open = true,
   restaurant_id,
+  sort_by,
+  sortBy,
+  min_price,
+  max_price,
+  is_vegetarian,
   page = 1,
   limit = 10,
 } = {}) => {
@@ -372,6 +377,18 @@ export const getAllFoodItems = async ({
   const filter = {};
   if (is_available !== undefined && is_available !== 'all') {
     filter.is_available = is_available === 'true' || is_available === true;
+  }
+
+  if (is_vegetarian !== undefined && is_vegetarian !== 'all' && is_vegetarian !== '') {
+    filter.is_vegetarian = is_vegetarian === 'true' || is_vegetarian === true;
+  }
+
+  if (min_price !== undefined && min_price !== '' && !isNaN(Number(min_price))) {
+    filter.base_price = { ...filter.base_price, $gte: Number(min_price) };
+  }
+
+  if (max_price !== undefined && max_price !== '' && !isNaN(Number(max_price))) {
+    filter.base_price = { ...filter.base_price, $lte: Number(max_price) };
   }
 
   // restrict to only open restaurants if is_open is true
@@ -435,11 +452,25 @@ export const getAllFoodItems = async ({
     ];
   }
 
+  // Determine sort order
+  const sortParam = sort_by || sortBy || 'newest';
+  let sortOption = { createdAt: -1 };
+
+  if (sortParam === 'price_asc' || sortParam === 'price-asc') {
+    sortOption = { base_price: 1, createdAt: -1 };
+  } else if (sortParam === 'price_desc' || sortParam === 'price-desc') {
+    sortOption = { base_price: -1, createdAt: -1 };
+  } else if (sortParam === 'name_asc' || sortParam === 'name') {
+    sortOption = { name: 1 };
+  } else if (sortParam === 'newest') {
+    sortOption = { createdAt: -1 };
+  }
+
   const total = await FoodItem.countDocuments(filter);
   const totalPages = Math.ceil(total / l) || 1;
 
   const items = await FoodItem.find(filter)
-    .sort({ createdAt: -1 })
+    .sort(sortOption)
     .skip(skip)
     .limit(l)
     .populate({

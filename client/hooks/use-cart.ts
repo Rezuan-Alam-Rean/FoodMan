@@ -1,4 +1,4 @@
-// cart and checkout pricing facade hook
+// cart and checkout pricing facade hook with coupon discount support
 'use client';
 
 import { useMemo } from 'react';
@@ -15,11 +15,12 @@ export function useCart() {
   const subtotal = cartStore.getSubtotal();
   const itemCount = cartStore.getItemCount();
   const deliveryFee = zoneStore.getDeliveryFee();
+  const discountAmount = cartStore.getDiscountAmount();
   const hasLoadedSettings =
     typeof settings?.platform_service_fee === 'number' && settings.platform_service_fee >= 0;
   const configuredFee = hasLoadedSettings ? settings.platform_service_fee : 0;
   const serviceFee = itemCount > 0 ? (hasLoadedSettings ? configuredFee : 0) : 0;
-  const grandTotal = subtotal > 0 ? subtotal + deliveryFee + serviceFee : 0;
+  const grandTotal = subtotal > 0 ? Math.max(0, subtotal + deliveryFee + serviceFee - discountAmount) : 0;
 
   const isCartEmpty = cartStore.items.length === 0;
 
@@ -50,6 +51,8 @@ export function useCart() {
     subtotal,
     deliveryFee,
     serviceFee,
+    discountAmount,
+    appliedCoupon: cartStore.appliedCoupon,
     grandTotal,
     settings,
     isSettingsLoading,
@@ -65,6 +68,8 @@ export function useCart() {
     clearCart,
     setIsCartOpen: cartStore.setIsCartOpen,
     toggleCart: cartStore.toggleCart,
+    applyCoupon: cartStore.applyCoupon,
+    removeCoupon: cartStore.removeCoupon,
 
     setSelectedZone: zoneStore.setSelectedZone,
     setSelectedSubzone: zoneStore.setSelectedSubzone,

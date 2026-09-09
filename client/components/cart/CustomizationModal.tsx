@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import type { FoodItem, Restaurant, CartItem, CartItemOption, CartItemAddOn } from '@/types';
-import { formatBDT, hasValidDiscount, getEffectivePrice } from '@/lib/utils';
+import { formatBDT, hasValidDiscount, getEffectivePrice, calculateDiscountPercentage } from '@/lib/utils';
 import { X, Plus, Minus, Check, UtensilsCrossed, Sparkles } from 'lucide-react';
 
 interface CustomizationModalProps {
@@ -48,6 +48,8 @@ export function CustomizationModal({
   const [selectedAddOns, setSelectedAddOns] = useState<CartItemAddOn[]>([]);
   const [quantity, setQuantity] = useState<number>(1);
 
+  const isAvailable = item.is_available !== false;
+
   const itemBaseHasDiscount = hasValidDiscount(item.base_price, item.discount_price);
   const itemEffectiveBasePrice = getEffectivePrice(item.base_price, item.discount_price);
   const itemOriginalBasePrice = itemBaseHasDiscount ? item.base_price : null;
@@ -69,6 +71,7 @@ export function CustomizationModal({
   const totalPrice = unitPrice * quantity;
 
   const toggleAddOn = (addOn: { name: string; price: number }) => {
+    if (!isAvailable) return;
     const exists = selectedAddOns.some((a) => a.name === addOn.name);
     if (exists) {
       setSelectedAddOns(selectedAddOns.filter((a) => a.name !== addOn.name));
@@ -78,6 +81,7 @@ export function CustomizationModal({
   };
 
   const handleConfirm = () => {
+    if (!isAvailable) return;
     onAddToCart({
       food_item_id: item.id || item._id,
       name: item.name,
@@ -100,7 +104,7 @@ export function CustomizationModal({
       />
 
       <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-10 animate-in slide-in-from-bottom duration-300">
-        <div className="relative h-44 bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950 flex items-center justify-center overflow-hidden shrink-0 border-b border-slate-800">
+        <div className={`relative h-36 sm:h-44 bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950 flex items-center justify-center overflow-hidden shrink-0 border-b border-slate-800 ${!isAvailable ? 'grayscale-40' : ''}`}>
           {item.image_url ? (
             <img
               src={item.image_url}
@@ -108,11 +112,11 @@ export function CustomizationModal({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-white/90 gap-1.5 p-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 shadow-md shadow-rose-600/30 ring-2 ring-white/10 flex items-center justify-center">
-                <UtensilsCrossed className="w-6 h-6 text-white" />
+            <div className="w-full h-full flex flex-col items-center justify-center text-white/90 gap-1.5 p-3 sm:p-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 shadow-md shadow-rose-600/30 ring-2 ring-white/10 flex items-center justify-center">
+                <UtensilsCrossed className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <span className="text-[9px] font-black uppercase tracking-widest text-rose-300">
+              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-rose-300">
                 Fresh Gourmet Dish
               </span>
             </div>
@@ -120,25 +124,40 @@ export function CustomizationModal({
 
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-slate-900/60 backdrop-blur-md text-white flex items-center justify-center hover:bg-slate-900/80 transition active:scale-95 z-20 cursor-pointer"
+            className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-900/60 backdrop-blur-md text-white flex items-center justify-center hover:bg-slate-900/80 transition active:scale-95 z-20 cursor-pointer"
             title="Close"
           >
             <X className="w-4 h-4" />
           </button>
 
-          {item.is_vegetarian && (
-            <div className="absolute bottom-3 left-3 bg-emerald-600/90 backdrop-blur-xs text-white px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider shadow-xs">
-              Vegetarian
-            </div>
-          )}
+          <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 flex items-center gap-1.5 z-10 flex-wrap max-w-[80%]">
+            {!isAvailable && (
+              <div className="bg-rose-600 text-white border border-rose-500/60 px-2 sm:px-2.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-sm flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                <span>Out of Stock</span>
+              </div>
+            )}
+            {item.is_vegetarian && (
+              <div className="bg-emerald-600/90 backdrop-blur-xs text-white px-2 sm:px-2.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider shadow-xs">
+                Vegetarian
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="p-3.5 sm:p-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-start justify-between gap-2">
-            <div>
-              <h3 className="font-black text-slate-900 dark:text-white text-base sm:text-lg">
-                {item.name}
-              </h3>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-black text-slate-900 dark:text-white text-sm sm:text-lg break-words">
+                  {item.name}
+                </h3>
+                {!isAvailable && (
+                  <span className="text-[9px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 px-2 py-0.5 rounded-md shrink-0">
+                    View Only
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">
                 {item.description || 'Prepared fresh with high quality ingredients.'}
               </p>
@@ -154,6 +173,13 @@ export function CustomizationModal({
               )}
             </div>
           </div>
+
+          {!isAvailable && (
+            <div className="mt-2.5 p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/50 text-rose-800 dark:text-rose-300 text-[11px] font-semibold flex items-center gap-2">
+              <span className="text-xs">⚠️</span>
+              <span>This item is currently out of stock and cannot be ordered right now.</span>
+            </div>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -264,31 +290,56 @@ export function CustomizationModal({
         </div>
 
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-850 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 shadow-2xs">
-            <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition active:scale-95 cursor-pointer"
-            >
-              <Minus className="w-3.5 h-3.5" />
-            </button>
-            <span className="text-sm font-black text-slate-900 dark:text-white px-2 font-mono">
-              {quantity}
-            </span>
-            <button
-              onClick={() => setQuantity(quantity + 1)}
-              className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition active:scale-95 cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          {isAvailable ? (
+            <>
+              <div className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition active:scale-95 cursor-pointer"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
+                <span className="text-sm font-black text-slate-900 dark:text-white px-2 font-mono">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition active:scale-95 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
-          <button
-            onClick={handleConfirm}
-            className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-rose-600/25 transition flex items-center justify-between active:scale-[0.99] cursor-pointer"
-          >
-            <span>Add to Cart</span>
-            <span className="font-mono font-black">{formatBDT(totalPrice)}</span>
-          </button>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-rose-600/25 transition flex items-center justify-between active:scale-[0.99] cursor-pointer"
+              >
+                <span>Add to Cart</span>
+                <span className="font-mono font-black">{formatBDT(totalPrice)}</span>
+              </button>
+            </>
+          ) : (
+            <div className="w-full flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-3 rounded-2xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-300 transition cursor-pointer"
+              >
+                Close Preview
+              </button>
+              <button
+                type="button"
+                disabled
+                className="flex-1 py-3 px-4 rounded-2xl bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-extrabold text-xs sm:text-sm flex items-center justify-between cursor-not-allowed opacity-90"
+              >
+                <span>Out of Stock</span>
+                <span className="text-[11px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-wider">Cannot Order</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

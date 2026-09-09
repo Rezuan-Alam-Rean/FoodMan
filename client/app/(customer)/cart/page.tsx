@@ -68,7 +68,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="space-y-4 pb-24 max-w-md mx-auto">
+    <div className="space-y-4 pb-24 max-w-3xl mx-auto">
       <div className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-2">
           <Link

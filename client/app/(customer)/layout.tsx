@@ -39,7 +39,7 @@ export default function CustomerLayout({
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-slate-900 pb-24 selection:bg-rose-100">
       <CustomerHeader />
-      <main className="flex-1 w-full max-w-md mx-auto px-4 py-2">{children}</main>
+      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-2 sm:py-4">{children}</main>
       <CustomerBottomNav />
     </div>
   );

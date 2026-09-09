@@ -114,6 +114,22 @@ const orderSchema = new mongoose.Schema(
       default: 0,
       min: [0, 'service fee cannot be negative'],
     },
+    discount_amount: {
+      type: Number,
+      default: 0,
+      min: [0, 'discount amount cannot be negative'],
+    },
+    coupon_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Coupon',
+      default: null,
+    },
+    coupon_code: {
+      type: String,
+      default: null,
+      uppercase: true,
+      trim: true,
+    },
     grand_total: {
       type: Number,
       required: [true, 'grand total is required'],
