@@ -324,10 +324,10 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
             {[
               { label: 'Total Trips', value: stats?.total_orders_handled ?? 0, color: 'text-slate-900' },
               { label: 'Completed', value: stats?.completed_deliveries ?? 0, color: 'text-emerald-600' },
-              { label: 'Fees Earned', value: formatBDT(stats?.total_delivery_fees_earned ?? 0), color: 'text-blue-600' },
-              { label: 'Wallet Balance', value: formatBDT(wallet?.current_balance ?? 0), color: 'text-rose-600' },
-              { label: 'Lifetime Earned', value: formatBDT(wallet?.lifetime_earnings ?? 0), color: 'text-slate-700' },
-              { label: 'Total Settled', value: formatBDT(wallet?.total_settled_by_admin ?? 0), color: 'text-slate-700' },
+              { label: 'Gross Fees', value: formatBDT(stats?.gross_delivery_fees ?? stats?.total_delivery_fees_earned ?? 0), color: 'text-slate-700' },
+              { label: 'Commission Paid', value: formatBDT(stats?.commission_deducted ?? 0), color: 'text-amber-600' },
+              { label: 'Net Earnings', value: formatBDT(stats?.net_delivery_earnings ?? wallet?.lifetime_earnings ?? 0), color: 'text-rose-600' },
+              { label: 'Wallet Balance', value: formatBDT(wallet?.current_balance ?? 0), color: 'text-blue-600' },
             ].map((s) => (
               <div key={s.label} className="bg-white rounded-3xl p-4 border border-slate-200 space-y-1">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{s.label}</p>
@@ -351,6 +351,10 @@ export function AdminUserDetailsView({ userId }: AdminUserDetailsViewProps) {
                 <p className={`font-bold mt-0.5 ${rider?.is_online ? 'text-emerald-600' : 'text-slate-400'}`}>
                   {rider?.is_online ? 'Online' : 'Offline'}
                 </p>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Commission Rate</p>
+                <p className="font-bold text-amber-600 mt-0.5">{stats?.commission_rate ?? rider?.commission_rate ?? 10}%</p>
               </div>
               <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Cash In Hand Limit</p>

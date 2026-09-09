@@ -32,12 +32,20 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { VendorCompletedOrders } from './VendorCompletedOrders';
+import { VendorCancelledOrders } from './VendorCancelledOrders';
 
 interface KitchenLiveDeskProps {
   restaurant: Restaurant;
 }
 
-type FilterStage = 'ALL' | 'AWAITING' | 'PREPARING' | 'READY' | 'COMPLETED';
+type FilterStage =
+  | 'ALL'
+  | 'AWAITING'
+  | 'PREPARING'
+  | 'READY'
+  | 'OUT_FOR_DELIVERY'
+  | 'COMPLETED'
+  | 'CANCELLED';
 
 export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
   const restaurantId = restaurant.id || restaurant._id;
@@ -74,6 +82,9 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
     if (selectedFilter === 'READY') {
       return order.status === 'READY_FOR_PICKUP';
     }
+    if (selectedFilter === 'OUT_FOR_DELIVERY') {
+      return order.status === 'PICKED_UP';
+    }
     return true;
   });
 
@@ -82,6 +93,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
   ).length;
   const preparingCount = liveOrders.filter((o) => o.status === 'PREPARING').length;
   const readyCount = liveOrders.filter((o) => o.status === 'READY_FOR_PICKUP').length;
+  const outForDeliveryCount = liveOrders.filter((o) => o.status === 'PICKED_UP').length;
 
   const handleAcceptAndCook = (orderId: string) => {
     setActionError('');
@@ -171,7 +183,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 sm:mx-0 sm:px-0 pb-1">
           <button
             type="button"
             onClick={() => setSelectedFilter('ALL')}
@@ -222,6 +234,19 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
 
           <button
             type="button"
+            onClick={() => setSelectedFilter('OUT_FOR_DELIVERY')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 flex items-center gap-1.5 ${
+              selectedFilter === 'OUT_FOR_DELIVERY'
+                ? 'bg-sky-600 text-white shadow-xs'
+                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <Bike className="w-3.5 h-3.5" />
+            <span>Out for Delivery ({outForDeliveryCount})</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setSelectedFilter('COMPLETED')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
               selectedFilter === 'COMPLETED'
@@ -230,6 +255,19 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
             }`}
           >
             Completed
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedFilter('CANCELLED')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 flex items-center gap-1 ${
+              selectedFilter === 'CANCELLED'
+                ? 'bg-rose-600 text-white shadow-xs'
+                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <Ban className="w-3.5 h-3.5" />
+            <span>Cancelled</span>
           </button>
         </div>
       </div>
@@ -243,6 +281,8 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
 
       {selectedFilter === 'COMPLETED' ? (
         <VendorCompletedOrders />
+      ) : selectedFilter === 'CANCELLED' ? (
+        <VendorCancelledOrders />
       ) : isOrdersLoading ? (
         <div className="p-12 rounded-3xl bg-white border border-slate-200 flex flex-col items-center justify-center space-y-2.5">
           <Loader2 className="w-8 h-8 text-rose-600 animate-spin" />
@@ -270,6 +310,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
               order.status === 'LOOKING_FOR_RIDER' || order.status === 'RIDER_ACCEPTED';
             const isPreparing = order.status === 'PREPARING';
             const isReady = order.status === 'READY_FOR_PICKUP';
+            const isOutForDelivery = order.status === 'PICKED_UP';
 
             const riderObj: any = order.rider_id;
             const riderUser = riderObj?.user_id;
@@ -288,14 +329,18 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                       </span>
                       <span
                         className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                          isReady
+                          isOutForDelivery
+                            ? 'bg-sky-100 text-sky-800 border border-sky-200'
+                            : isReady
                             ? 'bg-emerald-100 text-emerald-800'
                             : isPreparing
                             ? 'bg-rose-100 text-rose-800'
                             : 'bg-amber-100 text-amber-800'
                         }`}
                       >
-                        {isReady
+                        {isOutForDelivery
+                          ? 'Out for Delivery'
+                          : isReady
                           ? 'Food Ready'
                           : isPreparing
                           ? 'Cooking in Progress'
@@ -304,20 +349,22 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                           : 'Broadcasting to Riders'}
                       </span>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActionError('');
-                          setSelectedCancelPreset('Item(s) out of stock');
-                          setCancelReason('');
-                          setCancelModalOrder(order);
-                        }}
-                        className="px-2 py-0.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-bold transition inline-flex items-center gap-1 cursor-pointer"
-                        title="Cancel this order"
-                      >
-                        <Ban className="w-3 h-3 text-rose-600" />
-                        <span>Cancel</span>
-                      </button>
+                      {!isOutForDelivery && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActionError('');
+                            setSelectedCancelPreset('Item(s) out of stock');
+                            setCancelReason('');
+                            setCancelModalOrder(order);
+                          }}
+                          className="px-2 py-0.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-bold transition inline-flex items-center gap-1 cursor-pointer"
+                          title="Cancel this order"
+                        >
+                          <Ban className="w-3 h-3 text-rose-600" />
+                          <span>Cancel</span>
+                        </button>
+                      )}
                     </div>
                     <p className="text-[11px] text-slate-400 font-medium">
                       Customer: <strong className="text-slate-700">{order.customer_name}</strong> •{' '}
@@ -397,6 +444,17 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                       </button>
                     )}
                   </div>
+                </div>
+
+                {/* Settlement Status Banner */}
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900">
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>Payment Pending (In Progress)</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-amber-700 font-mono">
+                    +{formatBDT(order.food_subtotal || order.grand_total)}
+                  </span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100 space-y-2">
@@ -505,19 +563,37 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                     </div>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActionError('');
-                      setSelectedCancelPreset('Item(s) out of stock');
-                      setCancelReason('');
-                      setCancelModalOrder(order);
-                    }}
-                    className="w-full mt-2.5 py-2.5 px-3 rounded-2xl border-2 border-rose-200 bg-rose-50/70 hover:bg-rose-100 text-rose-700 text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
-                  >
-                    <Ban className="w-4 h-4 text-rose-600" />
-                    <span>Reject / Cancel Order</span>
-                  </button>
+                  {isOutForDelivery && (
+                    <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 text-sky-900 text-xs font-bold flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-2xl bg-sky-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                          <Bike className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="font-black text-sky-950 text-xs">Out for Delivery • On the Way</p>
+                          <p className="text-[11px] text-sky-700 font-medium">
+                            Courier {riderUser?.name || 'Partner'} has picked up the food and is en route to {order.customer_name}.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!isOutForDelivery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActionError('');
+                        setSelectedCancelPreset('Item(s) out of stock');
+                        setCancelReason('');
+                        setCancelModalOrder(order);
+                      }}
+                      className="w-full mt-2.5 py-2.5 px-3 rounded-2xl border-2 border-rose-200 bg-rose-50/70 hover:bg-rose-100 text-rose-700 text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+                    >
+                      <Ban className="w-4 h-4 text-rose-600" />
+                      <span>Reject / Cancel Order</span>
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -526,8 +602,9 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
       )}
 
       {contactModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full sm:max-w-sm bg-white rounded-t-[32px] sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-slate-200 space-y-4 animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200">
+            <div className="w-12 h-1.5 rounded-full bg-slate-200 mx-auto mb-1 sm:hidden" />
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
@@ -602,8 +679,9 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
       )}
 
       {cancelModalOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200">
+            <div className="w-12 h-1.5 rounded-full bg-slate-200 mx-auto mb-1 sm:hidden" />
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">

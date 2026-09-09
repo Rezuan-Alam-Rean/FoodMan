@@ -1,6 +1,9 @@
-// digital wallet route definitions
 import { Router } from 'express';
-import { handleGetMyWallet, handleGetAllWallets } from './wallet.controller.js';
+import {
+  handleGetMyWallet,
+  handleGetAllWallets,
+  handleGetTreasurySummary,
+} from './wallet.controller.js';
 import { authenticate, authorize } from '../../middlewares/auth.js';
 import { USER_ROLES } from '../../constants/index.js';
 
@@ -15,6 +18,14 @@ router.get(
   authenticate,
   authorize(USER_ROLES.ADMIN),
   handleGetAllWallets
+);
+
+// admin platform cashflow & net profit summary
+router.get(
+  '/admin/treasury-summary',
+  authenticate,
+  authorize(USER_ROLES.ADMIN),
+  handleGetTreasurySummary
 );
 
 export default router;

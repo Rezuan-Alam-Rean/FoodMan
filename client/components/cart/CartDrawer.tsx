@@ -15,6 +15,8 @@ export function CartDrawer() {
     subtotal,
     deliveryFee,
     serviceFee,
+    discountAmount,
+    appliedCoupon,
     grandTotal,
     selectedZone,
     isCartOpen,
@@ -148,6 +150,12 @@ export function CartDrawer() {
                 <span>Platform Service Fee</span>
                 <span className="font-semibold text-slate-900 dark:text-white">{formatBDT(serviceFee)}</span>
               </div>
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between text-xs text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded-lg">
+                  <span>Coupon Discount ({appliedCoupon?.code})</span>
+                  <span>- {formatBDT(discountAmount)}</span>
+                </div>
+              )}
               <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-sm font-bold text-slate-900 dark:text-white">
                 <span>Grand Total</span>
                 <span className="text-rose-600 dark:text-rose-400 text-base">{formatBDT(grandTotal)}</span>

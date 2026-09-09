@@ -140,13 +140,13 @@ export function NotificationBell() {
       {mounted &&
         isOpen &&
         createPortal(
-          <div className="fixed inset-0 z-[120] overflow-y-auto flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+          <div className="fixed inset-0 z-[120] overflow-y-auto flex items-center justify-center p-2.5 sm:p-6 animate-in fade-in duration-200">
             <div
               className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"
               onClick={() => setIsOpen(false)}
             />
 
-            <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col max-h-[85vh] overflow-hidden z-10 animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-md bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 flex flex-col max-h-[85vh] overflow-hidden z-10 animate-in zoom-in-95 duration-200">
               <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">

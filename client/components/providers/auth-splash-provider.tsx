@@ -43,6 +43,18 @@ export function AuthSplashProvider({ children }: { children: React.ReactNode }) 
     return () => clearTimeout(timer);
   }, []);
 
+  // CRITICAL: Hard safety cutoff (1.8s max) to guarantee splash screen NEVER hangs on slow mobile data or DNS latency
+  useEffect(() => {
+    const hardTimeout = setTimeout(() => {
+      setIsFadingOut(true);
+      setTimeout(() => {
+        setShowLoader(false);
+      }, 350);
+    }, 1800);
+
+    return () => clearTimeout(hardTimeout);
+  }, []);
+
   // sync fresh profile when meQuery resolves
   useEffect(() => {
     if (meQuery.data && JSON.stringify(meQuery.data) !== JSON.stringify(user)) {

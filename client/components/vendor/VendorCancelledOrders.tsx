@@ -1,4 +1,4 @@
-// fulfilled orders history view for restaurant vendors
+// cancelled orders history view for restaurant vendors
 'use client';
 
 import React, { useState } from 'react';
@@ -7,25 +7,22 @@ import type { Order } from '@/types';
 import { formatBDT } from '@/lib/utils';
 import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import {
-  PackageCheck,
+  Ban,
   User,
-  Bike,
   Clock,
-  Banknote,
-  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Receipt,
   FileText,
+  AlertTriangle,
 } from 'lucide-react';
 
-export function VendorCompletedOrders() {
+export function VendorCancelledOrders() {
   const [page, setPage] = useState(1);
   const { data, isLoading, isFetching } = useMyOrdersQuery({
     page,
     limit: 10,
-    status: 'DELIVERED',
+    status: 'CANCELLED',
   });
 
   const orders: Order[] = data?.orders || [];
@@ -35,21 +32,21 @@ export function VendorCompletedOrders() {
     <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs space-y-4">
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <PackageCheck className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+            <Ban className="w-4 h-4" />
           </div>
           <div>
             <h3 className="text-sm font-black text-slate-900 leading-tight">
-              Fulfilled Orders History
+              Cancelled Orders History
             </h3>
             <p className="text-[11px] text-slate-400 font-medium">
-              Delivered and settled kitchen orders
+              Orders cancelled or rejected before delivery
             </p>
           </div>
         </div>
 
         {pagination && pagination.total > 0 && (
-          <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">
+          <span className="px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-[11px] font-bold border border-rose-200">
             {pagination.total} {pagination.total === 1 ? 'order' : 'orders'}
           </span>
         )}
@@ -58,29 +55,25 @@ export function VendorCompletedOrders() {
       {isLoading ? (
         <div className="py-12 flex flex-col items-center justify-center space-y-2">
           <Loader2 className="w-6 h-6 text-rose-600 animate-spin" />
-          <p className="text-xs text-slate-400 font-semibold">Loading fulfilled orders...</p>
+          <p className="text-xs text-slate-400 font-semibold">Loading cancelled orders...</p>
         </div>
       ) : orders.length === 0 ? (
         <div className="py-10 text-center space-y-2">
           <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 flex items-center justify-center mx-auto">
-            <Receipt className="w-6 h-6" />
+            <Ban className="w-6 h-6" />
           </div>
-          <p className="text-xs font-bold text-slate-700">No fulfilled orders yet</p>
+          <p className="text-xs font-bold text-slate-700">No cancelled orders</p>
           <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
-            Orders prepared in your kitchen and delivered to customers will appear here.
+            You currently have no cancelled or rejected orders in your records.
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {orders.map((order) => {
             const orderId = order.id || order._id;
-            const riderUser =
-              typeof order.rider_id === 'object' && order.rider_id?.user_id
-                ? (order.rider_id.user_id as any)
-                : null;
-            const deliveredAt = order.delivered_at || order.updatedAt;
-            const formattedDate = deliveredAt
-              ? new Date(deliveredAt).toLocaleDateString(undefined, {
+            const cancelledAt = order.updatedAt || order.createdAt;
+            const formattedDate = cancelledAt
+              ? new Date(cancelledAt).toLocaleDateString(undefined, {
                   month: 'short',
                   day: 'numeric',
                   hour: '2-digit',
@@ -99,9 +92,9 @@ export function VendorCompletedOrders() {
                       <span className="font-mono text-xs font-black text-slate-900">
                         #{order.order_number}
                       </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100/80 text-emerald-800 text-[10px] font-extrabold">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        Delivered
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-100/90 text-rose-800 text-[10px] font-extrabold border border-rose-200">
+                        <Ban className="w-3 h-3 text-rose-600" />
+                        Cancelled
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-[11px] text-slate-400">
@@ -112,11 +105,31 @@ export function VendorCompletedOrders() {
 
                   <div className="text-right">
                     <span className="text-xs font-bold text-slate-400 block">Food Total</span>
-                    <span className="text-sm font-black text-slate-900">
+                    <span className="text-sm font-black text-slate-900 font-mono">
                       {formatBDT(order.food_subtotal || order.grand_total)}
                     </span>
                   </div>
                 </div>
+
+                {/* Cancellation Reason Notice */}
+                {order.cancellation_reason ? (
+                  <div className="p-2.5 rounded-xl bg-rose-50/90 border border-rose-200 text-xs text-rose-900 flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-extrabold text-rose-950 block text-[11px] uppercase tracking-wider">
+                        Cancellation Reason:
+                      </span>
+                      <p className="text-[11px] text-rose-800 font-semibold mt-0.5">
+                        {order.cancellation_reason}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-2 rounded-xl bg-rose-50/60 border border-rose-100 text-xs text-rose-800 flex items-center gap-1.5 font-medium">
+                    <Ban className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    <span className="text-[11px]">Order was cancelled before fulfillment.</span>
+                  </div>
+                )}
 
                 <div className="space-y-1 bg-white p-3 rounded-xl border border-slate-100 text-xs">
                   {order.items?.map((item, idx) => (
@@ -126,68 +139,34 @@ export function VendorCompletedOrders() {
                         {item.selected_variant && ` (${item.selected_variant.option_name})`}
                       </span>
                       <div className="text-right">
-                        <span className="font-bold text-slate-900 block">
+                        <span className="font-bold text-slate-900 block font-mono">
                           {formatBDT(item.total_price)}
                         </span>
-                        {item.original_unit_price && item.original_unit_price > item.unit_price && (
-                          <span className="text-[10px] text-slate-400 line-through block">
-                            {formatBDT(item.original_unit_price * item.quantity)}
-                          </span>
-                        )}
                       </div>
                     </div>
                   ))}
                   {order.special_notes && (
-                    <div className="pt-1 text-[11px] text-amber-800 flex items-start gap-1">
+                    <div className="pt-1 text-[11px] text-amber-800 flex items-start gap-1 border-t border-slate-100 mt-1">
                       <FileText className="w-3 h-3 text-amber-600 shrink-0 mt-0.5" />
                       <span>Note: {order.special_notes}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Settlement Status Banner */}
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
-                  <div className="flex items-center gap-1.5 font-bold">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Payment Credited to Wallet</span>
-                  </div>
-                  <span className="font-mono font-black text-emerald-700 text-xs">
-                    +{formatBDT(order.food_subtotal || order.grand_total)}
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-2 text-xs pt-1 border-t border-slate-200/60">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <User className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <p className="font-bold text-slate-800 truncate">
-                          {order.customer_name || 'Customer'}
-                        </p>
-                        {order.customer_phone && (
-                          <WhatsAppPhoneLink phone={order.customer_phone} className="text-[11px]" />
-                        )}
-                      </div>
-                      <p className="text-[11px] text-slate-400 truncate">
-                        {order.delivery_address_text}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Bike className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <div className="min-w-0">
+                <div className="flex items-center gap-2 text-xs pt-1 border-t border-slate-200/60 min-w-0">
+                  <User className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <p className="font-bold text-slate-800 truncate">
-                        {riderUser?.name || 'Courier Partner'}
+                        {order.customer_name || 'Customer'}
                       </p>
-                      <div className="text-[11px] text-slate-400 truncate">
-                        {riderUser?.phone_number ? (
-                          <WhatsAppPhoneLink phone={riderUser.phone_number} />
-                        ) : (
-                          'Fulfilled Delivery'
-                        )}
-                      </div>
+                      {order.customer_phone && (
+                        <WhatsAppPhoneLink phone={order.customer_phone} className="text-[11px]" />
+                      )}
                     </div>
+                    <p className="text-[11px] text-slate-400 truncate">
+                      {order.delivery_address_text}
+                    </p>
                   </div>
                 </div>
               </div>

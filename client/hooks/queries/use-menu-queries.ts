@@ -17,6 +17,10 @@ export const FOOD_ITEM_KEYS = {
 export function useInfiniteFoodItemsQuery(params?: {
   category_id?: string;
   search?: string;
+  sort_by?: string;
+  min_price?: number;
+  max_price?: number;
+  is_vegetarian?: boolean;
   is_available?: boolean;
   is_open?: boolean;
 }) {
@@ -35,7 +39,6 @@ export function useInfiniteFoodItemsQuery(params?: {
         };
       }>('/menu/items', {
         params: {
-          is_available: true,
           is_open: true,
           ...params,
           page: pageParam,

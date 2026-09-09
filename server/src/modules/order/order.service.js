@@ -12,6 +12,8 @@ import { UserAddress } from '../address/address.model.js';
 import { resolveGuestCheckoutAuth } from '../auth/auth.service.js';
 import { User } from '../user/user.model.js';
 import { SystemSetting } from '../setting/setting.model.js';
+import { Coupon } from '../coupon/coupon.model.js';
+import { validateCoupon } from '../coupon/coupon.service.js';
 import { dispatchNotification } from '../notification/notification.service.js';
 import { ApiError } from '../../utils/apiError.js';
 import { normalizePhoneNumber } from '../../utils/phone.js';
@@ -269,7 +271,25 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     typeof systemSettings?.platform_service_fee === 'number' && systemSettings.platform_service_fee >= 0
       ? systemSettings.platform_service_fee
       : 10;
-  const grand_total = food_subtotal + delivery_fee + service_fee;
+
+  // validate and apply coupon discount if coupon_code was provided
+  let appliedCouponDoc = null;
+  let discount_amount = 0;
+  if (payload.coupon_code && String(payload.coupon_code).trim()) {
+    const couponValidation = await validateCoupon({
+      code: payload.coupon_code,
+      restaurant_id: restaurant._id,
+      customer_id: customerUser._id,
+      food_subtotal,
+    });
+
+    if (couponValidation && couponValidation.valid) {
+      discount_amount = couponValidation.discount_amount || 0;
+      appliedCouponDoc = await Coupon.findById(couponValidation.coupon._id);
+    }
+  }
+
+  const grand_total = Math.max(0, food_subtotal + delivery_fee + service_fee - discount_amount);
 
   const paymentMethod = payload.payment_method || PAYMENT_METHODS.COD;
   if (paymentMethod !== PAYMENT_METHODS.COD && systemSettings?.is_mfs_active === false) {
@@ -300,6 +320,9 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     food_subtotal,
     delivery_fee,
     service_fee,
+    discount_amount,
+    coupon_id: appliedCouponDoc ? appliedCouponDoc._id : null,
+    coupon_code: appliedCouponDoc ? appliedCouponDoc.code : null,
     grand_total,
     customer_name: resolvedCustomerName,
     customer_phone: resolvedCustomerPhone,
@@ -308,6 +331,11 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
     status: initialOrderStatus,
     cancellation_locked: false,
   });
+
+  // increment coupon usage count
+  if (appliedCouponDoc) {
+    await Coupon.findByIdAndUpdate(appliedCouponDoc._id, { $inc: { usage_count: 1 } });
+  }
 
   // create payment record
   const payment = await Payment.create({
@@ -718,6 +746,7 @@ export const getRestaurantLiveOrders = async (restaurantId, user) => {
         ORDER_STATUS.RIDER_ACCEPTED,
         ORDER_STATUS.PREPARING,
         ORDER_STATUS.READY_FOR_PICKUP,
+        ORDER_STATUS.PICKED_UP,
       ],
     },
   })
@@ -1152,9 +1181,15 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
     riderWallet = await Wallet.create({ user_id: riderUserId });
   }
 
-  // credit rider delivery fee earnings
-  riderWallet.current_balance += order.delivery_fee;
-  riderWallet.lifetime_earnings += order.delivery_fee;
+  // calculate rider delivery fee commission (same model as restaurant commission)
+  const riderProfile = await Rider.findOne({ user_id: riderUserId });
+  const riderCommissionRate = riderProfile?.commission_rate ?? 10;
+  const riderPlatformCommission = (order.delivery_fee * riderCommissionRate) / 100;
+  const netRiderEarning = order.delivery_fee - riderPlatformCommission;
+
+  // credit rider net delivery fee earnings
+  riderWallet.current_balance += netRiderEarning;
+  riderWallet.lifetime_earnings += netRiderEarning;
 
   // if COD, debit cash collected liability (rider holds cash that belongs to admin)
   if (payment && payment.method === PAYMENT_METHODS.COD) {
@@ -1168,12 +1203,12 @@ export const riderDeliverOrder = async (orderId, riderUserId) => {
     wallet_id: riderWallet._id,
     order_id: order._id,
     type: LEDGER_TRANSACTION_TYPES.CREDIT_DELIVERY_FEE,
-    amount: order.delivery_fee,
+    amount: netRiderEarning,
     balance_after:
       payment && payment.method === PAYMENT_METHODS.COD
         ? riderWallet.current_balance + order.grand_total
         : riderWallet.current_balance,
-    notes: `delivery fee earned for order ${order.order_number}`,
+    notes: `delivery fee earned for order ${order.order_number} (minus ${riderCommissionRate}% commission)`,
   });
 
   // if COD, create debit ledger for cash-in-hand liability

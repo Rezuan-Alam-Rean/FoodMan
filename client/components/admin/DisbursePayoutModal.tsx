@@ -93,31 +93,31 @@ export function DisbursePayoutModal({
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col">
+      <div className="relative w-full sm:max-w-md bg-white rounded-t-[28px] sm:rounded-3xl shadow-2xl flex flex-col">
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
           <div className="w-10 h-1 rounded-full bg-slate-200" />
         </div>
 
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CreditCard className="w-4 h-4" />
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 sm:w-9 h-8 sm:h-9 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <CreditCard className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <div>
-              <h2 className="text-sm font-black text-slate-900">Disburse Payout</h2>
-              <p className="text-[11px] text-slate-400 font-medium">{roleLabel}: {recipientName}</p>
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-base font-black text-slate-900 truncate">Disburse Payout</h2>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">{roleLabel}: {recipientName}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer"
+            className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="px-6 py-2 bg-emerald-50 border-b border-emerald-100">
+        <div className="px-4 sm:px-6 py-2 bg-emerald-50 border-b border-emerald-100">
           <p className="text-[11px] font-bold text-emerald-700">
             Available Wallet Balance: <span className="font-black">{formatBDT(currentBalance)}</span>
           </p>
@@ -132,7 +132,7 @@ export function DisbursePayoutModal({
             <p className="text-xs text-slate-500">Wallet balance has been updated.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 overflow-y-auto max-h-[70vh]">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3.5 sm:gap-4 p-4 sm:p-6 overflow-y-auto max-h-[70vh]">
             {error && (
               <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />

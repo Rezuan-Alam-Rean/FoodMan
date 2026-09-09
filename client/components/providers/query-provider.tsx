@@ -10,16 +10,22 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 1000 * 30, // fresh window
-            gcTime: 1000 * 60 * 5, // garbage collection time
-            refetchOnWindowFocus: true,
+            staleTime: 1000 * 45, // 45s fresh window to avoid excessive mobile re-fetches
+            gcTime: 1000 * 60 * 10, // 10m garbage collection time
+            refetchOnWindowFocus: false, // Don't trigger refetch flood when user unlocks phone or switches tabs
+            networkMode: 'offlineFirst', // Return cached response immediately on flaky mobile connections
             retry: (failureCount, error: any) => {
               // don't retry on 401/403/404 client errors
-              if (error?.message?.includes('not found') || error?.message?.includes('unauthorized') || error?.message?.includes('forbidden')) {
+              if (
+                error?.message?.includes('not found') ||
+                error?.message?.includes('unauthorized') ||
+                error?.message?.includes('forbidden')
+              ) {
                 return false;
               }
-              return failureCount < 2;
+              return failureCount < 1; // Retry once on network hiccup
             },
+            retryDelay: 1000,
           },
         },
       })

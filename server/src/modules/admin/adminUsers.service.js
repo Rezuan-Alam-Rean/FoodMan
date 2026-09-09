@@ -125,12 +125,19 @@ export const getAdminUsersList = async ({ role, search, page = 1, limit = 15 } =
     if (user.role === USER_ROLES.RIDER) {
       const rider = riderMap.get(uId);
       const rStats = rider ? riderStatsMap.get(rider._id.toString()) : null;
+      const commRate = rider?.commission_rate ?? 10;
+      const totalDeliveryFees = rStats?.total_delivery_fees || 0;
+      const commissionAmount = Math.round((totalDeliveryFees * commRate) / 100);
+
       return {
         ...uObj,
         rider_profile: rider || null,
         rider_stats: {
           completed_deliveries: rStats?.completed_deliveries || 0,
-          total_earned: rStats?.total_delivery_fees || 0,
+          gross_delivery_fees: totalDeliveryFees,
+          total_earned: totalDeliveryFees,
+          commission_rate: commRate,
+          commission_paid: commissionAmount,
           current_balance: wallet?.current_balance || 0,
           lifetime_earnings: wallet?.lifetime_earnings || 0,
           total_settled: wallet?.total_settled_by_admin || 0,
@@ -290,30 +297,39 @@ export const getAdminRiderDetails = async (riderIdOrUserId, { page = 1, limit = 
     ]),
   ]);
 
-  return {
-    rider,
-    wallet: wallet || {
-      current_balance: 0,
-      lifetime_earnings: 0,
-      total_settled_by_admin: 0,
-    },
-    stats: {
-      total_orders_handled: totalDeliveries,
-      completed_deliveries: statsAggregate[0]?.delivered_count || 0,
-      total_delivery_fees_earned: statsAggregate[0]?.total_delivery_fees || 0,
-      total_cod_collected: statsAggregate[0]?.total_cod_collected || 0,
-    },
-    deliveries,
-    remittances,
-    pagination: {
-      total: totalDeliveries,
-      page: p,
-      limit: l,
-      totalPages: Math.ceil(totalDeliveries / l) || 1,
-      hasNextPage: p * l < totalDeliveries,
-      hasPrevPage: p > 1,
-    },
-  };
+    const totalEarnedGross = statsAggregate[0]?.total_delivery_fees || 0;
+    const commRate = rider?.commission_rate ?? 10;
+    const commissionDeducted = Math.round((totalEarnedGross * commRate) / 100);
+    const netEarnings = totalEarnedGross - commissionDeducted;
+
+    return {
+      rider,
+      wallet: wallet || {
+        current_balance: 0,
+        lifetime_earnings: 0,
+        total_settled_by_admin: 0,
+      },
+      stats: {
+        total_orders_handled: totalDeliveries,
+        completed_deliveries: statsAggregate[0]?.delivered_count || 0,
+        gross_delivery_fees: totalEarnedGross,
+        total_delivery_fees_earned: totalEarnedGross,
+        commission_rate: commRate,
+        commission_deducted: commissionDeducted,
+        net_delivery_earnings: netEarnings,
+        total_cod_collected: statsAggregate[0]?.total_cod_collected || 0,
+      },
+      deliveries,
+      remittances,
+      pagination: {
+        total: totalDeliveries,
+        page: p,
+        limit: l,
+        totalPages: Math.ceil(totalDeliveries / l) || 1,
+        hasNextPage: p * l < totalDeliveries,
+        hasPrevPage: p > 1,
+      },
+    };
 };
 
 /**
@@ -537,6 +553,7 @@ export const createAdminUser = async ({
       nid_number: nid_number ? nid_number.trim() : null,
       assigned_zones: Array.isArray(assigned_zones) ? assigned_zones : [],
       cash_in_hand_limit: Number(cash_in_hand_limit) || 3000,
+      commission_rate: Math.max(0, Math.min(100, Number(commission_rate) || 10)),
     });
     wallet = await Wallet.create({ user_id: user._id });
   }
@@ -659,6 +676,7 @@ export const updateAdminUser = async (userId, payload = {}) => {
         vehicle_type: payload.vehicle_type || 'MOTORCYCLE',
         assigned_zones: assignedZoneIds,
         cash_in_hand_limit: Number(payload.cash_in_hand_limit) || 3000,
+        commission_rate: Math.max(0, Math.min(100, Number(payload.commission_rate) || 10)),
       });
     } else {
       if (payload.vehicle_type !== undefined) riderProfile.vehicle_type = payload.vehicle_type;
@@ -673,6 +691,10 @@ export const updateAdminUser = async (userId, payload = {}) => {
       if (payload.cash_in_hand_limit !== undefined) {
         const limit = Number(payload.cash_in_hand_limit);
         if (Number.isFinite(limit) && limit >= 0) riderProfile.cash_in_hand_limit = limit;
+      }
+      if (payload.commission_rate !== undefined) {
+        const comm = Number(payload.commission_rate);
+        if (Number.isFinite(comm) && comm >= 0 && comm <= 100) riderProfile.commission_rate = comm;
       }
       if (payload.is_online !== undefined) riderProfile.is_online = Boolean(payload.is_online);
       await riderProfile.save();
