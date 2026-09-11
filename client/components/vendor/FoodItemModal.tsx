@@ -442,7 +442,7 @@ export function FoodItemModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full sm:max-w-xl bg-white rounded-t-[32px] sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-slate-200 max-h-[92vh] sm:max-h-[90vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200">
+      <div className="w-full sm:max-w-xl bg-white rounded-t-[32px] sm:rounded-3xl p-5 sm:p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-6 shadow-2xl border-t sm:border border-slate-200 max-h-[92vh] sm:max-h-[90vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200">
         <div className="w-12 h-1.5 rounded-full bg-slate-200 mx-auto mb-3 sm:hidden shrink-0" />
 
         <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
@@ -460,7 +460,7 @@ export function FoodItemModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer shrink-0"
+            className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex items-center justify-center cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
@@ -490,7 +490,7 @@ export function FoodItemModal({
               <button
                 type="button"
                 onClick={() => setIsImageManual(!isImageManual)}
-                className="text-[10px] font-bold text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 transition cursor-pointer"
               >
                 {isImageManual ? 'Upload file' : 'Enter URL manually'}
               </button>
@@ -502,7 +502,7 @@ export function FoodItemModal({
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://res.cloudinary.com/.../dish.jpg"
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-mono focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 placeholder:font-sans placeholder:text-slate-400"
+                className="w-full h-11 sm:h-10 px-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-mono focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 placeholder:font-sans placeholder:text-slate-400"
               />
             ) : imageUrl ? (
               <div className="relative h-32 sm:h-36 w-full rounded-2xl border border-slate-200 overflow-hidden bg-slate-100 group">
@@ -516,7 +516,7 @@ export function FoodItemModal({
                     type="button"
                     onClick={() => imageInputRef.current?.click()}
                     disabled={isUploadingImage}
-                    className="px-3 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-1 shadow-sm"
+                    className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95"
                   >
                     <Camera className="w-3.5 h-3.5 text-rose-600" />
                     <span>Change Photo</span>
@@ -524,7 +524,7 @@ export function FoodItemModal({
                   <button
                     type="button"
                     onClick={() => setImageUrl('')}
-                    className="p-1.5 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition cursor-pointer shadow-sm"
+                    className="w-9 h-9 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition cursor-pointer shadow-sm flex items-center justify-center active:scale-95"
                     title="Remove photo"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -556,8 +556,8 @@ export function FoodItemModal({
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                 Item Name *
               </label>
@@ -567,11 +567,11 @@ export function FoodItemModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Smoky BBQ Burger"
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                className="w-full h-11 sm:h-10 px-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
               />
             </div>
 
-            <div className="space-y-1 relative" ref={categoryDropdownRef}>
+            <div className="space-y-1.5 relative" ref={categoryDropdownRef}>
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                 Category *
               </label>
@@ -579,7 +579,7 @@ export function FoodItemModal({
               <button
                 type="button"
                 onClick={() => setIsCategoryOpen((prev) => !prev)}
-                className={`w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border text-left text-xs font-bold transition flex items-center justify-between gap-2 cursor-pointer ${
+                className={`w-full h-11 sm:h-10 px-3.5 rounded-2xl bg-slate-50 border text-left text-base sm:text-xs font-bold transition flex items-center justify-between gap-2 cursor-pointer ${
                   isCategoryOpen
                     ? 'border-rose-500 ring-2 ring-rose-500/20 bg-white shadow-xs'
                     : 'border-slate-200 hover:border-slate-300 hover:bg-slate-100/60'
@@ -614,7 +614,7 @@ export function FoodItemModal({
                           setCategoryId(catId);
                           setIsCategoryOpen(false);
                         }}
-                        className={`w-full px-3 py-2 rounded-xl text-left text-xs font-bold transition flex items-center justify-between gap-2 cursor-pointer ${
+                        className={`w-full min-h-[40px] px-3 py-2 rounded-xl text-left text-xs font-bold transition flex items-center justify-between gap-2 cursor-pointer active:scale-95 ${
                           isSelected
                             ? 'bg-rose-50 text-rose-700 font-black'
                             : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
@@ -639,13 +639,13 @@ export function FoodItemModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
                 Base Price (BDT) *
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-bold text-slate-400">
+                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-bold text-slate-400 pointer-events-none">
                   ৳
                 </span>
                 <input
@@ -656,17 +656,20 @@ export function FoodItemModal({
                   value={basePrice}
                   onChange={(e) => setBasePrice(e.target.value)}
                   placeholder="250"
-                  className="w-full pl-8 pr-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                  className="w-full h-11 sm:h-10 pl-8 pr-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                Discount Price (BDT) <span className="text-slate-400 font-normal lowercase">(optional)</span>
-              </label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                  Discount Price (BDT)
+                </label>
+                <span className="text-[10px] font-semibold text-slate-400">Optional</span>
+              </div>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-bold text-slate-400">
+                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-bold text-slate-400 pointer-events-none">
                   ৳
                 </span>
                 <input
@@ -676,46 +679,46 @@ export function FoodItemModal({
                   value={discountPrice}
                   onChange={(e) => setDiscountPrice(e.target.value)}
                   placeholder="e.g. 199"
-                  className="w-full pl-8 pr-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                  className="w-full h-11 sm:h-10 pl-8 pr-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
                 />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                Item Attributes
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsVegetarian(!isVegetarian)}
-                  className={`px-3 py-2.5 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                    isVegetarian
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-extrabold'
-                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <Leaf className={`w-3.5 h-3.5 ${isVegetarian ? 'text-emerald-600' : 'text-slate-400'}`} />
-                  <span>{isVegetarian ? 'Vegetarian' : 'Non-Veg'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsAvailable(!isAvailable)}
-                  className={`px-3 py-2.5 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                    isAvailable
-                      ? 'bg-rose-50 border-rose-300 text-rose-800 font-extrabold'
-                      : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100'
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-rose-600' : 'bg-slate-400'}`} />
-                  <span>{isAvailable ? 'In Stock' : 'Out of Stock'}</span>
-                </button>
               </div>
             </div>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+              Dietary & Availability
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setIsVegetarian(!isVegetarian)}
+                className={`h-11 sm:h-10 px-3.5 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+                  isVegetarian
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-extrabold shadow-xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100/70'
+                }`}
+              >
+                <Leaf className={`w-4 h-4 ${isVegetarian ? 'text-emerald-600' : 'text-slate-400'}`} />
+                <span>{isVegetarian ? 'Vegetarian' : 'Non-Veg'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsAvailable(!isAvailable)}
+                className={`h-11 sm:h-10 px-3.5 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+                  isAvailable
+                    ? 'bg-rose-50 border-rose-300 text-rose-800 font-extrabold shadow-xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100/70'
+                }`}
+              >
+                <span className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-rose-600 ring-2 ring-rose-300' : 'bg-slate-400'}`} />
+                <span>{isAvailable ? 'In Stock' : 'Out of Stock'}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
               Description
             </label>
@@ -724,7 +727,7 @@ export function FoodItemModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe delicious ingredients, portion size, flavor profile..."
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+              className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 min-h-[72px]"
             />
           </div>
 
@@ -737,9 +740,9 @@ export function FoodItemModal({
               <button
                 type="button"
                 onClick={handleAddVariantGroup}
-                className="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shrink-0"
+                className="min-h-[36px] px-3 py-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition flex items-center gap-1 cursor-pointer shrink-0 active:scale-95"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3.5 h-3.5" />
                 <span>Add Group</span>
               </button>
             </div>
@@ -751,7 +754,7 @@ export function FoodItemModal({
                 {variants.map((group, gIdx) => (
                   <div
                     key={gIdx}
-                    className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5"
+                    className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5"
                   >
                     <div className="flex items-center justify-between gap-2 min-w-0">
                       <input
@@ -759,24 +762,24 @@ export function FoodItemModal({
                         value={group.title}
                         onChange={(e) => handleUpdateGroupTitle(gIdx, e.target.value)}
                         placeholder="Group Title (e.g. Size, Flavor)"
-                        className="flex-1 min-w-0 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs font-bold focus:outline-hidden focus:ring-1 focus:ring-rose-500"
+                        className="flex-1 min-w-0 h-10 px-3 rounded-xl bg-white border border-slate-200 text-slate-900 text-base sm:text-xs font-bold focus:outline-hidden focus:ring-1 focus:ring-rose-500"
                       />
                       <button
                         type="button"
                         onClick={() => handleRemoveVariantGroup(gIdx)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shrink-0"
+                        className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition cursor-pointer shrink-0 active:scale-95"
                         title="Remove group"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
 
-                    <div className="space-y-1.5 pl-2 border-l-2 border-slate-200">
+                    <div className="space-y-2 pl-2 border-l-2 border-slate-200">
                       <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase px-1">
                         <span className="flex-1">Option Name</span>
-                        <span className="w-16 text-right">Price</span>
-                        <span className="w-16 text-right">Discount</span>
-                        {group.options.length > 1 && <span className="w-5" />}
+                        <span className="w-20 sm:w-24 text-right pr-2.5 shrink-0">Price</span>
+                        <span className="w-20 sm:w-24 text-right pr-2.5 shrink-0">Discount</span>
+                        <span className="w-8 shrink-0" />
                       </div>
 
                       {group.options.map((opt, oIdx) => (
@@ -788,10 +791,10 @@ export function FoodItemModal({
                               handleUpdateOption(gIdx, oIdx, 'name', e.target.value)
                             }
                             placeholder="Option (e.g. Large)"
-                            className="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 text-xs font-medium focus:outline-hidden focus:ring-1 focus:ring-rose-500"
+                            className="flex-1 min-w-0 h-10 px-3 rounded-xl bg-white border border-slate-200 text-slate-800 text-base sm:text-xs font-medium focus:outline-hidden focus:ring-1 focus:ring-rose-500"
                           />
-                          <div className="flex items-center gap-1 shrink-0 bg-white border border-slate-200 rounded-xl px-2 py-1" title="Regular Price">
-                            <span className="text-[10px] text-slate-400 font-bold">৳</span>
+                          <div className="w-20 sm:w-24 flex items-center gap-1 shrink-0 bg-white border border-slate-200 rounded-xl px-2.5 h-10 focus-within:ring-1 focus-within:ring-rose-500 focus-within:border-rose-500 transition" title="Regular Price">
+                            <span className="text-xs text-slate-400 font-bold pointer-events-none">৳</span>
                             <input
                               type="number"
                               min="0"
@@ -800,12 +803,12 @@ export function FoodItemModal({
                               onChange={(e) =>
                                 handleUpdateOption(gIdx, oIdx, 'price', e.target.value)
                               }
-                              placeholder="Price"
-                              className="w-12 bg-transparent text-slate-800 text-xs font-bold focus:outline-hidden text-right"
+                              placeholder="0"
+                              className="w-full bg-transparent text-slate-800 text-base sm:text-xs font-bold focus:outline-hidden text-right"
                             />
                           </div>
-                          <div className="flex items-center gap-1 shrink-0 bg-white border border-slate-200 rounded-xl px-2 py-1" title="Discount Price (Optional)">
-                            <span className="text-[10px] text-slate-400 font-bold">৳</span>
+                          <div className="w-20 sm:w-24 flex items-center gap-1 shrink-0 bg-white border border-slate-200 rounded-xl px-2.5 h-10 focus-within:ring-1 focus-within:ring-rose-500 focus-within:border-rose-500 transition" title="Discount Price (Optional)">
+                            <span className="text-xs text-slate-400 font-bold pointer-events-none">৳</span>
                             <input
                               type="number"
                               min="0"
@@ -813,19 +816,21 @@ export function FoodItemModal({
                               onChange={(e) =>
                                 handleUpdateOption(gIdx, oIdx, 'discount_price', e.target.value)
                               }
-                              placeholder="Disc."
-                              className="w-12 bg-transparent text-slate-800 text-xs font-bold focus:outline-hidden text-right"
+                              placeholder="Optional"
+                              className="w-full bg-transparent text-slate-800 text-base sm:text-xs font-bold focus:outline-hidden text-right placeholder:font-normal placeholder:text-slate-300"
                             />
                           </div>
-                          {group.options.length > 1 && (
+                          {group.options.length > 1 ? (
                             <button
                               type="button"
                               onClick={() => handleRemoveOptionFromGroup(gIdx, oIdx)}
-                              className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shrink-0"
+                              className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shrink-0 active:scale-95"
                               title="Remove option"
                             >
-                              <X className="w-3.5 h-3.5" />
+                              <X className="w-4 h-4" />
                             </button>
+                          ) : (
+                            <span className="w-8 shrink-0" />
                           )}
                         </div>
                       ))}
@@ -833,9 +838,9 @@ export function FoodItemModal({
                       <button
                         type="button"
                         onClick={() => handleAddOptionToGroup(gIdx)}
-                        className="text-[10px] font-bold text-rose-600 hover:underline flex items-center gap-0.5 pt-1 cursor-pointer"
+                        className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 pt-1.5 cursor-pointer active:scale-95"
                       >
-                        <Plus className="w-3 h-3" />
+                        <Plus className="w-3.5 h-3.5" />
                         <span>Add Option</span>
                       </button>
                     </div>
@@ -854,9 +859,9 @@ export function FoodItemModal({
               <button
                 type="button"
                 onClick={handleAddAddOn}
-                className="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shrink-0"
+                className="min-h-[36px] px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold transition flex items-center gap-1 cursor-pointer shrink-0 active:scale-95"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-3.5 h-3.5" />
                 <span>Add Extra</span>
               </button>
             </div>
@@ -865,6 +870,12 @@ export function FoodItemModal({
               <p className="text-[11px] text-slate-400 italic">No add-ons defined.</p>
             ) : (
               <div className="space-y-2">
+                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase px-1">
+                  <span className="flex-1">Add-On Item Name</span>
+                  <span className="w-20 sm:w-24 text-right pr-2.5 shrink-0">Price</span>
+                  <span className="w-10 shrink-0" />
+                </div>
+
                 {addOns.map((addOn, aIdx) => (
                   <div key={aIdx} className="flex items-center gap-2 min-w-0">
                     <input
@@ -872,25 +883,26 @@ export function FoodItemModal({
                       value={addOn.name}
                       onChange={(e) => handleUpdateAddOn(aIdx, 'name', e.target.value)}
                       placeholder="Add-on name (e.g. Extra Mayo)"
-                      className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-xs font-medium focus:outline-hidden focus:ring-1 focus:ring-rose-500"
+                      className="flex-1 min-w-0 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 text-base sm:text-xs font-medium focus:outline-hidden focus:ring-1 focus:ring-rose-500"
                     />
-                    <div className="flex items-center gap-1 shrink-0 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5">
-                      <span className="text-[11px] text-slate-400 font-bold">৳</span>
+                    <div className="w-20 sm:w-24 flex items-center gap-1 shrink-0 bg-slate-50 border border-slate-200 rounded-xl px-2.5 h-10 focus-within:ring-1 focus-within:ring-rose-500 focus-within:border-rose-500 transition">
+                      <span className="text-xs text-slate-400 font-bold pointer-events-none">৳</span>
                       <input
                         type="number"
+                        min="0"
                         value={addOn.price}
                         onChange={(e) => handleUpdateAddOn(aIdx, 'price', e.target.value)}
-                        placeholder="Price"
-                        className="w-14 bg-transparent text-slate-800 text-xs font-bold focus:outline-hidden text-right"
+                        placeholder="0"
+                        className="w-full bg-transparent text-slate-800 text-base sm:text-xs font-bold focus:outline-hidden text-right"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveAddOn(aIdx)}
-                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shrink-0"
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition cursor-pointer shrink-0 active:scale-95"
                       title="Remove add-on"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
@@ -903,7 +915,7 @@ export function FoodItemModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition cursor-pointer"
+            className="flex-1 min-h-[48px] py-3 rounded-2xl border border-slate-200 text-slate-600 text-xs sm:text-sm font-bold hover:bg-slate-50 active:scale-95 transition cursor-pointer"
           >
             Cancel
           </button>
@@ -911,7 +923,7 @@ export function FoodItemModal({
             type="button"
             disabled={createMutation.isPending || updateMutation.isPending || isUploadingImage}
             onClick={handleSubmit}
-            className="flex-1 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            className="flex-1 min-h-[48px] py-3 rounded-2xl bg-rose-600 text-white text-xs sm:text-sm font-black hover:bg-rose-700 active:scale-95 transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             {createMutation.isPending || updateMutation.isPending || isUploadingImage ? (
               <Loader2 className="w-4 h-4 animate-spin" />

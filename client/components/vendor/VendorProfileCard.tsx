@@ -73,9 +73,9 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
         <button
           type="button"
           onClick={() => setIsEditProfileModalOpen(true)}
-          className="px-3.5 py-2 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0"
+          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer shrink-0 active:scale-95"
         >
-          <Edit3 className="w-3.5 h-3.5 text-rose-600" />
+          <Edit3 className="w-4 h-4 text-rose-600" />
           <span>Edit Details</span>
         </button>
       </div>
@@ -101,7 +101,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
                 <button
                   type="button"
                   onClick={() => setIsEditProfileModalOpen(true)}
-                  className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-white/95 hover:bg-white text-slate-800 text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer backdrop-blur-xs"
+                  className="absolute bottom-3 right-3 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white/95 hover:bg-white text-slate-800 text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer backdrop-blur-xs active:scale-95"
                 >
                   <Camera className="w-3.5 h-3.5 text-rose-600" />
                   <span>Change Banner</span>
@@ -111,7 +111,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
               <button
                 type="button"
                 onClick={() => setIsEditProfileModalOpen(true)}
-                className="w-full py-6 px-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50/70 hover:bg-slate-100/60 transition flex flex-col items-center justify-center gap-1.5 text-center cursor-pointer group"
+                className="w-full py-6 px-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50/70 hover:bg-slate-100/60 transition flex flex-col items-center justify-center gap-1.5 text-center cursor-pointer group active:scale-[0.99]"
               >
                 <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-rose-600 transition shadow-2xs">
                   <Camera className="w-4 h-4" />
@@ -127,7 +127,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
               <div className="flex items-center gap-3.5 min-w-0">
                 <div
                   onClick={() => setIsEditProfileModalOpen(true)}
-                  className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl border border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center text-xl font-black shrink-0 shadow-sm cursor-pointer group"
+                  className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl border border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center text-xl font-black shrink-0 shadow-sm cursor-pointer group active:scale-95 transition-transform"
                   title="Click to update logo"
                 >
                   {restaurant.logo_url ? (
@@ -152,7 +152,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
                       {restaurant.name}
                     </h3>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                         isOpen ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
                       }`}
                     >
@@ -168,7 +168,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
                   type="button"
                   disabled={toggleStatusMutation.isPending}
                   onClick={handleToggleStoreStatus}
-                  className={`flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shrink-0 ${
+                  className={`flex-1 sm:flex-initial min-h-[44px] px-4 py-2.5 rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shrink-0 active:scale-95 ${
                     isOpen
                       ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20'
@@ -188,7 +188,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-3 border-t border-slate-100">
             <div
               onClick={() => setIsEditProfileModalOpen(true)}
-              className="p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 flex items-center justify-between gap-3 cursor-pointer transition group"
+              className="p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 flex items-center justify-between gap-3 cursor-pointer transition group active:scale-[0.99]"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
@@ -259,7 +259,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
             <button
               type="button"
               onClick={() => setIsPasswordModalOpen(true)}
-              className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full min-h-[44px] px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-95 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
               <Lock className="w-3.5 h-3.5 text-slate-500" />
               <span>Change Password</span>
@@ -268,7 +268,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
             <button
               type="button"
               onClick={() => logout(() => router.push('/auth/login'))}
-              className="w-full px-4 py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-700 border border-rose-200 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>

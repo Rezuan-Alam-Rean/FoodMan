@@ -12,9 +12,17 @@ export default function VendorEarningsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-3">
-        <Loader2 className="w-8 h-8 text-rose-600 animate-spin" />
-        <p className="text-xs text-slate-400 font-semibold">Loading wallet statement...</p>
+      <div className="space-y-5 pb-6 animate-pulse">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-2xl bg-slate-200" />
+          <div className="space-y-1.5">
+            <div className="w-40 h-4 bg-slate-200 rounded-md" />
+            <div className="w-48 h-3 bg-slate-100 rounded-md" />
+          </div>
+        </div>
+        <div className="w-full h-48 bg-slate-800/80 rounded-3xl" />
+        <div className="w-full h-20 bg-blue-50 rounded-3xl" />
+        <div className="w-full h-64 bg-white rounded-3xl border border-slate-200" />
       </div>
     );
   }
@@ -34,7 +42,7 @@ export default function VendorEarningsPage() {
         <button
           type="button"
           onClick={() => refetch()}
-          className="px-4 py-2 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition cursor-pointer"
+          className="min-h-[44px] px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-black transition cursor-pointer shadow-sm shadow-rose-600/20 inline-flex items-center justify-center"
         >
           Try Again
         </button>

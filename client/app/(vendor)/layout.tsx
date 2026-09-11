@@ -64,9 +64,9 @@ export default function VendorLayout({
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
-      <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-3">
-          <Link href="/vendor" className="flex items-center gap-2.5 group">
+      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-15 sm:h-16 flex items-center justify-between gap-3">
+          <Link href="/vendor" className="flex items-center gap-2.5 group active:scale-95 transition-transform">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 flex items-center justify-center text-white shadow-sm shadow-rose-500/25 group-hover:scale-105 transition shrink-0">
               <UtensilsCrossed className="w-5 h-5" />
             </div>
@@ -87,30 +87,30 @@ export default function VendorLayout({
                 type="button"
                 disabled={toggleStatusMutation.isPending}
                 onClick={handleToggleStoreStatus}
-                className={`px-3 py-1.5 rounded-full text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs ${
+                className={`h-10 px-3.5 sm:px-4 rounded-full text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95 ${
                   isOpen
-                    ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/20'
                     : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                 }`}
-                title="toggle store open or closed"
+                title="Toggle store open or closed"
               >
                 {toggleStatusMutation.isPending ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
                   <span
-                    className={`w-2 h-2 rounded-full ${
+                    className={`w-2.5 h-2.5 rounded-full ${
                       isOpen ? 'bg-white animate-pulse' : 'bg-slate-400'
                     }`}
                   />
                 )}
-                <span>{isOpen ? 'Store Open' : 'Store Closed'}</span>
+                <span className="whitespace-nowrap">{isOpen ? 'Store Open' : 'Store Closed'}</span>
               </button>
             )}
           </div>
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 sm:pb-24">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] md:pb-12">
         {children}
       </main>
 

@@ -11,9 +11,36 @@ export default function VendorProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center space-y-3">
-        <Loader2 className="w-8 h-8 text-rose-600 animate-spin" />
-        <p className="text-xs text-slate-400 font-semibold">Loading restaurant profile...</p>
+      <div className="space-y-4 animate-pulse">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-slate-200" />
+            <div className="space-y-1.5">
+              <div className="w-36 h-4 bg-slate-200 rounded-md" />
+              <div className="w-48 h-3 bg-slate-100 rounded-md" />
+            </div>
+          </div>
+          <div className="w-28 h-10 bg-slate-200 rounded-2xl" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+            <div className="w-full h-44 bg-slate-200 rounded-2xl" />
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-slate-200 rounded-2xl shrink-0" />
+              <div className="space-y-2 flex-1">
+                <div className="w-44 h-5 bg-slate-200 rounded-md" />
+                <div className="w-28 h-3 bg-slate-100 rounded-md" />
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-1 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs space-y-4">
+            <div className="w-36 h-4 bg-slate-200 rounded-md" />
+            <div className="space-y-2">
+              <div className="w-full h-12 bg-slate-100 rounded-2xl" />
+              <div className="w-full h-12 bg-slate-100 rounded-2xl" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -33,7 +60,7 @@ export default function VendorProfilePage() {
         <button
           type="button"
           onClick={() => refetch()}
-          className="px-4 py-2 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition cursor-pointer"
+          className="min-h-[44px] px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-black transition cursor-pointer shadow-sm shadow-rose-600/20 inline-flex items-center justify-center"
         >
           Try Again
         </button>
