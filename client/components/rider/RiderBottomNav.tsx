@@ -75,7 +75,7 @@ export function RiderBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center h-12 py-1 rounded-2xl transition-all duration-150 group relative cursor-pointer active:scale-90 select-none ${
+              className={`flex flex-col items-center justify-center h-12 py-1 rounded-2xl transition-transform duration-150 group relative cursor-pointer active:scale-[0.98] select-none ${
                 item.isActive
                   ? 'text-rose-600 font-black'
                   : 'text-slate-400 hover:text-slate-700 font-semibold'

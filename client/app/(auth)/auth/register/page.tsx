@@ -234,7 +234,7 @@ export default function RegisterPage() {
             type="button"
             onClick={handleSaveAddress}
             disabled={isSavingAddress || !detailedAddress.trim()}
-            className="w-full py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md transition disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer"
+            className="w-full min-h-[48px] py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-transform cursor-pointer"
           >
             <span>{isSavingAddress ? 'Saving Address...' : 'Save & Start Ordering'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -365,7 +365,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isRegistering}
-          className="w-full py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md transition disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99] cursor-pointer"
+          className="w-full min-h-[48px] py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] transition-transform cursor-pointer"
         >
           <span>{isRegistering ? 'Creating Account...' : 'Continue'}</span>
           <ArrowRight className="w-4 h-4" />

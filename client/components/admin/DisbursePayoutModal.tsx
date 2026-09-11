@@ -109,7 +109,7 @@ export function DisbursePayoutModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-11 h-11 rounded-2xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition cursor-pointer shrink-0 active:scale-95"
+            className="w-11 h-11 rounded-2xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
           >
             <X className="w-5 h-5" />
           </button>
@@ -164,7 +164,7 @@ export function DisbursePayoutModal({
                     key={ch.value}
                     type="button"
                     onClick={() => setChannel(ch.value)}
-                    className={`min-h-[44px] py-2.5 px-3 rounded-2xl border text-xs font-bold transition cursor-pointer active:scale-95 ${
+                    className={`min-h-[44px] py-2.5 px-3 rounded-2xl border text-xs font-bold transition cursor-pointer active:scale-[0.98] transition-transform ${
                       channel === ch.value
                         ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20 font-black'
                         : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-400 hover:bg-emerald-50/50'
@@ -206,7 +206,7 @@ export function DisbursePayoutModal({
             <button
               type="submit"
               disabled={disburseMutation.isPending}
-              className="w-full min-h-[48px] py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/25 cursor-pointer disabled:opacity-50"
+              className="w-full min-h-[48px] py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-transform text-white text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/25 cursor-pointer disabled:opacity-50"
             >
               {disburseMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

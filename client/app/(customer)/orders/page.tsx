@@ -45,7 +45,7 @@ export default function CustomerOrdersPage() {
         </div>
         <Link
           href="/auth/login"
-          className="inline-flex items-center justify-center min-h-[48px] px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-md shadow-rose-600/20 transition active:scale-95 cursor-pointer"
+          className="inline-flex items-center justify-center min-h-[48px] px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-md shadow-rose-600/20 active:scale-[0.98] transition-transform cursor-pointer"
         >
           Sign In
         </Link>
@@ -90,7 +90,7 @@ export default function CustomerOrdersPage() {
           </div>
           <Link
             href="/"
-            className="inline-flex items-center min-h-[48px] px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-xs sm:text-sm font-extrabold transition shadow-md shadow-rose-600/20 active:scale-95 cursor-pointer"
+            className="inline-flex items-center min-h-[48px] px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-xs sm:text-sm font-extrabold shadow-md shadow-rose-600/20 active:scale-[0.98] transition-transform cursor-pointer"
           >
             Start Ordering
           </Link>
@@ -113,7 +113,7 @@ export default function CustomerOrdersPage() {
               <Link
                 key={orderId}
                 href={`/orders/${orderId}`}
-                className="block bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-xs active:scale-[0.99] group"
+                className="block bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs active:scale-[0.98] transition-transform group"
               >
                 <div className="border-b border-slate-100 dark:border-slate-800 pb-3 mb-3 space-y-2">
                   <div className="flex items-center justify-between gap-2">
@@ -163,7 +163,7 @@ export default function CustomerOrdersPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={!pagination.hasPrevPage}
-                className="inline-flex items-center gap-1 min-h-[44px] px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-bold transition disabled:opacity-40 disabled:pointer-events-none cursor-pointer shadow-xs active:scale-95"
+                className="inline-flex items-center gap-1 min-h-[44px] px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-755 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-bold transition-transform disabled:opacity-40 disabled:pointer-events-none cursor-pointer shadow-xs active:scale-[0.98]"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>Previous</span>
@@ -175,7 +175,7 @@ export default function CustomerOrdersPage() {
                     key={pageNum}
                     type="button"
                     onClick={() => setPage(pageNum)}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl text-xs sm:text-sm font-black transition cursor-pointer flex items-center justify-center active:scale-90 ${
+                    className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl text-xs sm:text-sm font-black transition-transform cursor-pointer flex items-center justify-center active:scale-[0.98] ${
                       page === pageNum
                         ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20'
                         : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-750'
@@ -190,7 +190,7 @@ export default function CustomerOrdersPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
                 disabled={!pagination.hasNextPage}
-                className="inline-flex items-center gap-1 min-h-[44px] px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-bold transition disabled:opacity-40 disabled:pointer-events-none cursor-pointer shadow-xs active:scale-95"
+                className="inline-flex items-center gap-1 min-h-[44px] px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-bold transition-transform disabled:opacity-40 disabled:pointer-events-none cursor-pointer shadow-xs active:scale-[0.98]"
               >
                 <span>Next</span>
                 <ChevronRight className="w-4 h-4" />

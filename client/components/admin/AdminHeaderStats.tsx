@@ -25,7 +25,7 @@ export function AdminHeaderStats() {
           {counts.active_orders_in_progress > 0 && (
             <Link
               href="/admin/orders"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-blue-50 border border-blue-100 hover:bg-blue-100/70 transition cursor-pointer active:scale-95 shadow-2xs"
+              className="flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-2xl bg-blue-50 border border-blue-100 hover:bg-blue-100/70 transition cursor-pointer active:scale-[0.98] transition-transform shadow-2xs"
             >
               <Activity className="w-3.5 h-3.5 text-blue-600" />
               <span className="text-xs font-black text-blue-700">
@@ -36,7 +36,7 @@ export function AdminHeaderStats() {
           {counts.pending_mfs_verifications > 0 && (
             <Link
               href="/admin/mfs"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-violet-50 border border-violet-100 hover:bg-violet-100/70 transition cursor-pointer active:scale-95 shadow-2xs"
+              className="flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-2xl bg-violet-50 border border-violet-100 hover:bg-violet-100/70 transition cursor-pointer active:scale-[0.98] transition-transform shadow-2xs"
             >
               <CreditCard className="w-3.5 h-3.5 text-violet-600" />
               <span className="text-xs font-black text-violet-700">
@@ -47,7 +47,7 @@ export function AdminHeaderStats() {
           {counts.pending_cod_remittances > 0 && (
             <Link
               href="/admin/cod"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-100 hover:bg-amber-100/70 transition cursor-pointer active:scale-95 shadow-2xs"
+              className="flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-2xl bg-amber-50 border border-amber-100 hover:bg-amber-100/70 transition cursor-pointer active:scale-[0.98] transition-transform shadow-2xs"
             >
               <Banknote className="w-3.5 h-3.5 text-amber-600" />
               <span className="text-xs font-black text-amber-700">

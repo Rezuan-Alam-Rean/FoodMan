@@ -34,9 +34,9 @@
 
 ### 2.1. The 4px / 8px Grid Standard
 Always use standard Tailwind spacing steps divisible by 4px or 8px:
-- **Margins & Page Gaps:** `px-4 sm:px-6` on page containers; `py-3 sm:py-4` for headers.
-- **Card Paddings:** `p-3.5` or `p-4` on mobile; `p-5` or `p-6` on tablet/desktop.
-- **Element Gaps:** `gap-1.5` (6px), `gap-2` (8px), `gap-3` (12px), `gap-4` (16px), `gap-6` (24px).
+- **Margins & Page Gaps:** `px-4 sm:px-6` on page containers; `py-2 sm:py-4` for headers.
+- **Card Paddings:** `p-3` (12px) or `p-4` (16px) on mobile; `p-6` (24px) on tablet/desktop.
+- **Element Gaps:** `gap-1` (4px), `gap-2` (8px), `gap-3` (12px), `gap-4` (16px), `gap-6` (24px).
 
 ### 2.2. Thumb-Zone Architecture
 Most users hold phones with one hand and navigate with the thumb:

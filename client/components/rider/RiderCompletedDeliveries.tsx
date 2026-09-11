@@ -54,9 +54,28 @@ export function RiderCompletedDeliveries() {
       </div>
 
       {isLoading ? (
-        <div className="py-12 flex flex-col items-center justify-center space-y-3">
-          <Loader2 className="w-7 h-7 text-rose-600 animate-spin" />
-          <p className="text-xs text-slate-400 font-bold">Loading trip records...</p>
+        <div className="space-y-3.5">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="p-4 sm:p-5 rounded-2xl border border-slate-200/90 bg-white space-y-3 shadow-2xs animate-pulse"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-100 shrink-0" />
+                  <div className="space-y-1.5">
+                    <div className="h-4 w-32 bg-slate-100 rounded-md" />
+                    <div className="h-3 w-48 bg-slate-100 rounded-md" />
+                  </div>
+                </div>
+                <div className="h-6 w-20 bg-slate-100 rounded-xl shrink-0" />
+              </div>
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                <div className="h-3 w-36 bg-slate-100 rounded-md" />
+                <div className="h-3 w-16 bg-slate-100 rounded-md" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : orders.length === 0 ? (
         <div className="py-12 text-center space-y-3">
@@ -168,7 +187,7 @@ export function RiderCompletedDeliveries() {
                 type="button"
                 disabled={!pagination.hasPrevPage || isFetching}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="h-10 px-4 rounded-xl border border-slate-200 text-xs font-black text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                className="min-h-[44px] h-11 px-4 rounded-xl border border-slate-200 text-xs font-black text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-transform flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>Previous</span>
@@ -182,7 +201,7 @@ export function RiderCompletedDeliveries() {
                 type="button"
                 disabled={!pagination.hasNextPage || isFetching}
                 onClick={() => setPage((p) => p + 1)}
-                className="h-10 px-4 rounded-xl border border-slate-200 text-xs font-black text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                className="min-h-[44px] h-11 px-4 rounded-xl border border-slate-200 text-xs font-black text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-transform flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
               >
                 <span>Next</span>
                 <ChevronRight className="w-4 h-4" />

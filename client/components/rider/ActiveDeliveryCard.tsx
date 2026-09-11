@@ -220,7 +220,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
                       role: 'Restaurant',
                     });
                   }}
-                  className="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-2xs"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-transform flex items-center justify-center shrink-0 cursor-pointer active:scale-[0.98] shadow-2xs"
                   title="Call restaurant"
                 >
                   <Phone className="w-4 h-4" />
@@ -264,7 +264,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
                       role: 'Customer',
                     });
                   }}
-                  className="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-2xs"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-transform flex items-center justify-center shrink-0 cursor-pointer active:scale-[0.98] shadow-2xs"
                   title="Call customer"
                 >
                   <Phone className="w-4 h-4" />
@@ -347,7 +347,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
                 setActionError('');
                 setReleaseModalOpen(true);
               }}
-              className="w-full h-11 mt-2.5 rounded-2xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100/70 text-rose-700 text-xs font-bold transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              className="w-full min-h-[44px] h-11 mt-2.5 rounded-2xl border border-rose-200 bg-rose-50/50 hover:bg-rose-100/70 text-rose-700 text-xs font-bold transition-transform flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98]"
             >
               <Undo2 className="w-3.5 h-3.5" />
               <span>Release Trip / Can't Deliver</span>
@@ -375,7 +375,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
               <button
                 type="button"
                 onClick={() => setContactModal(null)}
-                className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex items-center justify-center cursor-pointer shrink-0 active:scale-95"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-transform flex items-center justify-center cursor-pointer shrink-0 active:scale-[0.98]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -395,7 +395,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
                 href={getWhatsAppUrl(contactModal.phone)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20 active:scale-95"
+                className="w-full min-h-[44px] h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-transform flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20 active:scale-[0.98]"
               >
                 <WhatsAppIcon className="w-4 h-4" />
                 <span>Chat on WhatsApp</span>
@@ -403,7 +403,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
 
               <a
                 href={`tel:${contactModal.phone}`}
-                className="w-full h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95"
+                className="w-full min-h-[44px] h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-transform flex items-center justify-center gap-2 active:scale-[0.98]"
               >
                 <Phone className="w-4 h-4" />
                 <span>Call Directly</span>
@@ -412,7 +412,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
               <button
                 type="button"
                 onClick={handleCopyPhone}
-                className={`w-full h-11 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+                className={`w-full min-h-[44px] h-11 rounded-2xl border text-xs font-bold transition-transform flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] ${
                   isCopied
                     ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
                     : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
@@ -463,7 +463,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
               <button
                 type="button"
                 onClick={() => setConfirmDeliverModalOpen(false)}
-                className="flex-1 h-12 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition cursor-pointer active:scale-95"
+                className="flex-1 min-h-[44px] h-12 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-transform cursor-pointer active:scale-[0.98]"
               >
                 Cancel
               </button>
@@ -471,7 +471,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
                 type="button"
                 disabled={deliverMutation.isPending}
                 onClick={handleConfirmDelivery}
-                className="flex-1 h-12 rounded-2xl bg-emerald-600 text-white text-xs font-black hover:bg-emerald-700 transition shadow-md shadow-emerald-600/25 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-95"
+                className="flex-1 min-h-[44px] h-12 rounded-2xl bg-emerald-600 text-white text-xs font-black hover:bg-emerald-700 transition-transform shadow-md shadow-emerald-600/25 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-[0.98]"
               >
                 {deliverMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -503,7 +503,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
               <button
                 type="button"
                 onClick={() => setReleaseModalOpen(false)}
-                className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex items-center justify-center cursor-pointer shrink-0 active:scale-95"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-transform flex items-center justify-center cursor-pointer shrink-0 active:scale-[0.98]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -520,7 +520,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
               <label className="text-xs font-bold text-slate-700 block">
                 Select reason for releasing trip:
               </label>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {[
                   'Vehicle breakdown / flat tire',
                   'Severe rain / bad weather',
@@ -532,7 +532,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
                     key={preset}
                     type="button"
                     onClick={() => setSelectedPresetReason(preset)}
-                    className={`h-9 px-3 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${
                       selectedPresetReason === preset
                         ? 'bg-rose-600 text-white shadow-xs'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -565,7 +565,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
               <button
                 type="button"
                 onClick={() => setReleaseModalOpen(false)}
-                className="flex-1 h-12 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition cursor-pointer active:scale-95"
+                className="flex-1 min-h-[44px] h-12 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-transform cursor-pointer active:scale-[0.98]"
               >
                 Keep Delivery
               </button>
@@ -573,7 +573,7 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
                 type="button"
                 disabled={riderCancelMutation.isPending}
                 onClick={handleConfirmRelease}
-                className="flex-1 h-12 rounded-2xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 transition shadow-md shadow-rose-600/25 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-95"
+                className="flex-1 min-h-[44px] h-12 rounded-2xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 transition-transform shadow-md shadow-rose-600/25 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-[0.98]"
               >
                 {riderCancelMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

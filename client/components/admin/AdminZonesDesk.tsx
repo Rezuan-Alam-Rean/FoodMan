@@ -212,7 +212,7 @@ export function AdminZonesDesk() {
         <button
           type="button"
           onClick={handleOpenCreateZone}
-          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-black transition flex items-center gap-2 shadow-md shadow-teal-600/20 cursor-pointer shrink-0 active:scale-95"
+          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-black transition flex items-center gap-2 shadow-md shadow-teal-600/20 cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
         >
           <Plus className="w-4 h-4" />
           <span>Add Zone</span>
@@ -230,7 +230,7 @@ export function AdminZonesDesk() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="min-h-[40px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer active:scale-95"
+            className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer active:scale-[0.98] transition-transform"
           >
             Try Again
           </button>
@@ -269,7 +269,7 @@ export function AdminZonesDesk() {
                     <button
                       type="button"
                       onClick={() => handleOpenEditZone(zone)}
-                      className="w-10 h-10 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center transition cursor-pointer active:scale-95"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center transition cursor-pointer active:scale-[0.98] transition-transform"
                       title="Edit Zone"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -277,7 +277,7 @@ export function AdminZonesDesk() {
                     <button
                       type="button"
                       onClick={() => handleOpenCreateSubzone(zone._id)}
-                      className="min-h-[40px] px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-xs"
+                      className="min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-[0.98] transition-transform shadow-xs"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Subzone</span>
@@ -329,7 +329,7 @@ export function AdminZonesDesk() {
                             <button
                               type="button"
                               onClick={() => handleOpenEditSubzone(zone._id, sub)}
-                              className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-lg hover:bg-white text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer active:scale-95 shrink-0"
+                              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-lg hover:bg-white text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer active:scale-[0.98] transition-transform shrink-0"
                               title="Edit Subzone"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -366,7 +366,7 @@ export function AdminZonesDesk() {
               <button
                 type="button"
                 onClick={() => setIsZoneModalOpen(false)}
-                className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-95"
+                className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -426,7 +426,7 @@ export function AdminZonesDesk() {
                     <button
                       type="button"
                       onClick={() => setZoneActive(!zoneActive)}
-                      className={`min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-black transition cursor-pointer active:scale-95 ${
+                      className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer active:scale-[0.98] transition-transform ${
                         zoneActive ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-200 text-slate-600'
                       }`}
                     >
@@ -438,7 +438,7 @@ export function AdminZonesDesk() {
                 <button
                   type="submit"
                   disabled={createZoneMutation.isPending || updateZoneMutation.isPending}
-                  className="w-full min-h-[48px] py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 active:scale-98 text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 cursor-pointer disabled:opacity-50 mt-2"
+                  className="w-full min-h-[48px] py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 active:scale-[0.98] transition-transform text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 cursor-pointer disabled:opacity-50 mt-2"
                 >
                   {(createZoneMutation.isPending || updateZoneMutation.isPending) ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -473,7 +473,7 @@ export function AdminZonesDesk() {
               <button
                 type="button"
                 onClick={() => setIsSubzoneModalOpen(false)}
-                className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-95"
+                className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -522,7 +522,7 @@ export function AdminZonesDesk() {
                     <button
                       type="button"
                       onClick={() => setSubzoneActive(!subzoneActive)}
-                      className={`min-h-[36px] px-3.5 py-1.5 rounded-xl text-xs font-black transition cursor-pointer active:scale-95 ${
+                      className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer active:scale-[0.98] transition-transform ${
                         subzoneActive ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-200 text-slate-600'
                       }`}
                     >
@@ -534,7 +534,7 @@ export function AdminZonesDesk() {
                 <button
                   type="submit"
                   disabled={createSubzoneMutation.isPending || updateSubzoneMutation.isPending}
-                  className="w-full min-h-[48px] py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 active:scale-98 text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 cursor-pointer disabled:opacity-50 mt-2"
+                  className="w-full min-h-[48px] py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 active:scale-[0.98] transition-transform text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 cursor-pointer disabled:opacity-50 mt-2"
                 >
                   {(createSubzoneMutation.isPending || updateSubzoneMutation.isPending) ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

@@ -52,7 +52,7 @@ export function AdminMfsVerificationDesk() {
         <button
           type="button"
           onClick={() => refetch()}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 transition cursor-pointer active:scale-95"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 transition cursor-pointer active:scale-[0.98] transition-transform"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -66,7 +66,7 @@ export function AdminMfsVerificationDesk() {
         <div className="bg-white rounded-3xl p-8 border border-rose-200 text-center space-y-3">
           <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
           <p className="text-xs font-semibold text-slate-600">failed to load pending payments</p>
-          <button type="button" onClick={() => refetch()} className="min-h-[40px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer active:scale-95">
+          <button type="button" onClick={() => refetch()} className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer active:scale-[0.98] transition-transform">
             Try Again
           </button>
         </div>
@@ -146,10 +146,10 @@ export function AdminMfsVerificationDesk() {
                     type="button"
                     disabled={isProcessing}
                     onClick={() => handleVerify(payment._id, 'VERIFIED')}
-                    className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 cursor-pointer disabled:opacity-50 active:scale-98"
+                    className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 cursor-pointer disabled:opacity-50 active:scale-[0.98] transition-transform"
                   >
                     {isProcessing ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <CheckCircle className="w-4 h-4" />
                     )}
@@ -159,7 +159,7 @@ export function AdminMfsVerificationDesk() {
                     type="button"
                     disabled={isProcessing}
                     onClick={() => handleVerify(payment._id, 'FAILED')}
-                    className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-98"
+                    className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98] transition-transform"
                   >
                     <XCircle className="w-4 h-4" />
                     <span>Reject</span>

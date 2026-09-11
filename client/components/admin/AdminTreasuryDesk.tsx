@@ -77,7 +77,7 @@ export function AdminTreasuryDesk() {
           <button
             type="button"
             onClick={handleRefreshAll}
-            className="w-10 h-10 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 flex items-center justify-center text-slate-500 transition cursor-pointer shadow-2xs shrink-0"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-[0.98] transition-transform flex items-center justify-center text-slate-500 transition cursor-pointer shadow-2xs shrink-0"
             title="Refresh treasury data"
           >
             <RefreshCw className="w-4 h-4" />
@@ -247,7 +247,7 @@ export function AdminTreasuryDesk() {
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 min-h-[42px] py-2.5 px-3 rounded-xl text-xs font-black capitalize transition cursor-pointer active:scale-95 ${
+              className={`flex-1 min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-black capitalize transition cursor-pointer active:scale-[0.98] transition-transform ${
                 activeTab === tab
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'text-slate-600 hover:bg-slate-50'
@@ -269,7 +269,7 @@ export function AdminTreasuryDesk() {
               <button
                 type="button"
                 onClick={() => refetchWallets()}
-                className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold active:scale-95 transition cursor-pointer shadow-xs"
+                className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold active:scale-[0.98] transition-transform transition cursor-pointer shadow-xs"
               >
                 Try Again
               </button>
@@ -348,7 +348,7 @@ export function AdminTreasuryDesk() {
                                 balance: wallet.current_balance,
                               })
                             }
-                            className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-transform text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
                           >
                             <CreditCard className="w-3.5 h-3.5" />
                             <span>Payout</span>
@@ -370,7 +370,7 @@ export function AdminTreasuryDesk() {
             <button
               type="button"
               onClick={() => refetchHistory()}
-              className="px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer"
+              className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer active:scale-[0.98] transition-transform"
             >
               Try Again
             </button>

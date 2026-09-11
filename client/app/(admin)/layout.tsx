@@ -65,7 +65,7 @@ export default function AdminLayout({
           <div className="flex items-center gap-3">
             <button
               onClick={() => logout(() => router.push('/auth/login'))}
-              className="min-h-[40px] px-3.5 py-2 rounded-2xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 active:scale-95 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="min-h-[44px] px-3.5 py-2 rounded-2xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 active:scale-[0.98] transition-transform text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
               title="log out"
             >
               <LogOut className="w-3.5 h-3.5" />

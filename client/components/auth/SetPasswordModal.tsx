@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { X, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Lock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 interface SetPasswordModalProps {
   isOpen: boolean;
@@ -94,7 +94,7 @@ export function SetPasswordModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-11 h-11 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition active:scale-95 flex items-center justify-center cursor-pointer shrink-0"
+            className="w-11 h-11 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-transform active:scale-[0.98] flex items-center justify-center cursor-pointer shrink-0"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -160,7 +160,7 @@ export function SetPasswordModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 min-h-[48px] py-2.5 rounded-2xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition active:scale-95 cursor-pointer"
+                className="flex-1 min-h-[48px] py-2.5 rounded-2xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-transform active:scale-[0.98] cursor-pointer"
               >
                 {isGuestPrompt ? 'Maybe Later' : 'Cancel'}
               </button>
@@ -168,9 +168,16 @@ export function SetPasswordModal({
               <button
                 type="submit"
                 disabled={isSettingPassword}
-                className="flex-1 min-h-[48px] py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-md shadow-rose-600/20 transition disabled:opacity-50 active:scale-95 cursor-pointer"
+                className="flex-1 min-h-[48px] py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-md shadow-rose-600/20 transition-transform disabled:opacity-50 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
               >
-                {isSettingPassword ? 'Saving...' : 'Save Password'}
+                {isSettingPassword ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>Save Password</span>
+                )}
               </button>
             </div>
           </form>

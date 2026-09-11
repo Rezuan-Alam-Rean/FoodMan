@@ -90,7 +90,7 @@ export function AdminCouponsDesk() {
         <button
           type="button"
           onClick={() => setIsCreateModalOpen(true)}
-          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/20 cursor-pointer shrink-0"
+          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] transition-transform text-white text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/20 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>New Coupon</span>
@@ -153,7 +153,7 @@ export function AdminCouponsDesk() {
               key={st}
               type="button"
               onClick={() => setStatusFilter(st)}
-              className={`min-h-[38px] px-4 py-1.5 rounded-xl text-xs font-bold capitalize transition cursor-pointer active:scale-95 ${
+              className={`min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-bold capitalize transition cursor-pointer active:scale-[0.98] transition-transform ${
                 statusFilter === st
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -260,7 +260,7 @@ export function AdminCouponsDesk() {
                       type="button"
                       disabled={isToggling}
                       onClick={() => toggleStatusMutation.mutate(coupon.id || coupon._id)}
-                      className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95 ${
+                      className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-[0.98] transition-transform ${
                         coupon.is_active
                           ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
                           : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
@@ -280,7 +280,7 @@ export function AdminCouponsDesk() {
                     <button
                       type="button"
                       onClick={() => setEditingCoupon(coupon)}
-                      className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer active:scale-95"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer active:scale-[0.98] transition-transform"
                       title="Edit coupon"
                     >
                       <Edit className="w-4 h-4" />
@@ -290,7 +290,7 @@ export function AdminCouponsDesk() {
                       type="button"
                       disabled={isDeleting}
                       onClick={() => handleDelete(coupon)}
-                      className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition cursor-pointer disabled:opacity-50 active:scale-95"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition cursor-pointer disabled:opacity-50 active:scale-[0.98] transition-transform"
                       title="Delete coupon"
                     >
                       {isDeleting ? (

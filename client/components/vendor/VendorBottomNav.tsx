@@ -66,7 +66,7 @@ export function VendorBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`min-h-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-full transition-all group relative cursor-pointer active:scale-90 select-none ${
+              className={`min-h-[48px] flex flex-col items-center justify-center py-1 px-2 rounded-full transition-transform duration-200 group relative cursor-pointer active:scale-[0.98] select-none ${
                 item.isActive
                   ? 'text-rose-600 font-black bg-rose-50/80'
                   : 'text-slate-400 hover:text-slate-700 font-bold hover:bg-slate-50/60'

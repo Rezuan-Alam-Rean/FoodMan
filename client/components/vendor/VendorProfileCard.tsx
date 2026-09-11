@@ -73,7 +73,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
         <button
           type="button"
           onClick={() => setIsEditProfileModalOpen(true)}
-          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer shrink-0 active:scale-95"
+          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-800 text-xs sm:text-sm font-bold transition shadow-xs flex items-center gap-2 cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
         >
           <Edit3 className="w-4 h-4 text-rose-600" />
           <span>Edit Details</span>
@@ -101,7 +101,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
                 <button
                   type="button"
                   onClick={() => setIsEditProfileModalOpen(true)}
-                  className="absolute bottom-3 right-3 min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white/95 hover:bg-white text-slate-800 text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer backdrop-blur-xs active:scale-95"
+                  className="absolute bottom-3 right-3 min-h-[44px] px-3.5 py-1.5 rounded-xl bg-white/95 hover:bg-white text-slate-800 text-xs font-bold shadow-xs flex items-center gap-2 cursor-pointer backdrop-blur-xs active:scale-[0.98] transition-transform"
                 >
                   <Camera className="w-3.5 h-3.5 text-rose-600" />
                   <span>Change Banner</span>
@@ -111,7 +111,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
               <button
                 type="button"
                 onClick={() => setIsEditProfileModalOpen(true)}
-                className="w-full py-6 px-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50/70 hover:bg-slate-100/60 transition flex flex-col items-center justify-center gap-1.5 text-center cursor-pointer group active:scale-[0.99]"
+                className="w-full py-6 px-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50/70 hover:bg-slate-100/60 flex flex-col items-center justify-center gap-2 text-center cursor-pointer group active:scale-[0.98] transition-transform"
               >
                 <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-rose-600 transition shadow-2xs">
                   <Camera className="w-4 h-4" />
@@ -125,10 +125,12 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 min-w-0">
-                <div
+                <button
+                  type="button"
                   onClick={() => setIsEditProfileModalOpen(true)}
-                  className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl border border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center text-xl font-black shrink-0 shadow-sm cursor-pointer group active:scale-95 transition-transform"
+                  className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl border border-slate-200 overflow-hidden bg-slate-100 flex items-center justify-center text-xl font-black shrink-0 shadow-sm cursor-pointer group active:scale-[0.98] transition-transform p-0 text-left"
                   title="Click to update logo"
+                  aria-label="Update restaurant logo"
                 >
                   {restaurant.logo_url ? (
                     <img
@@ -144,7 +146,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                     <Camera className="w-4 h-4" />
                   </div>
-                </div>
+                </button>
 
                 <div className="space-y-0.5 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -168,7 +170,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
                   type="button"
                   disabled={toggleStatusMutation.isPending}
                   onClick={handleToggleStoreStatus}
-                  className={`flex-1 sm:flex-initial min-h-[44px] px-4 py-2.5 rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer shrink-0 active:scale-95 ${
+                  className={`flex-1 sm:flex-initial min-h-[44px] px-4 py-2.5 rounded-2xl text-xs font-black flex items-center justify-center gap-2 cursor-pointer shrink-0 active:scale-[0.98] transition-transform ${
                     isOpen
                       ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20'
@@ -186,9 +188,10 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-3 border-t border-slate-100">
-            <div
+            <button
+              type="button"
               onClick={() => setIsEditProfileModalOpen(true)}
-              className="p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 flex items-center justify-between gap-3 cursor-pointer transition group active:scale-[0.99]"
+              className="w-full text-left min-h-[44px] p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 flex items-center justify-between gap-3 cursor-pointer group active:scale-[0.98] transition-transform"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
@@ -205,7 +208,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
                 </div>
               </div>
               <Edit3 className="w-3.5 h-3.5 text-slate-300 group-hover:text-rose-600 transition shrink-0" />
-            </div>
+            </button>
 
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
@@ -259,7 +262,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
             <button
               type="button"
               onClick={() => setIsPasswordModalOpen(true)}
-              className="w-full min-h-[44px] px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-95 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+              className="w-full min-h-[44px] px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-[0.98] transition-transform text-slate-700 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
               <Lock className="w-3.5 h-3.5 text-slate-500" />
               <span>Change Password</span>
@@ -268,7 +271,7 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
             <button
               type="button"
               onClick={() => logout(() => router.push('/auth/login'))}
-              className="w-full min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-700 border border-rose-200 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+              className="w-full min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 active:scale-[0.98] transition-transform text-rose-700 border border-rose-200 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>

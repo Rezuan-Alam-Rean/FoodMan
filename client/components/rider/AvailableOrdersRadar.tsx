@@ -83,7 +83,7 @@ export function AvailableOrdersRadar({
           </div>
           <Link
             href="/rider/trip"
-            className="inline-flex items-center gap-1 text-xs font-black text-emerald-700 hover:text-emerald-900 shrink-0 cursor-pointer active:scale-95 transition"
+            className="min-h-[44px] min-w-[44px] px-2.5 py-1.5 inline-flex items-center justify-center gap-1 text-xs font-black text-emerald-700 hover:text-emerald-900 shrink-0 cursor-pointer active:scale-[0.98] transition-transform rounded-xl"
           >
             <span>Trips</span>
             <ArrowRight className="w-3.5 h-3.5" />

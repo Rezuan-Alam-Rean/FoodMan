@@ -112,7 +112,7 @@ export function RiderProfileCard({ rider }: RiderProfileCardProps) {
             type="button"
             disabled={toggleStatusMutation.isPending}
             onClick={handleToggle}
-            className={`relative inline-flex h-11 w-20 shrink-0 cursor-pointer rounded-full p-1 transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-50 active:scale-95 ${
+            className={`relative inline-flex h-11 w-20 shrink-0 cursor-pointer rounded-full p-1 transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-50 active:scale-[0.98] transition-transform ${
               isOnline ? 'bg-emerald-500 ring-4 ring-emerald-100' : 'bg-slate-300'
             }`}
           >
@@ -147,7 +147,7 @@ export function RiderProfileCard({ rider }: RiderProfileCardProps) {
           <button
             type="button"
             onClick={() => setIsZoneModalOpen(true)}
-            className="h-9 px-3.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-black transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-2xs"
+            className="min-h-[44px] h-11 px-3.5 rounded-xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-black transition-transform flex items-center gap-1 cursor-pointer active:scale-[0.98] shadow-2xs"
           >
             <span>Edit Zones</span>
             <ChevronRight className="w-3.5 h-3.5 text-rose-400" />
@@ -216,7 +216,7 @@ export function RiderProfileCard({ rider }: RiderProfileCardProps) {
         <button
           type="button"
           onClick={() => setIsPasswordModalOpen(true)}
-          className="w-full h-12 px-4 rounded-2xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-between cursor-pointer active:scale-95 shadow-2xs"
+          className="w-full min-h-[48px] h-12 px-4 rounded-2xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-transform flex items-center justify-between cursor-pointer active:scale-[0.98] shadow-2xs"
         >
           <div className="flex items-center gap-2.5">
             <Lock className="w-4 h-4 text-slate-500" />
@@ -228,7 +228,7 @@ export function RiderProfileCard({ rider }: RiderProfileCardProps) {
         <button
           type="button"
           onClick={() => logout(() => router.push('/auth/login'))}
-          className="w-full h-12 px-4 rounded-2xl border border-rose-200/80 bg-rose-50/50 hover:bg-rose-50 text-rose-600 text-xs font-black transition flex items-center justify-between cursor-pointer active:scale-95 shadow-2xs"
+          className="w-full min-h-[48px] h-12 px-4 rounded-2xl border border-rose-200/80 bg-rose-50/50 hover:bg-rose-50 text-rose-600 text-xs font-black transition-transform flex items-center justify-between cursor-pointer active:scale-[0.98] shadow-2xs"
         >
           <div className="flex items-center gap-2.5">
             <LogOut className="w-4 h-4 text-rose-600" />

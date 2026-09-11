@@ -183,11 +183,11 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1 sm:mx-0 sm:px-0 pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 sm:mx-0 sm:px-0 pb-1">
           <button
             type="button"
             onClick={() => setSelectedFilter('ALL')}
-            className={`min-h-[40px] px-4 py-2 rounded-full text-xs font-black transition-all active:scale-95 cursor-pointer shrink-0 ${
+            className={`min-h-[44px] px-4 py-2 rounded-full text-xs font-black transition-transform active:scale-[0.98] cursor-pointer shrink-0 ${
               selectedFilter === 'ALL'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
@@ -199,7 +199,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
           <button
             type="button"
             onClick={() => setSelectedFilter('AWAITING')}
-            className={`min-h-[40px] px-4 py-2 rounded-full text-xs font-black transition-all active:scale-95 cursor-pointer shrink-0 ${
+            className={`min-h-[44px] px-4 py-2 rounded-full text-xs font-black transition-transform active:scale-[0.98] cursor-pointer shrink-0 ${
               selectedFilter === 'AWAITING'
                 ? 'bg-amber-600 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
@@ -211,7 +211,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
           <button
             type="button"
             onClick={() => setSelectedFilter('PREPARING')}
-            className={`min-h-[40px] px-4 py-2 rounded-full text-xs font-black transition-all active:scale-95 cursor-pointer shrink-0 ${
+            className={`min-h-[44px] px-4 py-2 rounded-full text-xs font-black transition-transform active:scale-[0.98] cursor-pointer shrink-0 ${
               selectedFilter === 'PREPARING'
                 ? 'bg-rose-600 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
@@ -223,7 +223,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
           <button
             type="button"
             onClick={() => setSelectedFilter('READY')}
-            className={`min-h-[40px] px-4 py-2 rounded-full text-xs font-black transition-all active:scale-95 cursor-pointer shrink-0 ${
+            className={`min-h-[44px] px-4 py-2 rounded-full text-xs font-black transition-transform active:scale-[0.98] cursor-pointer shrink-0 ${
               selectedFilter === 'READY'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
@@ -235,7 +235,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
           <button
             type="button"
             onClick={() => setSelectedFilter('OUT_FOR_DELIVERY')}
-            className={`min-h-[40px] px-4 py-2 rounded-full text-xs font-black transition-all active:scale-95 cursor-pointer shrink-0 flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-4 py-2 rounded-full text-xs font-black transition-transform active:scale-[0.98] cursor-pointer shrink-0 flex items-center gap-1.5 ${
               selectedFilter === 'OUT_FOR_DELIVERY'
                 ? 'bg-sky-600 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
@@ -248,7 +248,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
           <button
             type="button"
             onClick={() => setSelectedFilter('COMPLETED')}
-            className={`min-h-[40px] px-4 py-2 rounded-full text-xs font-black transition-all active:scale-95 cursor-pointer shrink-0 ${
+            className={`min-h-[44px] px-4 py-2 rounded-full text-xs font-black transition-transform active:scale-[0.98] cursor-pointer shrink-0 ${
               selectedFilter === 'COMPLETED'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
@@ -260,7 +260,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
           <button
             type="button"
             onClick={() => setSelectedFilter('CANCELLED')}
-            className={`min-h-[40px] px-4 py-2 rounded-full text-xs font-black transition-all active:scale-95 cursor-pointer shrink-0 flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-4 py-2 rounded-full text-xs font-black transition-transform active:scale-[0.98] cursor-pointer shrink-0 flex items-center gap-1.5 ${
               selectedFilter === 'CANCELLED'
                 ? 'bg-rose-600 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
@@ -404,7 +404,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                             role: 'Customer',
                           });
                         }}
-                        className="min-w-[44px] min-h-[44px] rounded-xl border border-slate-200 bg-white hover:bg-slate-100 active:scale-95 text-slate-700 transition flex items-center justify-center cursor-pointer shadow-xs"
+                        className="min-w-[44px] min-h-[44px] rounded-xl border border-slate-200 bg-white hover:bg-slate-100 active:scale-[0.98] transition-transform text-slate-700 flex items-center justify-center cursor-pointer shadow-xs"
                         title="Contact customer"
                       >
                         <Phone className="w-4 h-4 text-slate-600" />
@@ -437,7 +437,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                             role: 'Delivery Rider',
                           });
                         }}
-                        className="min-w-[44px] min-h-[44px] rounded-xl border border-slate-200 bg-white hover:bg-slate-100 active:scale-95 text-slate-700 transition flex items-center justify-center cursor-pointer shadow-xs"
+                        className="min-w-[44px] min-h-[44px] rounded-xl border border-slate-200 bg-white hover:bg-slate-100 active:scale-[0.98] transition-transform text-slate-700 flex items-center justify-center cursor-pointer shadow-xs"
                         title="Contact courier"
                       >
                         <Phone className="w-4 h-4 text-slate-600" />
@@ -619,7 +619,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
               <button
                 type="button"
                 onClick={() => setContactModal(null)}
-                className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex items-center justify-center cursor-pointer"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-transform flex items-center justify-center cursor-pointer active:scale-[0.98]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -639,7 +639,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                 href={getWhatsAppUrl(contactModal.phone)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full min-h-[48px] py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20 text-center cursor-pointer"
+                className="w-full min-h-[48px] py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-xs font-black transition-transform flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20 text-center cursor-pointer"
               >
                 <WhatsAppIcon className="w-4 h-4" />
                 <span>Chat on WhatsApp</span>
@@ -648,7 +648,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
               <div className="grid grid-cols-2 gap-2">
                 <a
                   href={`tel:${contactModal.phone}`}
-                  className="min-h-[44px] py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5 text-center cursor-pointer"
+                  className="min-h-[44px] py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 active:scale-[0.98] text-slate-700 text-xs font-bold transition-transform flex items-center justify-center gap-1.5 text-center cursor-pointer"
                 >
                   <Phone className="w-3.5 h-3.5" />
                   <span>Call Directly</span>
@@ -657,7 +657,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                 <button
                   type="button"
                   onClick={handleCopyPhone}
-                  className="min-h-[44px] py-2.5 px-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                  className="min-h-[44px] py-2.5 px-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-700 text-xs font-bold transition-transform flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                 >
                   {isCopied ? (
                     <>
@@ -696,7 +696,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
               <button
                 type="button"
                 onClick={() => setCancelModalOrder(null)}
-                className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex items-center justify-center cursor-pointer"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-transform flex items-center justify-center cursor-pointer active:scale-[0.98]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -713,7 +713,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
               <label className="text-xs font-bold text-slate-700 block">
                 Reason for cancellation:
               </label>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {[
                   'Item(s) out of stock',
                   'Kitchen overloaded / rush',
@@ -725,7 +725,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                     key={preset}
                     type="button"
                     onClick={() => setSelectedCancelPreset(preset)}
-                    className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95 cursor-pointer ${
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform active:scale-[0.98] cursor-pointer ${
                       selectedCancelPreset === preset
                         ? 'bg-rose-600 text-white shadow-xs'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -758,7 +758,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
               <button
                 type="button"
                 onClick={() => setCancelModalOrder(null)}
-                className="flex-1 min-h-[48px] py-3 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 active:scale-95 transition cursor-pointer"
+                className="flex-1 min-h-[48px] py-3 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 active:scale-[0.98] transition-transform cursor-pointer"
               >
                 Keep Order
               </button>
@@ -766,7 +766,7 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                 type="button"
                 disabled={restaurantCancelMutation.isPending}
                 onClick={handleConfirmCancelOrder}
-                className="flex-1 min-h-[48px] py-3 rounded-2xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 active:scale-95 transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                className="flex-1 min-h-[48px] py-3 rounded-2xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 active:scale-[0.98] transition-transform shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
               >
                 {restaurantCancelMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

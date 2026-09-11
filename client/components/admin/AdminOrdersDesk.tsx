@@ -161,7 +161,7 @@ export function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="w-11 h-11 sm:w-10 sm:h-10 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 flex items-center justify-center text-slate-500 transition cursor-pointer shrink-0 shadow-2xs"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-[0.98] transition-transform flex items-center justify-center text-slate-500 transition cursor-pointer shrink-0 shadow-2xs"
             title="Refresh orders"
           >
             <RefreshCw className="w-4 h-4" />
@@ -169,13 +169,13 @@ export function AdminOrdersDesk() {
         </div>
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-1.5 scrollbar-hide">
+      <div className="flex gap-2 overflow-x-auto pb-1.5 scrollbar-hide">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.value}
             type="button"
             onClick={() => setActiveTab(tab.value)}
-            className={`min-h-[40px] px-3.5 py-2 rounded-2xl text-xs font-black transition whitespace-nowrap shrink-0 cursor-pointer active:scale-95 ${
+            className={`min-h-[44px] px-3.5 py-2.5 rounded-2xl text-xs font-black transition whitespace-nowrap shrink-0 cursor-pointer active:scale-[0.98] transition-transform ${
               activeTab === tab.value
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'
@@ -197,7 +197,7 @@ export function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold active:scale-95 transition cursor-pointer shadow-xs"
+            className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold active:scale-[0.98] transition-transform transition cursor-pointer shadow-xs"
           >
             Try Again
           </button>
@@ -248,7 +248,7 @@ export function AdminOrdersDesk() {
                         type="button"
                         onClick={() => openCancelPrompt(order._id)}
                         title="Force cancel this order"
-                        className="min-w-[38px] min-h-[38px] rounded-2xl flex items-center justify-center text-rose-500 hover:text-rose-700 bg-rose-50 border border-rose-200 hover:border-rose-300 transition cursor-pointer active:scale-95 shadow-2xs"
+                        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl flex items-center justify-center text-rose-500 hover:text-rose-700 bg-rose-50 border border-rose-200 hover:border-rose-300 transition-colors cursor-pointer active:scale-[0.98] transition-transform shadow-2xs"
                       >
                         <XCircle className="w-4.5 h-4.5" />
                       </button>
@@ -263,7 +263,7 @@ export function AdminOrdersDesk() {
                       <button
                         type="button"
                         onClick={closeCancelPrompt}
-                        className="w-8 h-8 rounded-xl flex items-center justify-center text-rose-400 hover:text-rose-600 hover:bg-rose-100/50 transition cursor-pointer active:scale-95"
+                        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-rose-400 hover:text-rose-600 hover:bg-rose-100/50 transition-colors cursor-pointer active:scale-[0.98] transition-transform"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -282,7 +282,7 @@ export function AdminOrdersDesk() {
                       <button
                         type="button"
                         onClick={closeCancelPrompt}
-                        className="flex-1 min-h-[44px] py-2.5 rounded-2xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition cursor-pointer shadow-2xs"
+                        className="flex-1 min-h-[44px] py-2.5 rounded-2xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition-transform cursor-pointer shadow-2xs"
                       >
                         Keep Order
                       </button>
@@ -290,7 +290,7 @@ export function AdminOrdersDesk() {
                         type="button"
                         disabled={cancelMutation.isPending}
                         onClick={() => handleConfirmCancel(order._id)}
-                        className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-xs font-black transition disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 shadow-sm shadow-rose-600/20"
+                        className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] transition-transform text-white text-xs font-black disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 shadow-sm shadow-rose-600/20"
                       >
                         {cancelMutation.isPending ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -360,7 +360,7 @@ export function AdminOrdersDesk() {
                   <button
                     type="button"
                     onClick={() => setExpandedOrderId(isExpanded ? null : order._id)}
-                    className="min-h-[38px] px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-violet-700 active:scale-95 flex items-center gap-1.5 cursor-pointer transition shrink-0 ml-2 shadow-2xs"
+                    className="min-h-[44px] px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-violet-700 active:scale-[0.98] transition-transform flex items-center gap-1.5 cursor-pointer shrink-0 ml-2 shadow-2xs"
                   >
                     <span>{isExpanded ? 'Hide items' : `${order.items?.length || 0} items`}</span>
                     {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}

@@ -58,7 +58,7 @@ export default function CartPage() {
 
         <Link
           href="/"
-          className="inline-flex items-center gap-2 min-h-[48px] px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-rose-600/20 transition active:scale-95 cursor-pointer"
+          className="inline-flex items-center gap-2 min-h-[48px] px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-rose-600/20 active:scale-[0.98] transition-transform cursor-pointer"
         >
           <UtensilsCrossed className="w-4 h-4" />
           <span>Browse Restaurants</span>
@@ -73,7 +73,7 @@ export default function CartPage() {
         <div className="flex items-center gap-2.5">
           <Link
             href={restaurantId ? `/restaurants/${restaurantId}` : '/'}
-            className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition shadow-xs active:scale-95 cursor-pointer"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-transform shadow-xs active:scale-[0.98] cursor-pointer"
             title="Back to menu"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -91,7 +91,7 @@ export default function CartPage() {
         <button
           type="button"
           onClick={clearCart}
-          className="text-xs font-bold text-slate-400 hover:text-rose-600 transition px-3 py-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 active:scale-95 cursor-pointer"
+          className="min-h-[44px] text-xs font-bold text-slate-400 hover:text-rose-600 transition-transform px-3.5 py-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 active:scale-[0.98] cursor-pointer"
         >
           Clear Cart
         </button>
@@ -115,7 +115,7 @@ export default function CartPage() {
 
           <Link
             href={`/restaurants/${restaurantId}`}
-            className="inline-flex items-center px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-xs font-bold text-rose-600 hover:text-rose-700 shrink-0 ml-2 hover:bg-rose-100 transition active:scale-95 cursor-pointer"
+            className="inline-flex items-center min-h-[44px] px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-xs font-bold text-rose-600 hover:text-rose-700 shrink-0 ml-2 hover:bg-rose-100 transition-transform active:scale-[0.98] cursor-pointer"
           >
             + Add more
           </Link>
@@ -158,7 +158,7 @@ export default function CartPage() {
               <button
                 type="button"
                 onClick={() => updateQuantity(index, item.quantity - 1)}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:text-rose-600 transition shadow-xs active:scale-90 cursor-pointer"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:text-rose-600 transition-transform shadow-xs active:scale-[0.98] cursor-pointer"
                 title={item.quantity === 1 ? 'Remove item' : 'Decrease quantity'}
                 aria-label={item.quantity === 1 ? 'Remove item' : 'Decrease quantity'}
               >
@@ -176,7 +176,7 @@ export default function CartPage() {
               <button
                 type="button"
                 onClick={() => updateQuantity(index, item.quantity + 1)}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:text-rose-600 transition shadow-xs active:scale-90 cursor-pointer"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:text-rose-600 transition-transform shadow-xs active:scale-[0.98] cursor-pointer"
                 title="Increase quantity"
                 aria-label="Increase quantity"
               >

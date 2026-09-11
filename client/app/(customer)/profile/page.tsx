@@ -31,6 +31,7 @@ import {
   Navigation,
   Lock,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 
 export default function CustomerProfilePage() {
@@ -88,7 +89,7 @@ export default function CustomerProfilePage() {
         </div>
         <Link
           href="/auth/login"
-          className="w-full min-h-[48px] py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl text-sm shadow-md shadow-rose-600/20 transition active:scale-95 flex items-center justify-center cursor-pointer"
+          className="w-full min-h-[48px] py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl text-sm shadow-md shadow-rose-600/20 active:scale-[0.98] transition-transform flex items-center justify-center cursor-pointer"
         >
           Sign In
         </Link>
@@ -230,7 +231,7 @@ export default function CustomerProfilePage() {
                   }
                 }
               }}
-              className="min-h-[40px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs transition active:scale-95 cursor-pointer shadow-2xs"
+              className="min-h-[44px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs transition-transform active:scale-[0.98] cursor-pointer shadow-2xs"
             >
               <Plus className="w-4 h-4" />
               <span>Add New Address</span>
@@ -245,7 +246,7 @@ export default function CustomerProfilePage() {
               <button
                 type="button"
                 onClick={() => setIsAddingAddress(false)}
-                className="text-xs text-slate-500 hover:text-slate-800 font-bold p-1 cursor-pointer"
+                className="min-h-[44px] min-w-[44px] px-3 py-2 inline-flex items-center justify-center text-xs text-slate-500 hover:text-slate-800 font-bold cursor-pointer transition-transform active:scale-[0.98]"
               >
                 Cancel
               </button>
@@ -314,7 +315,7 @@ export default function CustomerProfilePage() {
                     key={l}
                     type="button"
                     onClick={() => setNewLabel(l)}
-                    className={`min-h-[44px] py-2.5 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
+                    className={`min-h-[44px] py-2.5 rounded-2xl border text-xs font-bold transition-transform flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98] ${
                       newLabel === l
                         ? 'border-rose-600 bg-rose-50 text-rose-600 shadow-2xs'
                         : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'
@@ -332,9 +333,16 @@ export default function CustomerProfilePage() {
             <button
               type="submit"
               disabled={createAddressMutation.isPending}
-              className="w-full min-h-[48px] py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-sm shadow-md shadow-rose-600/20 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+              className="w-full min-h-[48px] py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-sm shadow-md shadow-rose-600/20 transition-transform active:scale-[0.98] disabled:opacity-50 cursor-pointer"
             >
-              {createAddressMutation.isPending ? 'Saving to Address Book...' : 'Save to Address Book'}
+              {createAddressMutation.isPending ? (
+                <span className="inline-flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving to Address Book...</span>
+                </span>
+              ) : (
+                'Save to Address Book'
+              )}
             </button>
           </form>
         )}
@@ -394,7 +402,7 @@ export default function CustomerProfilePage() {
                       <button
                         type="button"
                         onClick={() => handleMakeDefault(addr.id || addr._id)}
-                        className="min-h-[38px] px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-600 text-xs font-bold transition active:scale-95 cursor-pointer"
+                        className="min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-600 text-xs font-bold transition-transform active:scale-[0.98] cursor-pointer inline-flex items-center justify-center"
                         title="Set as default address"
                       >
                         Set Default
@@ -403,7 +411,7 @@ export default function CustomerProfilePage() {
                     <button
                       type="button"
                       onClick={() => handleDeleteAddress(addr.id || addr._id)}
-                      className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 flex items-center justify-center transition active:scale-95 cursor-pointer shrink-0"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 flex items-center justify-center transition-transform active:scale-[0.98] cursor-pointer shrink-0"
                       title="Delete address"
                       aria-label="Delete address"
                     >
@@ -424,7 +432,7 @@ export default function CustomerProfilePage() {
           <button
             type="button"
             onClick={() => setIsPasswordModalOpen(true)}
-            className="min-h-[52px] p-4 rounded-2xl border border-slate-200 hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800 cursor-pointer"
+            className="min-h-[52px] p-4 rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-[0.98] transition-transform flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800 cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <Lock className="w-4 h-4 text-rose-600" />
@@ -435,7 +443,7 @@ export default function CustomerProfilePage() {
 
           <Link
             href="/orders"
-            className="min-h-[52px] p-4 rounded-2xl border border-slate-200 hover:bg-slate-50 transition active:scale-[0.99] flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800"
+            className="min-h-[52px] p-4 rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-[0.98] transition-transform flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800"
           >
             <div className="flex items-center gap-2.5">
               <ReceiptText className="w-4 h-4 text-rose-600" />
@@ -458,7 +466,7 @@ export default function CustomerProfilePage() {
           <button
             type="button"
             onClick={() => setIsPasswordModalOpen(true)}
-            className="w-full min-h-[48px] py-3 px-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+            className="w-full min-h-[48px] py-3 px-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm shadow-xs active:scale-[0.98] transition-transform cursor-pointer flex items-center justify-center gap-2"
           >
             <Lock className="w-4 h-4" />
             <span>Set a Password Now</span>
@@ -469,7 +477,7 @@ export default function CustomerProfilePage() {
       <button
         type="button"
         onClick={() => logout(() => router.push('/auth/login'))}
-        className="w-full min-h-[48px] py-3.5 rounded-2xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-black text-sm transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+        className="w-full min-h-[48px] py-3.5 rounded-2xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-black text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2 cursor-pointer"
       >
         <LogOut className="w-4 h-4" />
         <span>Log Out</span>

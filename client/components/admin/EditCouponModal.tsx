@@ -133,7 +133,7 @@ export function EditCouponModal({ coupon, isOpen, onClose }: EditCouponModalProp
           <button
             type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-95"
+            className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
           >
             <X className="w-4 h-4" />
           </button>
@@ -177,7 +177,7 @@ export function EditCouponModal({ coupon, isOpen, onClose }: EditCouponModalProp
               <button
                 type="button"
                 onClick={() => setDiscountType('PERCENTAGE')}
-                className={`min-h-[44px] p-2.5 rounded-2xl border text-left transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer active:scale-98 ${
+                className={`min-h-[44px] p-2.5 rounded-2xl border text-left transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
                   discountType === 'PERCENTAGE'
                     ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20'
                     : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -190,7 +190,7 @@ export function EditCouponModal({ coupon, isOpen, onClose }: EditCouponModalProp
               <button
                 type="button"
                 onClick={() => setDiscountType('FLAT')}
-                className={`min-h-[44px] p-2.5 rounded-2xl border text-left transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer active:scale-98 ${
+                className={`min-h-[44px] p-2.5 rounded-2xl border text-left transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
                   discountType === 'FLAT'
                     ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20'
                     : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -293,7 +293,7 @@ export function EditCouponModal({ coupon, isOpen, onClose }: EditCouponModalProp
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+          <label className="flex items-center justify-between p-3.5 min-h-[44px] rounded-2xl bg-slate-50 border border-slate-200 cursor-pointer">
             <div>
               <p className="text-xs font-bold text-slate-900">Active Status</p>
               <p className="text-[10px] text-slate-400">Coupon is {isActive ? 'currently redeemable' : 'deactivated'}</p>
@@ -304,12 +304,12 @@ export function EditCouponModal({ coupon, isOpen, onClose }: EditCouponModalProp
               onChange={(e) => setIsActive(e.target.checked)}
               className="w-5 h-5 accent-rose-600 rounded cursor-pointer"
             />
-          </div>
+          </label>
 
           <button
             type="submit"
             disabled={updateMutation.isPending}
-            className="w-full min-h-[48px] py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-98 text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/25 cursor-pointer disabled:opacity-50 mt-2"
+            className="w-full min-h-[48px] py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] transition-transform text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/25 cursor-pointer disabled:opacity-50 mt-2"
           >
             {updateMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />

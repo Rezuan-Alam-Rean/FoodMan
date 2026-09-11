@@ -127,7 +127,7 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
             setEditingItem(null);
             setIsItemModalOpen(true);
           }}
-          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs sm:text-sm font-black transition flex items-center gap-2 shadow-md shadow-rose-600/25 cursor-pointer shrink-0"
+          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] transition-transform text-white text-xs sm:text-sm font-black transition flex items-center gap-2 shadow-md shadow-rose-600/25 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Add Food Item</span>
@@ -149,15 +149,15 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search items by name or description..."
-            className="w-full h-12 pl-10 pr-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
+            className="w-full h-12 pl-10 pr-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-base font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           <button
             type="button"
             onClick={() => setSelectedCategoryId('ALL')}
-            className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer shrink-0 ${
+            className={`min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-full text-xs font-bold transition-transform active:scale-[0.98] cursor-pointer shrink-0 ${
               selectedCategoryId === 'ALL'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80'
@@ -181,7 +181,7 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                 key={catId}
                 type="button"
                 onClick={() => setSelectedCategoryId(catId)}
-                className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer shrink-0 ${
+                className={`min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-full text-xs font-bold transition-transform active:scale-[0.98] cursor-pointer shrink-0 ${
                   selectedCategoryId === catId
                     ? 'bg-rose-600 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80'
@@ -273,7 +273,7 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                       <button
                         type="button"
                         onClick={() => handleToggleAvailability(item)}
-                        className={`min-h-[36px] px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shrink-0 active:scale-95 flex items-center gap-1.5 shadow-xs ${
+                        className={`min-h-[44px] px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-transform cursor-pointer shrink-0 active:scale-[0.98] flex items-center gap-1.5 shadow-xs ${
                           item.is_available
                             ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300'
                             : 'bg-slate-200 text-slate-600'
@@ -320,7 +320,7 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                         setEditingItem(item);
                         setIsItemModalOpen(true);
                       }}
-                      className="min-h-[40px] px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-95 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                      className="min-h-[44px] px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-[0.98] transition-transform text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
                     >
                       <Edit2 className="w-3.5 h-3.5 text-slate-500" />
                       <span>Edit</span>
@@ -332,14 +332,14 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                           type="button"
                           disabled={deleteItemMutation.isPending}
                           onClick={() => handleDeleteItem(itemId)}
-                          className="min-h-[40px] px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 active:scale-95 transition cursor-pointer shadow-xs"
+                          className="min-h-[44px] px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 active:scale-[0.98] transition-transform cursor-pointer shadow-xs"
                         >
                           Confirm
                         </button>
                         <button
                           type="button"
                           onClick={() => setDeleteConfirmId(null)}
-                          className="min-h-[40px] px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 active:scale-95 cursor-pointer"
+                          className="min-h-[44px] px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 active:scale-[0.98] transition-transform cursor-pointer"
                         >
                           No
                         </button>
@@ -348,7 +348,7 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                       <button
                         type="button"
                         onClick={() => setDeleteConfirmId(itemId)}
-                        className="w-10 h-10 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 active:scale-95 transition flex items-center justify-center cursor-pointer"
+                        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 active:scale-[0.98] transition-transform flex items-center justify-center cursor-pointer"
                         title="Delete food item"
                       >
                         <Trash2 className="w-4 h-4" />

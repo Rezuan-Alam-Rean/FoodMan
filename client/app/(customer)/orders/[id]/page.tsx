@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/Badge';
 import { reviewSchema, type ReviewFormValues } from '@/lib/validations/review';
 import { SetPasswordModal } from '@/components/auth/SetPasswordModal';
 import { WhatsAppPhoneLink, WhatsAppIcon } from '@/components/ui/WhatsAppPhoneLink';
-import { getWhatsAppUrl } from '@/lib/utils';
+import { getWhatsAppUrl, formatBDT } from '@/lib/utils';
 import {
   Bike,
   Store,
@@ -153,13 +153,13 @@ export default function OrderTrackingPage() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setIsPasswordModalOpen(true)}
-              className="min-h-[40px] px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs transition active:scale-95 cursor-pointer shadow-xs"
+              className="min-h-[44px] px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs transition-transform active:scale-[0.98] cursor-pointer shadow-xs"
             >
               Set Password
             </button>
             <button
               onClick={() => setIsBannerDismissed(true)}
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-amber-500 hover:text-amber-700 text-xs cursor-pointer font-bold"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-amber-500 hover:text-amber-700 text-xs cursor-pointer font-bold transition-transform active:scale-[0.98]"
               aria-label="Dismiss banner"
             >
               ✕
@@ -171,7 +171,7 @@ export default function OrderTrackingPage() {
       <div className="flex items-start gap-3">
         <Link
           href="/orders"
-          className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition shadow-xs active:scale-95 shrink-0 mt-0.5 cursor-pointer"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-transform shadow-xs active:scale-[0.98] shrink-0 mt-0.5 cursor-pointer"
           title="Back to orders"
           aria-label="Back to orders"
         >
@@ -184,7 +184,7 @@ export default function OrderTrackingPage() {
             </h1>
             <button
               onClick={handleCopyOrderNumber}
-              className="inline-flex items-center gap-1.5 min-h-[34px] px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition active:scale-95 cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 min-h-[44px] px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-transform active:scale-[0.98] cursor-pointer shadow-2xs"
               title="Copy order number"
               aria-label="Copy order number"
             >
@@ -309,7 +309,7 @@ export default function OrderTrackingPage() {
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="min-h-[44px] px-3.5 py-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition flex items-center gap-1.5 text-xs font-extrabold shadow-xs active:scale-95 cursor-pointer"
+                className="min-h-[44px] px-3.5 py-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 flex items-center gap-2 text-xs font-extrabold shadow-xs active:scale-[0.98] transition-transform cursor-pointer"
                 title="Chat on WhatsApp"
               >
                 <WhatsAppIcon className="w-4 h-4" />
@@ -317,7 +317,7 @@ export default function OrderTrackingPage() {
               </a>
               <a
                 href={`tel:${order.rider_id.user_id.phone_number}`}
-                className="min-h-[44px] px-3.5 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition flex items-center gap-1.5 text-xs font-extrabold active:scale-95 cursor-pointer"
+                className="min-h-[44px] px-3.5 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 flex items-center gap-2 text-xs font-extrabold active:scale-[0.98] transition-transform cursor-pointer"
                 title="Direct Phone Call"
               >
                 <Phone className="w-4 h-4" />
@@ -397,11 +397,11 @@ export default function OrderTrackingPage() {
 
                 <div className="text-right shrink-0">
                   <span className="font-mono text-xs sm:text-sm font-bold text-slate-900 dark:text-white block">
-                    ৳{item.total_price || item.unit_price * item.quantity}
+                    {formatBDT(item.total_price || item.unit_price * item.quantity)}
                   </span>
                   {item.original_unit_price && item.original_unit_price > item.unit_price && (
                     <span className="font-mono text-[11px] text-slate-400 line-through block">
-                      ৳{item.original_unit_price * item.quantity}
+                      {formatBDT(item.original_unit_price * item.quantity)}
                     </span>
                   )}
                 </div>
@@ -423,19 +423,19 @@ export default function OrderTrackingPage() {
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
             <div className="flex justify-between">
               <span>Food Subtotal</span>
-              <span className="font-mono font-bold text-slate-900 dark:text-white">৳{order.food_subtotal}</span>
+              <span className="font-mono font-bold text-slate-900 dark:text-white">{formatBDT(order.food_subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span>Delivery Fee</span>
-              <span className="font-mono font-bold text-slate-900 dark:text-white">৳{order.delivery_fee}</span>
+              <span className="font-mono font-bold text-slate-900 dark:text-white">{formatBDT(order.delivery_fee)}</span>
             </div>
             <div className="flex justify-between">
               <span>Service Fee</span>
-              <span className="font-mono font-bold text-slate-900 dark:text-white">৳{order.service_fee || 0}</span>
+              <span className="font-mono font-bold text-slate-900 dark:text-white">{formatBDT(order.service_fee || 0)}</span>
             </div>
             <div className="flex justify-between pt-2.5 border-t border-slate-100 dark:border-slate-800 text-slate-900 dark:text-white font-extrabold text-sm sm:text-base">
               <span>Grand Total</span>
-              <span className="font-mono font-black text-rose-600 text-lg">৳{order.grand_total}</span>
+              <span className="font-mono font-black text-rose-600 text-lg">{formatBDT(order.grand_total)}</span>
             </div>
           </div>
         </div>
@@ -485,7 +485,7 @@ export default function OrderTrackingPage() {
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
               <span className="text-slate-500 dark:text-slate-400">Amount</span>
-              <span className="font-mono font-black text-rose-600 text-sm sm:text-base">৳{payment.amount}</span>
+              <span className="font-mono font-black text-rose-600 text-sm sm:text-base">{formatBDT(payment.amount)}</span>
             </div>
           </div>
         </div>
@@ -513,7 +513,7 @@ export default function OrderTrackingPage() {
                       key={star}
                       type="button"
                       onClick={() => setFoodRating(star)}
-                      className="p-2 text-amber-400 hover:scale-110 transition cursor-pointer active:scale-90"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] inline-flex items-center justify-center p-2 text-amber-400 hover:scale-110 cursor-pointer active:scale-[0.98] transition-transform"
                       aria-label={`Rate food ${star} star`}
                     >
                       <Star
@@ -543,7 +543,7 @@ export default function OrderTrackingPage() {
                           key={star}
                           type="button"
                           onClick={() => setRiderRating(star)}
-                          className="p-2 text-amber-400 hover:scale-110 transition cursor-pointer active:scale-90"
+                          className="w-11 h-11 min-w-[44px] min-h-[44px] inline-flex items-center justify-center p-2 text-amber-400 hover:scale-110 cursor-pointer active:scale-[0.98] transition-transform"
                           aria-label={`Rate rider ${star} star`}
                         >
                           <Star
@@ -568,7 +568,7 @@ export default function OrderTrackingPage() {
               <button
                 type="submit"
                 disabled={isSubmittingReview}
-                className="min-h-[48px] py-3 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-rose-600/20 active:scale-95 cursor-pointer disabled:opacity-50"
+                className="min-h-[48px] py-3 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-rose-600/20 active:scale-[0.98] transition-transform cursor-pointer disabled:opacity-50"
               >
                 {isSubmittingReview ? 'Submitting Review...' : 'Submit Review'}
               </button>
@@ -580,7 +580,7 @@ export default function OrderTrackingPage() {
       {!isCancellationLocked && !isCancelled && (
         <button
           onClick={() => setCancelModalOpen(true)}
-          className="w-full min-h-[48px] py-3 px-4 rounded-2xl border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-extrabold text-xs sm:text-sm transition active:scale-95 cursor-pointer"
+          className="w-full min-h-[48px] py-3 px-4 rounded-2xl border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-extrabold text-xs sm:text-sm active:scale-[0.98] transition-transform cursor-pointer"
         >
           Cancel Order
         </button>
@@ -613,7 +613,7 @@ export default function OrderTrackingPage() {
               <button
                 type="button"
                 onClick={() => setCancelModalOpen(false)}
-                className="flex-1 min-h-[44px] py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-extrabold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition active:scale-95 cursor-pointer"
+                className="flex-1 min-h-[44px] py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-extrabold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-transform cursor-pointer"
               >
                 Keep Order
               </button>
@@ -621,7 +621,7 @@ export default function OrderTrackingPage() {
                 type="button"
                 onClick={handleCancel}
                 disabled={isCancelling}
-                className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs sm:text-sm transition active:scale-95 cursor-pointer disabled:opacity-50"
+                className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs sm:text-sm active:scale-[0.98] transition-transform cursor-pointer disabled:opacity-50"
               >
                 {isCancelling ? 'Cancelling...' : 'Confirm Cancel'}
               </button>

@@ -24,7 +24,7 @@ export function AdminReconciliationDesk({ initialTab = 'mfs' }: AdminReconciliat
         <button
           type="button"
           onClick={() => setActiveTab('mfs')}
-          className={`flex-1 min-h-[44px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer active:scale-98 ${
+          className={`flex-1 min-h-[44px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
             activeTab === 'mfs'
               ? 'bg-white text-slate-900 shadow-xs'
               : 'text-slate-500 hover:text-slate-900'
@@ -42,7 +42,7 @@ export function AdminReconciliationDesk({ initialTab = 'mfs' }: AdminReconciliat
         <button
           type="button"
           onClick={() => setActiveTab('cod')}
-          className={`flex-1 min-h-[44px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer active:scale-98 ${
+          className={`flex-1 min-h-[44px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
             activeTab === 'cod'
               ? 'bg-white text-slate-900 shadow-xs'
               : 'text-slate-500 hover:text-slate-900'

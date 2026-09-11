@@ -57,7 +57,7 @@ export default function RiderLayout({
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] sm:pb-36">
       <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-15 sm:h-16 flex items-center justify-between gap-3">
-          <Link href="/rider" className="flex items-center gap-2.5 group active:scale-98 transition">
+          <Link href="/rider" className="flex items-center gap-2.5 group active:scale-[0.98] transition-transform min-h-[44px] py-1">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 flex items-center justify-center text-white shadow-sm shadow-rose-500/25 group-hover:scale-105 transition shrink-0">
               <UtensilsCrossed className="w-5 h-5" />
             </div>
@@ -77,7 +77,7 @@ export default function RiderLayout({
               type="button"
               disabled={toggleStatusMutation.isPending}
               onClick={handleToggle}
-              className={`inline-flex items-center justify-center gap-2 h-10 px-3.5 sm:px-4 rounded-full text-xs font-black transition-all duration-200 cursor-pointer active:scale-95 disabled:opacity-50 min-w-[94px] ${
+              className={`inline-flex items-center justify-center gap-2 min-h-[44px] h-11 px-3.5 sm:px-4 rounded-full text-xs font-black transition-all duration-200 cursor-pointer active:scale-[0.98] disabled:opacity-50 min-w-[94px] ${
                 isOnline
                   ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 ring-2 ring-emerald-300/70'
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-2xs'

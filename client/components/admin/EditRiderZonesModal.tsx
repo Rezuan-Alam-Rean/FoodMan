@@ -129,7 +129,7 @@ export function EditRiderZonesModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-95"
+            className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
           >
             <X className="w-4 h-4" />
           </button>
@@ -170,14 +170,14 @@ export function EditRiderZonesModal({
               <button
                 type="button"
                 onClick={handleSelectAll}
-                className="min-h-[44px] px-3.5 py-2 rounded-2xl text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition whitespace-nowrap cursor-pointer active:scale-95"
+                className="min-h-[44px] px-3.5 py-2 rounded-2xl text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition whitespace-nowrap cursor-pointer active:scale-[0.98] transition-transform"
               >
                 Select All
               </button>
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="min-h-[44px] px-3.5 py-2 rounded-2xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition whitespace-nowrap cursor-pointer active:scale-95"
+                className="min-h-[44px] px-3.5 py-2 rounded-2xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition whitespace-nowrap cursor-pointer active:scale-[0.98] transition-transform"
               >
                 Clear
               </button>
@@ -212,7 +212,7 @@ export function EditRiderZonesModal({
                       key={zone._id}
                       type="button"
                       onClick={() => toggleZone(zone._id)}
-                      className={`w-full min-h-[52px] flex items-center justify-between p-3 rounded-2xl border text-left transition cursor-pointer active:scale-99 ${
+                      className={`w-full min-h-[52px] flex items-center justify-between p-3 rounded-2xl border text-left transition cursor-pointer active:scale-[0.98] transition-transform ${
                         isSelected
                           ? 'border-indigo-600 bg-indigo-50/70 text-indigo-950 shadow-xs'
                           : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
@@ -258,7 +258,7 @@ export function EditRiderZonesModal({
                 type="button"
                 onClick={onClose}
                 disabled={updateZonesMutation.isPending}
-                className="min-h-[44px] px-4 py-2.5 rounded-2xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer active:scale-95"
+                className="min-h-[44px] px-4 py-2.5 rounded-2xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer active:scale-[0.98] transition-transform"
               >
                 Cancel
               </button>
@@ -266,7 +266,7 @@ export function EditRiderZonesModal({
                 type="button"
                 onClick={handleSave}
                 disabled={updateZonesMutation.isPending}
-                className="min-h-[44px] px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center gap-2 shadow-md shadow-indigo-600/20 cursor-pointer disabled:opacity-50 active:scale-95"
+                className="min-h-[44px] px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center gap-2 shadow-md shadow-indigo-600/20 cursor-pointer disabled:opacity-50 active:scale-[0.98] transition-transform"
               >
                 {updateZonesMutation.isPending ? (
                   <>

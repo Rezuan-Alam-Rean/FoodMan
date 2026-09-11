@@ -76,7 +76,7 @@ export default function RiderTripPage() {
           </div>
           <Link
             href="/rider"
-            className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-black transition-all duration-150 shadow-md shadow-rose-600/25 active:scale-95 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 min-h-[48px] h-12 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-black shadow-md shadow-rose-600/25 active:scale-[0.98] transition-transform cursor-pointer"
           >
             <Radar className="w-4 h-4" />
             <span>Go to Radar Feed</span>
@@ -108,14 +108,14 @@ export default function RiderTripPage() {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/rider"
-              className="h-9 px-3 rounded-xl border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-black transition-all duration-150 inline-flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-2xs"
+              className="min-h-[44px] h-11 px-3.5 rounded-xl border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-black transition-all duration-150 inline-flex items-center gap-1.5 cursor-pointer active:scale-[0.98] transition-transform shadow-2xs"
               title="Claim more orders from radar"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Order</span>
             </Link>
 
-            <span className="inline-flex items-center h-9 px-3 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-black whitespace-nowrap shadow-2xs">
+            <span className="inline-flex items-center min-h-[44px] h-11 px-3.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-black whitespace-nowrap shadow-2xs">
               +{formatBDT(totalBatchEarnings)}
             </span>
           </div>
@@ -158,7 +158,7 @@ export default function RiderTripPage() {
                   key={orderId}
                   type="button"
                   onClick={() => setSelectedOrderId(orderId)}
-                  className={`shrink-0 text-left p-3 rounded-2xl border transition-all duration-150 cursor-pointer min-w-[160px] sm:min-w-[175px] active:scale-95 ${
+                  className={`shrink-0 text-left p-3 rounded-2xl border cursor-pointer min-w-[160px] sm:min-w-[175px] active:scale-[0.98] transition-transform ${
                     isSelected
                       ? 'bg-rose-50/70 border-rose-500 ring-2 ring-rose-500/20 shadow-xs'
                       : 'bg-slate-50/90 hover:bg-slate-100/80 border-slate-200 text-slate-600'

@@ -373,7 +373,7 @@ export default function CheckoutPage() {
       <div className="flex items-center gap-3">
         <Link
           href={`/restaurants/${restaurant?.slug || restaurant?.id || restaurant?._id || ''}`}
-          className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition shadow-xs active:scale-95 cursor-pointer shrink-0"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-transform shadow-xs active:scale-[0.98] cursor-pointer shrink-0"
           title="Back to restaurant"
           aria-label="Back to restaurant"
         >
@@ -765,7 +765,7 @@ export default function CheckoutPage() {
                         // ignore clipboard write failure gracefully
                       }
                     }}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-200/80 hover:bg-amber-300/90 text-amber-950 transition flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-95"
+                    className="min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-200/80 hover:bg-amber-300/90 text-amber-950 transition-transform flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-[0.98]"
                     title="Copy official MFS number"
                   >
                     {copiedMfs ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5" />}
@@ -855,7 +855,7 @@ export default function CheckoutPage() {
                     setCouponSuccess('');
                     setCouponError('');
                   }}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 transition cursor-pointer shrink-0 active:scale-90"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 transition-transform cursor-pointer shrink-0 active:scale-[0.98]"
                   title="Remove coupon"
                   aria-label="Remove coupon"
                 >
@@ -888,7 +888,7 @@ export default function CheckoutPage() {
                     type="button"
                     disabled={!couponInput.trim() || validateCouponMutation.isPending}
                     onClick={() => handleApplyCoupon()}
-                    className="h-12 px-5 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-40 text-white text-xs sm:text-sm font-bold transition flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shadow-xs active:scale-95"
+                    className="min-h-[44px] h-12 px-5 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-40 text-white text-xs sm:text-sm font-bold transition-transform flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shadow-xs active:scale-[0.98]"
                   >
                     {validateCouponMutation.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -923,7 +923,7 @@ export default function CheckoutPage() {
                           key={c.id || c._id}
                           type="button"
                           onClick={() => handleApplyCoupon(c.code)}
-                          className="min-h-[38px] px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer group active:scale-95"
+                          className="min-h-[44px] px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-bold transition-transform flex items-center gap-1.5 cursor-pointer group active:scale-[0.98]"
                         >
                           <Sparkles className="w-3.5 h-3.5 text-rose-500" />
                           <span className="font-mono">{c.code}</span>

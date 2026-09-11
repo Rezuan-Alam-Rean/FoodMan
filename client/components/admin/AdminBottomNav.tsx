@@ -71,7 +71,7 @@ export function AdminBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-2xl transition group relative cursor-pointer active:scale-90 ${
+              className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-2xl group relative cursor-pointer active:scale-[0.98] transition-transform ${
                 item.isActive
                   ? 'text-rose-600 font-black'
                   : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-semibold'

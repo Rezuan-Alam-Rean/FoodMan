@@ -58,7 +58,7 @@ export function CustomerBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center py-1.5 rounded-2xl transition group relative active:scale-95 cursor-pointer ${
+              className={`flex flex-col items-center justify-center py-1.5 rounded-2xl transition group relative active:scale-[0.98] transition-transform cursor-pointer ${
                 item.isActive
                   ? 'text-rose-600 font-extrabold'
                   : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium'

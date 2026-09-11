@@ -190,7 +190,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
           <button
             type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-95"
+            className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
           >
             <X className="w-4 h-4" />
           </button>
@@ -291,7 +291,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                   <button
                     type="button"
                     onClick={() => setIsOnline(!isOnline)}
-                    className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-black uppercase transition cursor-pointer active:scale-95 ${
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-black uppercase transition cursor-pointer active:scale-[0.98] transition-transform ${
                       isOnline ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-200 text-slate-600'
                     }`}
                   >
@@ -363,7 +363,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-indigo-900 uppercase">Assigned Delivery Zones</label>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {zones.map((z) => {
                       const isAssigned = selectedZones.includes(z._id);
                       return (
@@ -371,7 +371,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                           key={z._id}
                           type="button"
                           onClick={() => toggleZone(z._id)}
-                          className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95 ${
+                          className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
                             isAssigned
                               ? 'bg-indigo-600 text-white shadow-xs'
                               : 'bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-50'
@@ -397,7 +397,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                   <button
                     type="button"
                     onClick={() => setIsOpenNow(!isOpenNow)}
-                    className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-black uppercase transition cursor-pointer active:scale-95 ${
+                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-black uppercase transition cursor-pointer active:scale-[0.98] transition-transform ${
                       isOpenNow ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-200 text-slate-600'
                     }`}
                   >
@@ -472,7 +472,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
             <button
               type="submit"
               disabled={updateMutation.isPending}
-              className="w-full min-h-[48px] py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 active:scale-98 text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 mt-3"
+              className="w-full min-h-[48px] py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 active:scale-[0.98] transition-transform text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 mt-3"
             >
               {updateMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

@@ -42,7 +42,7 @@ export default function NotFound() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="w-full sm:w-auto px-5 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-xs font-extrabold text-slate-700 dark:text-slate-200 transition flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-xs font-extrabold text-slate-700 dark:text-slate-200 flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-[0.98] transition-transform"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Go Back</span>
@@ -50,7 +50,7 @@ export default function NotFound() {
 
           <Link
             href="/"
-            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-md shadow-rose-600/20 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+            className="w-full sm:w-auto min-h-[44px] px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-md shadow-rose-600/20 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-transform"
           >
             <Home className="w-4 h-4" />
             <span>Return to Home</span>

@@ -78,7 +78,7 @@ export default function RiderRadarPage() {
         <button
           type="button"
           onClick={() => setIsZoneModalOpen(true)}
-          className="h-10 px-3.5 rounded-2xl border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-black transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer shrink-0 active:scale-95 shadow-2xs"
+          className="min-h-[44px] h-11 px-3.5 rounded-2xl border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-black transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer shrink-0 active:scale-[0.98] transition-transform shadow-2xs"
           title="Configure operational delivery zones"
         >
           <MapPin className="w-3.5 h-3.5 text-rose-600" />
@@ -117,7 +117,7 @@ export default function RiderRadarPage() {
 
           <Link
             href="/rider/trip"
-            className="h-10 px-4 rounded-2xl bg-white text-rose-600 hover:bg-rose-50 text-xs font-black transition-all duration-150 flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer active:scale-95"
+            className="min-h-[44px] h-11 px-4 rounded-2xl bg-white text-rose-600 hover:bg-rose-50 text-xs font-black transition-all duration-150 flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer active:scale-[0.98] transition-transform"
           >
             <span>View Trips</span>
             <ArrowRight className="w-3.5 h-3.5" />

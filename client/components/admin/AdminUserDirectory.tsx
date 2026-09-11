@@ -99,7 +99,7 @@ export function AdminUserDirectory() {
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="min-h-[44px] sm:min-h-[40px] px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-rose-600/20 shrink-0 cursor-pointer"
+              className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] transition-transform text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-rose-600/20 shrink-0 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Add User</span>
@@ -107,13 +107,13 @@ export function AdminUserDirectory() {
           </div>
         </div>
 
-        <div className="flex gap-1.5 overflow-x-auto pb-1.5 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {TABS.map((tab) => (
             <button
               key={tab.value}
               type="button"
               onClick={() => setActiveTab(tab.value)}
-              className={`min-h-[40px] px-3.5 py-2 rounded-2xl text-xs font-black transition flex items-center gap-2 shrink-0 cursor-pointer active:scale-95 ${
+              className={`min-h-[44px] px-3.5 py-2.5 rounded-2xl text-xs font-black transition flex items-center gap-2 shrink-0 cursor-pointer active:scale-[0.98] transition-transform ${
                 activeTab === tab.value
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'
@@ -136,7 +136,7 @@ export function AdminUserDirectory() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer"
+            className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer active:scale-[0.98] transition-transform"
           >
             Try Again
           </button>

@@ -199,7 +199,7 @@ export function VendorCompletedOrders() {
                 type="button"
                 disabled={!pagination.hasPrevPage || isFetching}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="min-h-[40px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 active:scale-[0.98] transition-transform flex items-center gap-2 cursor-pointer shadow-2xs"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>Previous</span>
@@ -213,7 +213,7 @@ export function VendorCompletedOrders() {
                 type="button"
                 disabled={!pagination.hasNextPage || isFetching}
                 onClick={() => setPage((p) => p + 1)}
-                className="min-h-[40px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                className="min-h-[44px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 active:scale-[0.98] transition-transform flex items-center gap-2 cursor-pointer shadow-2xs"
               >
                 <span>Next</span>
                 <ChevronRight className="w-4 h-4" />

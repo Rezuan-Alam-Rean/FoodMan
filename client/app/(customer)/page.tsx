@@ -191,7 +191,7 @@ export default function CustomerHomePage() {
             <button
               type="button"
               onClick={() => setSearchTerm('')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-700 active:scale-95 transition cursor-pointer"
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-700 active:scale-[0.98] transition-transform cursor-pointer"
               aria-label="Clear search"
             >
               <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold">
@@ -209,7 +209,7 @@ export default function CustomerHomePage() {
               setSelectedCategoryId('');
               setActiveTab('FOODS');
             }}
-            className={`flex flex-col items-center justify-start gap-1.5 p-2.5 rounded-2xl w-[76px] min-w-[76px] sm:w-[82px] sm:min-w-[82px] transition-all cursor-pointer border shrink-0 snap-start active:scale-95 ${
+            className={`flex flex-col items-center justify-start gap-1.5 p-2.5 rounded-2xl w-[76px] min-w-[76px] sm:w-[82px] sm:min-w-[82px] transition-transform cursor-pointer border shrink-0 snap-start active:scale-[0.98] ${
               !selectedCategoryId && activeTab === 'FOODS'
                 ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/25'
                 : 'bg-white border-slate-200/80 text-slate-700 hover:bg-slate-50'
@@ -233,7 +233,7 @@ export default function CustomerHomePage() {
                   setSelectedCategoryId(catId);
                   setActiveTab('FOODS');
                 }}
-                className={`flex flex-col items-center justify-start gap-1.5 p-2.5 rounded-2xl w-[76px] min-w-[76px] sm:w-[82px] sm:min-w-[82px] transition-all cursor-pointer border shrink-0 snap-start active:scale-95 ${
+                className={`flex flex-col items-center justify-start gap-1.5 p-2.5 rounded-2xl w-[76px] min-w-[76px] sm:w-[82px] sm:min-w-[82px] transition-transform cursor-pointer border shrink-0 snap-start active:scale-[0.98] ${
                   isSelected
                     ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/25'
                     : 'bg-white border-slate-200/80 text-slate-700 hover:bg-slate-50'
@@ -255,7 +255,7 @@ export default function CustomerHomePage() {
         <div className="flex items-center text-xs sm:text-sm font-bold text-slate-500">
           <button
             onClick={() => setActiveTab('FOODS')}
-            className={`min-h-[44px] flex items-center px-4 relative transition cursor-pointer active:scale-95 ${
+            className={`min-h-[44px] flex items-center px-4 relative transition-transform cursor-pointer active:scale-[0.98] ${
               activeTab === 'FOODS'
                 ? 'text-rose-600 font-extrabold after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-rose-600 after:rounded-full'
                 : 'hover:text-slate-900'
@@ -265,7 +265,7 @@ export default function CustomerHomePage() {
           </button>
           <button
             onClick={() => setActiveTab('KITCHENS')}
-            className={`min-h-[44px] flex items-center px-4 relative transition cursor-pointer active:scale-95 ${
+            className={`min-h-[44px] flex items-center px-4 relative transition-transform cursor-pointer active:scale-[0.98] ${
               activeTab === 'KITCHENS'
                 ? 'text-rose-600 font-extrabold after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-rose-600 after:rounded-full'
                 : 'hover:text-slate-900'
@@ -278,7 +278,7 @@ export default function CustomerHomePage() {
         {activeTab === 'FOODS' && (
           <button
             onClick={() => setShowFilterMenu(!showFilterMenu)}
-            className={`min-h-[40px] flex items-center gap-1.5 px-3.5 py-1.5 mb-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border active:scale-95 ${
+            className={`min-h-[44px] flex items-center gap-1.5 px-3.5 py-1.5 mb-1.5 rounded-full text-xs font-bold transition-transform cursor-pointer border active:scale-[0.98] ${
               showFilterMenu || activeFilterCount > 0
                 ? 'bg-rose-50 text-rose-600 border-rose-200 shadow-xs'
                 : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
@@ -306,7 +306,7 @@ export default function CustomerHomePage() {
             {activeFilterCount > 0 && (
               <button
                 onClick={clearAllFilters}
-                className="text-xs font-bold text-rose-600 hover:text-rose-700 min-h-[36px] flex items-center gap-1 bg-rose-50 px-3 py-1 rounded-xl hover:bg-rose-100 active:scale-95 transition cursor-pointer"
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 min-h-[44px] flex items-center gap-1 bg-rose-50 px-3 py-1 rounded-xl hover:bg-rose-100 active:scale-[0.98] transition-transform cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
                 <span>Reset all</span>
@@ -317,7 +317,7 @@ export default function CustomerHomePage() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setSortBy('newest')}
-              className={`flex-1 sm:flex-none justify-center min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+              className={`flex-1 sm:flex-none justify-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
                 sortBy === 'newest'
                   ? 'bg-rose-600 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
@@ -328,7 +328,7 @@ export default function CustomerHomePage() {
 
             <button
               onClick={() => setSortBy('price_asc')}
-              className={`flex-1 sm:flex-none justify-center min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+              className={`flex-1 sm:flex-none justify-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
                 sortBy === 'price_asc'
                   ? 'bg-rose-600 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
@@ -340,7 +340,7 @@ export default function CustomerHomePage() {
 
             <button
               onClick={() => setSortBy('price_desc')}
-              className={`flex-1 sm:flex-none justify-center min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+              className={`flex-1 sm:flex-none justify-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
                 sortBy === 'price_desc'
                   ? 'bg-rose-600 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
@@ -354,7 +354,7 @@ export default function CustomerHomePage() {
           <div className="flex flex-wrap items-center gap-2 pt-2.5 border-t border-slate-100">
             <button
               onClick={() => setIsVegOnly(!isVegOnly)}
-              className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
                 isVegOnly
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
@@ -366,7 +366,7 @@ export default function CustomerHomePage() {
 
             <button
               onClick={() => setPriceFilter(priceFilter === 'under_200' ? 'all' : 'under_200')}
-              className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${
                 priceFilter === 'under_200'
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -377,7 +377,7 @@ export default function CustomerHomePage() {
 
             <button
               onClick={() => setPriceFilter(priceFilter === '200_500' ? 'all' : '200_500')}
-              className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${
                 priceFilter === '200_500'
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -388,7 +388,7 @@ export default function CustomerHomePage() {
 
             <button
               onClick={() => setPriceFilter(priceFilter === 'above_500' ? 'all' : 'above_500')}
-              className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${
                 priceFilter === 'above_500'
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -459,7 +459,7 @@ export default function CustomerHomePage() {
               {activeFilterCount > 0 && (
                 <button
                   onClick={clearAllFilters}
-                  className="min-h-[44px] px-5 py-2.5 bg-rose-600 text-white rounded-2xl text-xs font-bold hover:bg-rose-700 active:scale-95 transition cursor-pointer inline-flex items-center gap-1.5 shadow-md shadow-rose-500/20"
+                  className="min-h-[44px] px-5 py-2.5 bg-rose-600 text-white rounded-2xl text-xs font-bold hover:bg-rose-700 active:scale-[0.98] transition-transform cursor-pointer inline-flex items-center gap-2 shadow-md shadow-rose-500/20"
                 >
                   <X className="w-4 h-4" />
                   <span>Reset all filters</span>

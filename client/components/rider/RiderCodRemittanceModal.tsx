@@ -248,7 +248,7 @@ export function RiderCodRemittanceModal({
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen((prev) => !prev)}
-                className={`w-full h-12 px-3.5 sm:px-4 rounded-2xl border transition-all duration-150 bg-white flex items-center justify-between shadow-2xs cursor-pointer active:scale-[0.99] text-left ${
+                className={`w-full h-12 px-3.5 sm:px-4 rounded-2xl border transition-transform duration-150 bg-white flex items-center justify-between shadow-2xs cursor-pointer active:scale-[0.98] text-left ${
                   isDropdownOpen
                     ? 'border-rose-500 ring-2 ring-rose-500/20 shadow-sm'
                     : 'border-slate-200 hover:border-slate-300'
@@ -291,7 +291,7 @@ export function RiderCodRemittanceModal({
                           setPaymentMethod(channel.id);
                           setIsDropdownOpen(false);
                         }}
-                        className={`w-full p-2.5 sm:p-3 rounded-xl transition-all duration-150 flex items-center justify-between gap-3 text-left cursor-pointer active:scale-[0.99] ${
+                        className={`w-full min-h-[44px] p-2.5 sm:p-3 rounded-xl transition-transform duration-150 flex items-center justify-between gap-3 text-left cursor-pointer active:scale-[0.98] ${
                           isSelected
                             ? 'bg-rose-50/80 border border-rose-200 shadow-2xs'
                             : 'hover:bg-slate-50 border border-transparent'
@@ -386,8 +386,19 @@ export function RiderCodRemittanceModal({
         </div>
 
         {isHistoryLoading ? (
-          <div className="flex justify-center py-6">
-            <Loader2 className="w-6 h-6 text-rose-600 animate-spin" />
+          <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="p-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/80 flex items-center justify-between gap-3 animate-pulse"
+              >
+                <div className="space-y-1.5 min-w-0">
+                  <div className="h-4 w-24 bg-slate-200 rounded-md" />
+                  <div className="h-2.5 w-40 bg-slate-200 rounded-md" />
+                </div>
+                <div className="h-6 w-20 bg-slate-200 rounded-xl shrink-0" />
+              </div>
+            ))}
           </div>
         ) : remittances.length === 0 ? (
           <p className="text-xs text-slate-400 text-center py-5 font-medium">

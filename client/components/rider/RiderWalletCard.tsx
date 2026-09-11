@@ -86,8 +86,22 @@ export function RiderWalletCard() {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 text-rose-600 animate-spin" />
+          <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/80 flex items-center justify-between gap-3 animate-pulse"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-slate-200 shrink-0" />
+                  <div className="space-y-1.5 min-w-0">
+                    <div className="h-3.5 w-28 bg-slate-200 rounded-md" />
+                    <div className="h-2.5 w-36 bg-slate-200 rounded-md" />
+                  </div>
+                </div>
+                <div className="h-4 w-16 bg-slate-200 rounded-md shrink-0" />
+              </div>
+            ))}
           </div>
         ) : transactions.length === 0 ? (
           <p className="text-xs text-slate-400 text-center py-6 font-medium">

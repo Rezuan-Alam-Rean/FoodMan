@@ -70,7 +70,7 @@ export default function RestaurantPage() {
         </div>
         <Link
           href="/"
-          className="min-h-[44px] px-6 py-2.5 bg-rose-600 text-white font-bold rounded-2xl text-xs active:scale-95 transition shadow-md shadow-rose-500/20 inline-flex items-center"
+          className="min-h-[44px] px-6 py-2.5 bg-rose-600 text-white font-bold rounded-2xl text-xs active:scale-[0.98] transition-transform shadow-md shadow-rose-500/20 inline-flex items-center"
         >
           Back to Explore
         </Link>
@@ -162,7 +162,7 @@ export default function RestaurantPage() {
         <div className="absolute top-3.5 left-3.5 z-20">
           <Link
             href="/"
-            className="w-11 h-11 rounded-full bg-white/95 backdrop-blur-md flex items-center justify-center text-slate-800 shadow-md active:scale-95 transition-transform hover:bg-white cursor-pointer"
+            className="w-11 h-11 rounded-full bg-white/95 backdrop-blur-md flex items-center justify-center text-slate-800 shadow-md active:scale-[0.98] transition-transform hover:bg-white cursor-pointer"
             title="Back to Explore"
             aria-label="Back to Explore"
           >
@@ -207,7 +207,7 @@ export default function RestaurantPage() {
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-700 active:scale-95 transition cursor-pointer"
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-700 active:scale-[0.98] transition-transform cursor-pointer"
                 aria-label="Clear search"
               >
                 <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold">
@@ -221,7 +221,7 @@ export default function RestaurantPage() {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setSortBy('default')}
-                className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${
                   sortBy === 'default'
                     ? 'bg-rose-600 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -231,7 +231,7 @@ export default function RestaurantPage() {
               </button>
               <button
                 onClick={() => setSortBy('price_asc')}
-                className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
                   sortBy === 'price_asc'
                     ? 'bg-rose-600 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -242,7 +242,7 @@ export default function RestaurantPage() {
               </button>
               <button
                 onClick={() => setSortBy('price_desc')}
-                className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
                   sortBy === 'price_desc'
                     ? 'bg-rose-600 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -253,7 +253,7 @@ export default function RestaurantPage() {
               </button>
               <button
                 onClick={() => setIsVegOnly(!isVegOnly)}
-                className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
                   isVegOnly
                     ? 'bg-emerald-600 text-white shadow-xs'
                     : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
@@ -267,7 +267,7 @@ export default function RestaurantPage() {
             {hasActiveFilters && (
               <button
                 onClick={resetFilters}
-                className="text-xs font-bold text-rose-600 hover:text-rose-700 min-h-[36px] flex items-center gap-1 bg-rose-50 px-3 py-1.5 rounded-xl hover:bg-rose-100 active:scale-95 transition cursor-pointer"
+                className="text-xs font-bold text-rose-600 hover:text-rose-700 min-h-[44px] flex items-center gap-1 bg-rose-50 px-3 py-1.5 rounded-xl hover:bg-rose-100 active:scale-[0.98] transition-transform cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
                 <span>Reset</span>
@@ -281,7 +281,7 @@ export default function RestaurantPage() {
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 snap-x snap-mandatory scroll-smooth pr-6">
           <button
             onClick={() => setActiveCategory('')}
-            className={`min-h-[40px] px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer snap-start active:scale-95 ${
+            className={`min-h-[44px] px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-transform cursor-pointer snap-start active:scale-[0.98] ${
               activeCategory === ''
                 ? 'bg-rose-600 text-white shadow-md shadow-rose-500/25'
                 : 'bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-50'
@@ -296,7 +296,7 @@ export default function RestaurantPage() {
               <button
                 key={catId}
                 onClick={() => setActiveCategory(catId)}
-                className={`min-h-[40px] px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer snap-start active:scale-95 ${
+                className={`min-h-[44px] px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-transform cursor-pointer snap-start active:scale-[0.98] ${
                   activeCategory === catId
                     ? 'bg-rose-600 text-white shadow-md shadow-rose-500/25'
                     : 'bg-white border border-slate-200/80 text-slate-700 hover:bg-slate-50'
@@ -323,7 +323,7 @@ export default function RestaurantPage() {
           {hasActiveFilters && (
             <button
               onClick={resetFilters}
-              className="min-h-[44px] px-5 py-2.5 bg-rose-600 text-white rounded-2xl text-xs font-bold hover:bg-rose-700 active:scale-95 transition cursor-pointer inline-flex items-center gap-1.5 shadow-md shadow-rose-500/20"
+              className="min-h-[44px] px-5 py-2.5 bg-rose-600 text-white rounded-2xl text-xs font-bold hover:bg-rose-700 active:scale-[0.98] transition-transform cursor-pointer inline-flex items-center gap-2 shadow-md shadow-rose-500/20"
             >
               <X className="w-4 h-4" />
               <span>Reset filters</span>
@@ -420,7 +420,7 @@ export default function RestaurantPage() {
                                 e.stopPropagation();
                                 handleAddItemClick(item);
                               }}
-                              className="min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] rounded-xl bg-rose-50 group-hover:bg-rose-600 group-hover:text-white text-rose-600 flex items-center justify-center transition-all active:scale-95 shadow-2xs cursor-pointer shrink-0"
+                              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-rose-50 group-hover:bg-rose-600 group-hover:text-white text-rose-600 flex items-center justify-center transition-transform active:scale-[0.98] shadow-2xs cursor-pointer shrink-0"
                               title="Add to cart"
                               aria-label={`Add ${item.name} to cart`}
                             >
@@ -433,7 +433,7 @@ export default function RestaurantPage() {
                                 e.stopPropagation();
                                 handleAddItemClick(item);
                               }}
-                              className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-slate-100 group-hover:bg-slate-200 text-slate-600 flex items-center gap-1 text-xs font-bold transition-all active:scale-95 shadow-2xs cursor-pointer shrink-0"
+                              className="min-h-[44px] px-3 py-2 rounded-xl bg-slate-100 group-hover:bg-slate-200 text-slate-600 flex items-center gap-1 text-xs font-bold transition-transform active:scale-[0.98] shadow-2xs cursor-pointer shrink-0"
                               title="View Details (Out of Stock)"
                             >
                               <Eye className="w-3.5 h-3.5 text-slate-500" />
@@ -455,7 +455,7 @@ export default function RestaurantPage() {
         <div className="fixed bottom-24 left-4 right-4 max-w-md mx-auto z-30 animate-in slide-in-from-bottom-3 duration-200">
           <Link
             href="/cart"
-            className="w-full bg-rose-600 hover:bg-rose-700 text-white min-h-[52px] px-4 py-3 rounded-2xl shadow-xl flex items-center justify-between font-bold text-xs sm:text-sm transition-all active:scale-[0.99] cursor-pointer border border-rose-500/50 backdrop-blur-md"
+            className="w-full bg-rose-600 hover:bg-rose-700 text-white min-h-[52px] px-4 py-3 rounded-2xl shadow-xl flex items-center justify-between font-bold text-xs sm:text-sm transition-transform active:scale-[0.98] cursor-pointer border border-rose-500/50 backdrop-blur-md"
           >
             <div className="flex items-center gap-2.5">
               <span className="w-6 h-6 rounded-full bg-white text-rose-600 flex items-center justify-center text-xs font-black shadow-xs">

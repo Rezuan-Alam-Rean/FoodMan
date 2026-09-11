@@ -88,7 +88,7 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
           <button
             type="button"
             onClick={handleClose}
-            className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex items-center justify-center cursor-pointer shrink-0 active:scale-95"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-transform flex items-center justify-center cursor-pointer shrink-0 active:scale-[0.98]"
           >
             <X className="w-5 h-5" />
           </button>
@@ -115,7 +115,7 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
                   key={zoneId}
                   type="button"
                   onClick={() => toggleZone(zoneId)}
-                  className={`w-full min-h-[52px] p-3.5 rounded-2xl border text-left transition-all duration-150 flex items-center justify-between cursor-pointer active:scale-98 ${
+                  className={`w-full min-h-[52px] p-3.5 rounded-2xl border text-left transition-transform duration-150 flex items-center justify-between cursor-pointer active:scale-[0.98] ${
                     isSelected
                       ? 'border-rose-600 bg-rose-50/60 text-slate-900 ring-2 ring-rose-500/20'
                       : 'border-slate-200 hover:border-slate-300 bg-white text-slate-600'
@@ -144,7 +144,7 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
           <button
             type="button"
             onClick={handleClose}
-            className="flex-1 h-12 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition cursor-pointer active:scale-95"
+            className="flex-1 min-h-[44px] h-12 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-transform cursor-pointer active:scale-[0.98]"
           >
             Cancel
           </button>
@@ -152,7 +152,7 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
             type="button"
             disabled={updateZonesMutation.isPending}
             onClick={handleSave}
-            className="flex-1 h-12 rounded-2xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 transition shadow-md shadow-rose-600/25 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-95"
+            className="flex-1 min-h-[44px] h-12 rounded-2xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 transition-transform shadow-md shadow-rose-600/25 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-[0.98]"
           >
             {updateZonesMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />

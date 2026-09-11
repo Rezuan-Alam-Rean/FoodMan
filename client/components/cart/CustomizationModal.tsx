@@ -125,7 +125,7 @@ export function CustomizationModal({
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 w-11 h-11 rounded-full bg-slate-900/60 backdrop-blur-md text-white flex items-center justify-center hover:bg-slate-900/80 transition active:scale-95 z-20 cursor-pointer"
+            className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 w-11 h-11 rounded-full bg-slate-900/60 backdrop-blur-md text-white flex items-center justify-center hover:bg-slate-900/80 active:scale-[0.98] transition-transform z-20 cursor-pointer"
             title="Close"
             aria-label="Close customization"
           >
@@ -298,7 +298,7 @@ export function CustomizationModal({
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 flex items-center justify-center transition active:scale-95 cursor-pointer"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 flex items-center justify-center transition-transform active:scale-[0.98] cursor-pointer"
                   aria-label="Decrease quantity"
                 >
                   <Minus className="w-4 h-4" />
@@ -309,7 +309,7 @@ export function CustomizationModal({
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 flex items-center justify-center transition active:scale-95 cursor-pointer"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 flex items-center justify-center transition-transform active:scale-[0.98] cursor-pointer"
                   aria-label="Increase quantity"
                 >
                   <Plus className="w-4 h-4" />

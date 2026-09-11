@@ -460,7 +460,7 @@ export function FoodItemModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex items-center justify-center cursor-pointer shrink-0"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex items-center justify-center cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
           >
             <X className="w-5 h-5" />
           </button>
@@ -490,7 +490,7 @@ export function FoodItemModal({
               <button
                 type="button"
                 onClick={() => setIsImageManual(!isImageManual)}
-                className="text-xs font-bold text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                className="min-h-[44px] px-2 inline-flex items-center text-xs font-bold text-rose-600 hover:text-rose-700 transition cursor-pointer active:scale-[0.98] transition-transform"
               >
                 {isImageManual ? 'Upload file' : 'Enter URL manually'}
               </button>
@@ -516,7 +516,7 @@ export function FoodItemModal({
                     type="button"
                     onClick={() => imageInputRef.current?.click()}
                     disabled={isUploadingImage}
-                    className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95"
+                    className="min-h-[44px] px-3.5 py-2 rounded-xl bg-white text-slate-800 text-xs font-bold hover:bg-slate-50 transition cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-[0.98] transition-transform"
                   >
                     <Camera className="w-3.5 h-3.5 text-rose-600" />
                     <span>Change Photo</span>
@@ -524,7 +524,7 @@ export function FoodItemModal({
                   <button
                     type="button"
                     onClick={() => setImageUrl('')}
-                    className="w-9 h-9 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition cursor-pointer shadow-sm flex items-center justify-center active:scale-95"
+                    className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition cursor-pointer shadow-sm flex items-center justify-center active:scale-[0.98] transition-transform"
                     title="Remove photo"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -614,7 +614,7 @@ export function FoodItemModal({
                           setCategoryId(catId);
                           setIsCategoryOpen(false);
                         }}
-                        className={`w-full min-h-[40px] px-3 py-2 rounded-xl text-left text-xs font-bold transition flex items-center justify-between gap-2 cursor-pointer active:scale-95 ${
+                        className={`w-full min-h-[44px] px-3.5 py-2.5 rounded-xl text-left text-xs font-bold transition flex items-center justify-between gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
                           isSelected
                             ? 'bg-rose-50 text-rose-700 font-black'
                             : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
@@ -693,7 +693,7 @@ export function FoodItemModal({
               <button
                 type="button"
                 onClick={() => setIsVegetarian(!isVegetarian)}
-                className={`h-11 sm:h-10 px-3.5 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+                className={`h-11 sm:h-10 px-3.5 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
                   isVegetarian
                     ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-extrabold shadow-xs'
                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100/70'
@@ -706,7 +706,7 @@ export function FoodItemModal({
               <button
                 type="button"
                 onClick={() => setIsAvailable(!isAvailable)}
-                className={`h-11 sm:h-10 px-3.5 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+                className={`h-11 sm:h-10 px-3.5 rounded-2xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
                   isAvailable
                     ? 'bg-rose-50 border-rose-300 text-rose-800 font-extrabold shadow-xs'
                     : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100/70'
@@ -740,7 +740,7 @@ export function FoodItemModal({
               <button
                 type="button"
                 onClick={handleAddVariantGroup}
-                className="min-h-[36px] px-3 py-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition flex items-center gap-1 cursor-pointer shrink-0 active:scale-95"
+                className="min-h-[44px] px-3.5 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Group</span>
@@ -767,7 +767,7 @@ export function FoodItemModal({
                       <button
                         type="button"
                         onClick={() => handleRemoveVariantGroup(gIdx)}
-                        className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition cursor-pointer shrink-0 active:scale-95"
+                        className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
                         title="Remove group"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -824,7 +824,7 @@ export function FoodItemModal({
                             <button
                               type="button"
                               onClick={() => handleRemoveOptionFromGroup(gIdx, oIdx)}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shrink-0 active:scale-95"
+                              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
                               title="Remove option"
                             >
                               <X className="w-4 h-4" />
@@ -838,7 +838,7 @@ export function FoodItemModal({
                       <button
                         type="button"
                         onClick={() => handleAddOptionToGroup(gIdx)}
-                        className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 pt-1.5 cursor-pointer active:scale-95"
+                        className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 pt-1.5 cursor-pointer active:scale-[0.98] transition-transform"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add Option</span>
@@ -859,7 +859,7 @@ export function FoodItemModal({
               <button
                 type="button"
                 onClick={handleAddAddOn}
-                className="min-h-[36px] px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold transition flex items-center gap-1 cursor-pointer shrink-0 active:scale-95"
+                className="min-h-[44px] px-3.5 py-2 rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Extra</span>
@@ -899,7 +899,7 @@ export function FoodItemModal({
                     <button
                       type="button"
                       onClick={() => handleRemoveAddOn(aIdx)}
-                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition cursor-pointer shrink-0 active:scale-95"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition cursor-pointer shrink-0 active:scale-[0.98] transition-transform"
                       title="Remove add-on"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -915,7 +915,7 @@ export function FoodItemModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 min-h-[48px] py-3 rounded-2xl border border-slate-200 text-slate-600 text-xs sm:text-sm font-bold hover:bg-slate-50 active:scale-95 transition cursor-pointer"
+            className="flex-1 min-h-[48px] py-3 rounded-2xl border border-slate-200 text-slate-600 text-xs sm:text-sm font-bold hover:bg-slate-50 active:scale-[0.98] transition-transform transition cursor-pointer"
           >
             Cancel
           </button>
@@ -923,7 +923,7 @@ export function FoodItemModal({
             type="button"
             disabled={createMutation.isPending || updateMutation.isPending || isUploadingImage}
             onClick={handleSubmit}
-            className="flex-1 min-h-[48px] py-3 rounded-2xl bg-rose-600 text-white text-xs sm:text-sm font-black hover:bg-rose-700 active:scale-95 transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            className="flex-1 min-h-[48px] py-3 rounded-2xl bg-rose-600 text-white text-xs sm:text-sm font-black hover:bg-rose-700 active:scale-[0.98] transition-transform transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             {createMutation.isPending || updateMutation.isPending || isUploadingImage ? (
               <Loader2 className="w-4 h-4 animate-spin" />

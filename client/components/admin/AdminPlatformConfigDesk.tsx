@@ -119,7 +119,7 @@ export function AdminPlatformConfigDesk() {
         <p className="text-sm font-bold text-slate-800">Failed to load platform settings</p>
         <button
           onClick={() => refetch()}
-          className="min-h-[44px] px-5 py-2.5 bg-rose-600 text-white text-xs font-bold rounded-2xl shadow-xs hover:bg-rose-700 active:scale-95 transition cursor-pointer"
+          className="min-h-[44px] px-5 py-2.5 bg-rose-600 text-white text-xs font-bold rounded-2xl shadow-xs hover:bg-rose-700 active:scale-[0.98] transition-transform transition cursor-pointer"
         >
           Try Again
         </button>
@@ -146,7 +146,7 @@ export function AdminPlatformConfigDesk() {
           <button
             type="button"
             onClick={handleResetToDefaults}
-            className="min-h-[40px] px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
+            className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-[0.98] transition-transform text-slate-300 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Defaults</span>
@@ -280,7 +280,7 @@ export function AdminPlatformConfigDesk() {
           <button
             type="submit"
             disabled={updateMutation.isPending}
-            className="min-h-[48px] px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-md shadow-rose-600/20 transition flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
+            className="min-h-[48px] px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-md shadow-rose-600/20 transition flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.98] transition-transform"
           >
             {updateMutation.isPending ? (
               <>

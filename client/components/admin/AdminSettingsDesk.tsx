@@ -13,11 +13,11 @@ export function AdminSettingsDesk() {
 
   return (
     <div className="space-y-5 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] md:pb-12">
-      <div className="flex rounded-2xl overflow-x-auto border border-slate-200 bg-white p-1.5 shadow-xs gap-1.5">
+      <div className="flex rounded-2xl overflow-x-auto border border-slate-200 bg-white p-2 shadow-xs gap-2">
         <button
           type="button"
           onClick={() => setActiveTab('platform')}
-          className={`flex-1 min-w-[120px] min-h-[44px] py-2.5 px-3.5 text-xs sm:text-sm font-black rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+          className={`flex-1 min-w-[120px] min-h-[44px] py-2.5 px-3.5 text-xs sm:text-sm font-black rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
             activeTab === 'platform'
               ? 'bg-slate-900 text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-50'
@@ -30,7 +30,7 @@ export function AdminSettingsDesk() {
         <button
           type="button"
           onClick={() => setActiveTab('coupons')}
-          className={`flex-1 min-w-[120px] min-h-[44px] py-2.5 px-3.5 text-xs sm:text-sm font-black rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+          className={`flex-1 min-w-[120px] min-h-[44px] py-2.5 px-3.5 text-xs sm:text-sm font-black rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
             activeTab === 'coupons'
               ? 'bg-rose-600 text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-50'
@@ -43,7 +43,7 @@ export function AdminSettingsDesk() {
         <button
           type="button"
           onClick={() => setActiveTab('categories')}
-          className={`flex-1 min-w-[120px] min-h-[44px] py-2.5 px-3.5 text-xs sm:text-sm font-black rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+          className={`flex-1 min-w-[120px] min-h-[44px] py-2.5 px-3.5 text-xs sm:text-sm font-black rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
             activeTab === 'categories'
               ? 'bg-slate-900 text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-50'
@@ -56,7 +56,7 @@ export function AdminSettingsDesk() {
         <button
           type="button"
           onClick={() => setActiveTab('uploads')}
-          className={`flex-1 min-w-[120px] min-h-[44px] py-2.5 px-3.5 text-xs sm:text-sm font-black rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+          className={`flex-1 min-w-[120px] min-h-[44px] py-2.5 px-3.5 text-xs sm:text-sm font-black rounded-xl transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition-transform ${
             activeTab === 'uploads'
               ? 'bg-slate-900 text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-50'

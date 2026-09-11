@@ -381,9 +381,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                             alarmToastIdRef.current = null;
                             dismissToast(toast.toastId);
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-[11px] font-black shadow-sm transition cursor-pointer"
+                          className="min-h-[44px] inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] transition-transform text-white text-xs font-black shadow-sm cursor-pointer"
                         >
-                          <VolumeX className="w-3.5 h-3.5" />
+                          <VolumeX className="w-4 h-4" />
                           Silence Alarm
                         </button>
                       </div>
