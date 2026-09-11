@@ -66,8 +66,8 @@ export function RiderBottomNav() {
   ];
 
   return (
-    <div className="fixed bottom-3 left-0 right-0 z-40 px-3 sm:px-4 pointer-events-none flex justify-center">
-      <nav className="pointer-events-auto w-full max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-full py-1.5 px-2.5 sm:px-3 grid grid-cols-5 items-center shadow-[0_12px_30px_rgb(0,0,0,0.08)]">
+    <div className="fixed bottom-3 sm:bottom-4 left-0 right-0 z-40 px-3 pointer-events-none flex justify-center pb-[env(safe-area-inset-bottom,0px)]">
+      <nav className="pointer-events-auto w-full max-w-md bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-full py-1.5 px-2 grid grid-cols-5 items-center shadow-[0_12px_36px_rgba(0,0,0,0.12)]">
         {navItems.map((item) => {
           const Icon = item.icon;
 
@@ -75,28 +75,30 @@ export function RiderBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center py-1.5 rounded-2xl transition group relative cursor-pointer ${
+              className={`flex flex-col items-center justify-center h-12 py-1 rounded-2xl transition-all duration-150 group relative cursor-pointer active:scale-90 select-none ${
                 item.isActive
-                  ? 'text-rose-600 font-extrabold'
-                  : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium'
+                  ? 'text-rose-600 font-black'
+                  : 'text-slate-400 hover:text-slate-700 font-semibold'
               }`}
             >
-              <div className="relative">
+              <div className="relative flex items-center justify-center">
                 <Icon
-                  className={`w-5 h-5 transition transform ${
+                  className={`w-5 h-5 transition-transform duration-150 ${
                     item.isActive ? 'scale-110 text-rose-600' : 'group-hover:scale-105'
                   }`}
                 />
                 {item.badge !== null && item.badge !== undefined && (
-                  <span className="absolute -top-1 -right-2 min-w-4 h-4 px-1 bg-rose-600 text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 bg-rose-600 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs ring-2 ring-white animate-in zoom-in-50 duration-150">
                     {item.badge}
                   </span>
                 )}
                 {item.dotBadge && (
-                  <span className="absolute -top-0.5 -right-1 w-2.5 h-2.5 bg-rose-600 rounded-full ring-2 ring-white animate-pulse" />
+                  <span className="absolute -top-1 -right-1.5 w-2.5 h-2.5 bg-rose-600 rounded-full ring-2 ring-white animate-pulse" />
                 )}
               </div>
-              <span className="text-[10px] tracking-tight mt-0.5">{item.label}</span>
+              <span className={`text-[10px] tracking-tight mt-0.5 leading-none ${item.isActive ? 'font-black' : 'font-medium'}`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}

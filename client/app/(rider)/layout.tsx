@@ -54,10 +54,10 @@ export default function RiderLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 pb-24">
-      <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-xs">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
-          <Link href="/rider" className="flex items-center gap-2.5 group">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] sm:pb-36">
+      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-15 sm:h-16 flex items-center justify-between gap-3">
+          <Link href="/rider" className="flex items-center gap-2.5 group active:scale-98 transition">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-rose-500 flex items-center justify-center text-white shadow-sm shadow-rose-500/25 group-hover:scale-105 transition shrink-0">
               <UtensilsCrossed className="w-5 h-5" />
             </div>
@@ -71,29 +71,34 @@ export default function RiderLayout({
             </div>
           </Link>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-3">
             <NotificationBell />
             <button
               type="button"
               disabled={toggleStatusMutation.isPending}
               onClick={handleToggle}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition cursor-pointer shadow-xs ${
+              className={`inline-flex items-center justify-center gap-2 h-10 px-3.5 sm:px-4 rounded-full text-xs font-black transition-all duration-200 cursor-pointer active:scale-95 disabled:opacity-50 min-w-[94px] ${
                 isOnline
-                  ? 'bg-emerald-500 text-white shadow-emerald-500/25 ring-2 ring-emerald-200'
-                  : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 ring-2 ring-emerald-300/70'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-2xs'
               }`}
-              title={isOnline ? 'tap to go offline' : 'tap to go online'}
+              title={isOnline ? 'Tap to go offline' : 'Tap to go online'}
             >
               {toggleStatusMutation.isPending ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    isOnline ? 'bg-white animate-pulse' : 'bg-slate-400'
-                  }`}
-                />
+                <span className="relative flex h-2.5 w-2.5">
+                  {isOnline && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                  )}
+                  <span
+                    className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+                      isOnline ? 'bg-white' : 'bg-slate-400'
+                    }`}
+                  />
+                </span>
               )}
-              <span>{isOnline ? 'Online' : 'Offline'}</span>
+              <span className="tracking-wide">{isOnline ? 'Online' : 'Offline'}</span>
             </button>
           </div>
         </div>

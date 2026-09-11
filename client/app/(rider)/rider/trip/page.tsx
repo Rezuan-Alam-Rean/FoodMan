@@ -64,19 +64,19 @@ export default function RiderTripPage() {
   if (activeDeliveries.length === 0) {
     return (
       <div className="space-y-5 pb-6">
-        <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center space-y-3 shadow-xs">
-          <div className="w-14 h-14 rounded-3xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto">
-            <Package className="w-7 h-7" />
+        <div className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/90 text-center space-y-4 shadow-xs animate-in fade-in duration-200">
+          <div className="w-16 h-16 rounded-3xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto border border-slate-100 shadow-inner">
+            <Package className="w-8 h-8" />
           </div>
-          <div className="space-y-1">
-            <h3 className="text-sm font-black text-slate-900">No Active Deliveries</h3>
-            <p className="text-xs text-slate-400 max-w-xs mx-auto">
-              You do not have any delivery tasks in progress right now. Check the radar feed to claim orders.
+          <div className="space-y-1.5">
+            <h3 className="text-base font-black text-slate-900">No Active Deliveries</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+              You do not have any delivery tasks in progress right now. Scan the live radar feed to claim available orders.
             </p>
           </div>
           <Link
             href="/rider"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 transition shadow-sm cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-black transition-all duration-150 shadow-md shadow-rose-600/25 active:scale-95 cursor-pointer"
           >
             <Radar className="w-4 h-4" />
             <span>Go to Radar Feed</span>
@@ -88,44 +88,47 @@ export default function RiderTripPage() {
 
   return (
     <div className="space-y-4 pb-6">
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-3.5">
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <div className="space-y-0.5">
+          <div className="space-y-0.5 min-w-0">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-              <h2 className="text-sm font-black text-slate-900 tracking-tight">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500" />
+              </span>
+              <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight truncate">
                 Active Trips ({activeDeliveries.length})
               </h2>
             </div>
-            <p className="text-[11px] text-slate-400 font-medium">
-              Flexible fulfillment: pick up and deliver in whatever order you choose
+            <p className="text-[11px] text-slate-400 font-medium truncate">
+              Flexible fulfillment: pick up and deliver in whatever sequence you choose
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/rider"
-              className="px-2.5 py-1.5 rounded-xl border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition inline-flex items-center gap-1 cursor-pointer"
+              className="h-9 px-3 rounded-xl border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-black transition-all duration-150 inline-flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-2xs"
               title="Claim more orders from radar"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Add</span> Order
+              <span>Add Order</span>
             </Link>
 
-            <span className="inline-flex items-center px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-black whitespace-nowrap shadow-2xs">
+            <span className="inline-flex items-center h-9 px-3 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-xs font-black whitespace-nowrap shadow-2xs">
               +{formatBDT(totalBatchEarnings)}
             </span>
           </div>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
               Select Active Task
             </span>
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-none -mx-1 px-1">
+          <div className="flex gap-2.5 overflow-x-auto pb-1.5 pt-0.5 scrollbar-none -mx-1 px-1">
             {activeDeliveries.map((order) => {
               const orderId = order.id || order._id;
               const isSelected = (currentSelectedOrder?.id || currentSelectedOrder?._id) === orderId;
@@ -155,7 +158,7 @@ export default function RiderTripPage() {
                   key={orderId}
                   type="button"
                   onClick={() => setSelectedOrderId(orderId)}
-                  className={`shrink-0 text-left p-2.5 sm:p-3 rounded-2xl border transition-all cursor-pointer min-w-[155px] sm:min-w-[170px] ${
+                  className={`shrink-0 text-left p-3 rounded-2xl border transition-all duration-150 cursor-pointer min-w-[160px] sm:min-w-[175px] active:scale-95 ${
                     isSelected
                       ? 'bg-rose-50/70 border-rose-500 ring-2 ring-rose-500/20 shadow-xs'
                       : 'bg-slate-50/90 hover:bg-slate-100/80 border-slate-200 text-slate-600'
@@ -163,7 +166,7 @@ export default function RiderTripPage() {
                 >
                   <div className="flex items-center justify-between gap-1.5 mb-1">
                     <span
-                      className={`text-[11px] font-black ${
+                      className={`text-xs font-mono font-black ${
                         isSelected ? 'text-rose-600' : 'text-slate-900'
                       }`}
                     >
@@ -176,10 +179,10 @@ export default function RiderTripPage() {
                     </span>
                   </div>
 
-                  <p className="text-[11px] font-bold text-slate-700 truncate leading-tight">
+                  <p className="text-xs font-black text-slate-800 truncate leading-tight">
                     {order.restaurant_id?.name || 'Restaurant'}
                   </p>
-                  <p className="text-[10px] text-slate-400 truncate leading-tight mt-0.5">
+                  <p className="text-[11px] text-slate-400 font-medium truncate leading-tight mt-0.5">
                     {order.customer_name || 'Customer'}
                   </p>
                 </button>

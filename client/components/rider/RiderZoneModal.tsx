@@ -74,10 +74,10 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-slate-200/80 space-y-5 max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200">
-        <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-2" />
+        <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto sm:hidden -mt-1 mb-2" />
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 shadow-xs">
               <MapPin className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -88,19 +88,19 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
           <button
             type="button"
             onClick={handleClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer shrink-0"
+            className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition flex items-center justify-center cursor-pointer shrink-0 active:scale-95"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold animate-in shake duration-200">
             {error}
           </div>
         )}
 
-        <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+        <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
           {isZonesLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 text-rose-600 animate-spin" />
@@ -115,24 +115,24 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
                   key={zoneId}
                   type="button"
                   onClick={() => toggleZone(zoneId)}
-                  className={`w-full p-3 rounded-2xl border text-left transition flex items-center justify-between cursor-pointer ${
+                  className={`w-full min-h-[52px] p-3.5 rounded-2xl border text-left transition-all duration-150 flex items-center justify-between cursor-pointer active:scale-98 ${
                     isSelected
-                      ? 'border-rose-600 bg-rose-50/50 text-slate-900'
+                      ? 'border-rose-600 bg-rose-50/60 text-slate-900 ring-2 ring-rose-500/20'
                       : 'border-slate-200 hover:border-slate-300 bg-white text-slate-600'
                   }`}
                 >
                   <div className="space-y-0.5">
-                    <p className="text-xs font-bold text-slate-900">{zone.name}</p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-xs font-black text-slate-900">{zone.name}</p>
+                    <p className="text-[11px] text-slate-400 font-medium">
                       Fixed delivery fee: ৳{zone.fixed_delivery_fee}
                     </p>
                   </div>
                   <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center transition ${
-                      isSelected ? 'bg-rose-600 text-white' : 'border border-slate-300'
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
+                      isSelected ? 'bg-rose-600 text-white shadow-xs' : 'border-2 border-slate-300'
                     }`}
                   >
-                    {isSelected && <Check className="w-3.5 h-3.5" />}
+                    {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                   </div>
                 </button>
               );
@@ -144,7 +144,7 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
           <button
             type="button"
             onClick={handleClose}
-            className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition cursor-pointer"
+            className="flex-1 h-12 rounded-2xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition cursor-pointer active:scale-95"
           >
             Cancel
           </button>
@@ -152,7 +152,7 @@ export function RiderZoneModal({ isOpen, onClose, rider }: RiderZoneModalProps) 
             type="button"
             disabled={updateZonesMutation.isPending}
             onClick={handleSave}
-            className="flex-1 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            className="flex-1 h-12 rounded-2xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 transition shadow-md shadow-rose-600/25 flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-95"
           >
             {updateZonesMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
