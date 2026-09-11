@@ -171,26 +171,26 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
-        <div className="flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="w-10 h-1 rounded-full bg-slate-200" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div className="relative w-full sm:max-w-lg bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden">
+        <div className="flex justify-center pt-3 pb-1 sm:hidden shrink-0">
+          <div className="w-12 h-1.5 rounded-full bg-slate-200" />
         </div>
 
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center">
-              <Edit className="w-4 h-4" />
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
+              <Edit className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
-            <div>
-              <h2 className="text-sm font-black text-slate-900">Edit User Account</h2>
-              <p className="text-[11px] text-slate-400 font-medium">{role}: {user.name}</p>
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-base font-black text-slate-900 leading-tight truncate">Edit User Account</h2>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">{role}: {user.name}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-500 transition cursor-pointer"
+            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-95"
           >
             <X className="w-4 h-4" />
           </button>
@@ -205,7 +205,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
             <p className="text-xs text-slate-500">All changes saved successfully.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 overflow-y-auto">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4 sm:p-6 overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-6">
             {error && (
               <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
@@ -219,13 +219,13 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                   Full Name *
                 </label>
                 <div className="relative">
-                  <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    className="w-full min-h-[44px] pl-10 pr-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400"
                   />
                 </div>
               </div>
@@ -235,13 +235,13 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                   Phone Number *
                 </label>
                 <div className="relative">
-                  <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="tel"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     required
-                    className="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    className="w-full min-h-[44px] pl-10 pr-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400"
                   />
                 </div>
               </div>
@@ -253,13 +253,13 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                   Email (Optional)
                 </label>
                 <div className="relative">
-                  <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="user@example.com"
-                    className="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    className="w-full min-h-[44px] pl-10 pr-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400"
                   />
                 </div>
               </div>
@@ -269,13 +269,13 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                   Reset Password <span className="text-slate-400 font-normal lowercase">(optional)</span>
                 </label>
                 <div className="relative">
-                  <Lock className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Leave blank to keep current"
-                    className="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    className="w-full min-h-[44px] pl-10 pr-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400"
                   />
                 </div>
               </div>
@@ -291,8 +291,8 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                   <button
                     type="button"
                     onClick={() => setIsOnline(!isOnline)}
-                    className={`px-2.5 py-1 rounded-xl text-[10px] font-black uppercase transition cursor-pointer ${
-                      isOnline ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
+                    className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-black uppercase transition cursor-pointer active:scale-95 ${
+                      isOnline ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-200 text-slate-600'
                     }`}
                   >
                     {isOnline ? 'Online' : 'Offline'}
@@ -300,12 +300,12 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Vehicle Type</label>
                     <select
                       value={vehicleType}
                       onChange={(e) => setVehicleType(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                     >
                       {VEHICLE_TYPES.map((v) => (
                         <option key={v.value} value={v.value}>{v.label}</option>
@@ -313,7 +313,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                     </select>
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Cash Limit (BDT)</label>
                     <input
                       type="number"
@@ -321,11 +321,11 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                       onChange={(e) => setCashLimit(e.target.value)}
                       min="500"
                       step="500"
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                     />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Commission (%)</label>
                     <input
                       type="number"
@@ -333,30 +333,30 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                       onChange={(e) => setCommissionRate(e.target.value)}
                       min="0"
                       max="100"
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Driving License</label>
                     <input
                       type="text"
                       value={drivingLicense}
                       onChange={(e) => setDrivingLicense(e.target.value)}
                       placeholder="DL-12345"
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                     />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">NID Number</label>
                     <input
                       type="text"
                       value={nidNumber}
                       onChange={(e) => setNidNumber(e.target.value)}
                       placeholder="1990123456789"
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                     />
                   </div>
                 </div>
@@ -371,13 +371,13 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                           key={z._id}
                           type="button"
                           onClick={() => toggleZone(z._id)}
-                          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                          className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95 ${
                             isAssigned
                               ? 'bg-indigo-600 text-white shadow-xs'
                               : 'bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-50'
                           }`}
                         >
-                          <MapPin className="w-3 h-3" />
+                          <MapPin className="w-3.5 h-3.5" />
                           <span>{z.name}</span>
                         </button>
                       );
@@ -397,8 +397,8 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                   <button
                     type="button"
                     onClick={() => setIsOpenNow(!isOpenNow)}
-                    className={`px-2.5 py-1 rounded-xl text-[10px] font-black uppercase transition cursor-pointer ${
-                      isOpenNow ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
+                    className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-black uppercase transition cursor-pointer active:scale-95 ${
+                      isOpenNow ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-200 text-slate-600'
                     }`}
                   >
                     {isOpenNow ? 'Store Open' : 'Store Closed'}
@@ -406,23 +406,23 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-rose-900 uppercase">Restaurant Name</label>
                     <input
                       type="text"
                       value={restaurantName}
                       onChange={(e) => setRestaurantName(e.target.value)}
                       required
-                      className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                     />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-rose-900 uppercase">Primary Zone</label>
                     <select
                       value={zoneId}
                       onChange={(e) => setZoneId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                     >
                       <option value="">Select a zone...</option>
                       {zones.map((z) => (
@@ -433,18 +433,18 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="sm:col-span-2 space-y-1">
+                  <div className="sm:col-span-2 space-y-1.5">
                     <label className="text-[10px] font-bold text-rose-900 uppercase">Physical Address</label>
                     <input
                       type="text"
                       value={restaurantAddress}
                       onChange={(e) => setRestaurantAddress(e.target.value)}
                       required
-                      className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                     />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-rose-900 uppercase">Commission (%)</label>
                     <input
                       type="number"
@@ -452,18 +452,18 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                       onChange={(e) => setCommissionRate(e.target.value)}
                       min="0"
                       max="100"
-                      className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-rose-900 uppercase">Description</label>
                   <input
                     type="text"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold focus:outline-none"
+                    className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none"
                   />
                 </div>
               </div>
@@ -472,7 +472,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
             <button
               type="submit"
               disabled={updateMutation.isPending}
-              className="w-full py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 mt-2"
+              className="w-full min-h-[48px] py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 active:scale-98 text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 mt-3"
             >
               {updateMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -487,3 +487,4 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
     </div>
   );
 }
+

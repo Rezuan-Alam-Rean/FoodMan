@@ -56,24 +56,24 @@ export function AdminCodRemittanceDesk() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <Banknote className="w-4 h-4" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <Banknote className="w-4 sm:w-5 h-4 sm:h-5" />
           </div>
           <div>
-            <h2 className="text-base font-black text-slate-900 leading-tight">COD Remittance Desk</h2>
+            <h2 className="text-base sm:text-lg font-black text-slate-900 leading-tight">COD Remittance Desk</h2>
             <p className="text-[11px] text-slate-400 font-medium">reconcile rider cash remittances to admin</p>
           </div>
         </div>
         <button
           type="button"
           onClick={() => refetch()}
-          className="w-8 h-8 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 transition cursor-pointer"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 transition cursor-pointer active:scale-95"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
+          <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {[
           { value: 'PENDING_VERIFICATION', label: 'Pending' },
           { value: 'APPROVED', label: 'Approved' },
@@ -83,9 +83,9 @@ export function AdminCodRemittanceDesk() {
             key={f.value}
             type="button"
             onClick={() => setFilter(f.value as any)}
-            className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition shrink-0 cursor-pointer ${
+            className={`min-h-[40px] px-4 py-2 rounded-2xl text-xs font-bold transition shrink-0 cursor-pointer active:scale-95 ${
               filter === f.value
-                ? 'bg-slate-900 text-white'
+                ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
             }`}
           >
@@ -102,7 +102,7 @@ export function AdminCodRemittanceDesk() {
         <div className="bg-white rounded-3xl p-8 border border-rose-200 text-center space-y-3">
           <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
           <p className="text-xs font-semibold text-slate-600">failed to load remittances</p>
-          <button type="button" onClick={() => refetch()} className="px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer">
+          <button type="button" onClick={() => refetch()} className="min-h-[40px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer active:scale-95">
             Try Again
           </button>
         </div>
@@ -157,7 +157,7 @@ export function AdminCodRemittanceDesk() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 font-medium">Transaction Ref</span>
-                    <span className="font-black text-slate-900 font-mono">{rem.transaction_reference}</span>
+                    <span className="font-black text-slate-900 font-mono tracking-wide">{rem.transaction_reference}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500 font-medium">Submitted</span>
@@ -178,7 +178,7 @@ export function AdminCodRemittanceDesk() {
                       placeholder="Admin notes (optional)"
                       value={notes[rem._id] || ''}
                       onChange={(e) => setNotes((prev) => ({ ...prev, [rem._id]: e.target.value }))}
-                      className="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition"
+                      className="w-full min-h-[44px] px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-medium placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition"
                     />
                     {rowError[rem._id] && (
                       <p className="text-[11px] text-rose-600 font-semibold">{rowError[rem._id]}</p>
@@ -188,18 +188,18 @@ export function AdminCodRemittanceDesk() {
                         type="button"
                         disabled={isProcessing}
                         onClick={() => handleVerify(rem._id, 'APPROVED')}
-                        className="flex-1 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 cursor-pointer disabled:opacity-50"
+                        className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 cursor-pointer disabled:opacity-50 active:scale-98"
                       >
-                        {isProcessing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                        {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                         <span>Approve</span>
                       </button>
                       <button
                         type="button"
                         disabled={isProcessing}
                         onClick={() => handleVerify(rem._id, 'REJECTED')}
-                        className="flex-1 py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-black transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs sm:text-sm font-black transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-98"
                       >
-                        <XCircle className="w-3.5 h-3.5" />
+                        <XCircle className="w-4 h-4" />
                         <span>Reject</span>
                       </button>
                     </div>

@@ -155,14 +155,15 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full sm:max-w-md bg-white rounded-t-[28px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
-        <div className="flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="w-10 h-1 rounded-full bg-slate-200" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div className="relative w-full sm:max-w-lg bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden">
+        <div className="flex justify-center pt-3 pb-1 sm:hidden shrink-0">
+          <div className="w-12 h-1.5 rounded-full bg-slate-200" />
         </div>
-        <div className="flex justify-between items-center px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100">
+        
+        <div className="flex justify-between items-center px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 sm:w-9 h-8 sm:h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs shrink-0">
               <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
             <div className="min-w-0">
@@ -170,12 +171,16 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
               <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold truncate">Provision access & roles</p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-95"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-3 sm:space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-6">
           {error && (
             <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-2.5 text-rose-700 text-xs font-semibold">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -191,7 +196,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
           )}
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase">Role Type</label>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Role Type</label>
             <div className="grid grid-cols-2 gap-2">
               {ROLES.map((r) => {
                 const Icon = r.icon;
@@ -201,56 +206,82 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                     key={r.value}
                     type="button"
                     onClick={() => setRole(r.value)}
-                    className={`p-3 rounded-2xl border text-left transition flex items-center gap-2.5 cursor-pointer ${
+                    className={`min-h-[48px] p-3 rounded-2xl border text-left transition flex items-center gap-2.5 cursor-pointer active:scale-98 ${
                       isSelected
                         ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20'
                         : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span className="text-xs font-bold">{r.label}</span>
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold truncate">{r.label}</span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">Full Name</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" />
+          <div className="space-y-3.5">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name *</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John Doe"
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+              />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase">Phone Number</label>
-                <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="01712345678" className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Phone Number *</label>
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="01712345678"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                />
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase">Email (Optional)</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@example.com" className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" />
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email (Optional)</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="john@example.com"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">Password {role === 'CUSTOMER' ? '(Optional)' : '(Required)'}</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={role === 'CUSTOMER' ? 'Optional (min 6 chars)' : 'Min 6 chars'} className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" />
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Password {role === 'CUSTOMER' ? '(Optional)' : '(Required)'}
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={role === 'CUSTOMER' ? 'Optional (min 6 chars)' : 'Min 6 chars'}
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+              />
             </div>
 
             {role === 'RIDER' && (
-              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 space-y-3">
+              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 space-y-3.5">
                 <p className="text-xs font-black text-indigo-950 flex items-center gap-1.5">
-                  <Bike className="w-3.5 h-3.5 text-indigo-600" />
+                  <Bike className="w-4 h-4 text-indigo-600" />
                   <span>Rider Specifications</span>
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Vehicle Type</label>
                     <select
                       value={vehicleType}
                       onChange={(e) => setVehicleType(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     >
                       <option value="MOTORCYCLE">Motorcycle</option>
                       <option value="BICYCLE">Bicycle</option>
@@ -258,7 +289,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                     </select>
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Cash Limit (BDT)</label>
                     <input
                       type="number"
@@ -266,11 +297,11 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                       onChange={(e) => setCashLimit(e.target.value)}
                       min="500"
                       step="500"
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Commission (%)</label>
                     <input
                       type="number"
@@ -278,30 +309,30 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                       onChange={(e) => setCommissionRate(e.target.value)}
                       min="0"
                       max="100"
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">Driving License (Optional)</label>
                     <input
                       type="text"
                       value={drivingLicense}
                       onChange={(e) => setDrivingLicense(e.target.value)}
                       placeholder="DL-12345"
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold placeholder:text-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold placeholder:text-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-indigo-900 uppercase">NID Number (Optional)</label>
                     <input
                       type="text"
                       value={nidNumber}
                       onChange={(e) => setNidNumber(e.target.value)}
                       placeholder="1990123456789"
-                      className="w-full px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-xs font-bold placeholder:text-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-indigo-200 bg-white text-slate-900 text-base sm:text-xs font-bold placeholder:text-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
                 </div>
@@ -316,13 +347,13 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                           key={z._id}
                           type="button"
                           onClick={() => toggleZone(z._id)}
-                          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                          className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95 ${
                             isAssigned
                               ? 'bg-indigo-600 text-white shadow-xs'
                               : 'bg-white text-indigo-900 border border-indigo-200 hover:bg-indigo-50'
                           }`}
                         >
-                          <MapPin className="w-3 h-3" />
+                          <MapPin className="w-3.5 h-3.5" />
                           <span>{z.name}</span>
                         </button>
                       );
@@ -340,7 +371,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-rose-900 uppercase">Restaurant Name *</label>
                     <input
                       type="text"
@@ -348,17 +379,17 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                       onChange={(e) => setRestaurantName(e.target.value)}
                       placeholder="e.g. Tokyo Express"
                       required
-                      className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold placeholder:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold placeholder:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-rose-900 uppercase">Primary Zone *</label>
                     <select
                       value={zoneId}
                       onChange={(e) => setZoneId(e.target.value)}
                       required
-                      className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     >
                       <option value="">Select a zone...</option>
                       {zones.map((z) => (
@@ -369,7 +400,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="sm:col-span-2 space-y-1">
+                  <div className="sm:col-span-2 space-y-1.5">
                     <label className="text-[10px] font-bold text-rose-900 uppercase">Physical Address *</label>
                     <input
                       type="text"
@@ -377,11 +408,11 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                       onChange={(e) => setRestaurantAddress(e.target.value)}
                       placeholder="Road 11, Block D, Banani"
                       required
-                      className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold placeholder:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold placeholder:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-rose-900 uppercase">Commission (%)</label>
                     <input
                       type="number"
@@ -389,19 +420,19 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                       onChange={(e) => setCommissionRate(e.target.value)}
                       min="0"
                       max="100"
-                      className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <label className="text-[10px] font-bold text-rose-900 uppercase">Description (Optional)</label>
                   <input
                     type="text"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="e.g. Authentic Japanese sushi & ramen"
-                    className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-xs font-bold placeholder:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                    className="w-full min-h-[44px] px-3 py-2 rounded-xl border border-rose-200 bg-white text-slate-900 text-base sm:text-xs font-bold placeholder:text-rose-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
                   />
                 </div>
               </div>
@@ -410,7 +441,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
             <button
               type="submit"
               disabled={createMutation.isPending}
-              className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/25 cursor-pointer disabled:opacity-50 mt-2"
+              className="w-full min-h-[48px] py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-98 text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/25 cursor-pointer disabled:opacity-50 mt-3"
             >
               {createMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -425,3 +456,4 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
     </div>
   );
 }
+

@@ -163,9 +163,9 @@ export function AdminUploadConfigDesk() {
         <button
           type="button"
           onClick={openCreate}
-          className="px-3.5 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-slate-900/10 cursor-pointer shrink-0"
+          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-slate-900/10 cursor-pointer shrink-0 active:scale-95"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-4 h-4" />
           <span>Add Config</span>
         </button>
       </div>
@@ -197,7 +197,7 @@ export function AdminUploadConfigDesk() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer"
+            className="min-h-[44px] px-5 py-2.5 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer hover:bg-rose-700 active:scale-95 transition"
           >
             Try Again
           </button>
@@ -214,9 +214,9 @@ export function AdminUploadConfigDesk() {
           <button
             type="button"
             onClick={openCreate}
-            className="px-4 py-2.5 rounded-2xl bg-slate-900 text-white text-xs font-black cursor-pointer hover:bg-slate-800 transition inline-flex items-center gap-1.5"
+            className="min-h-[44px] px-5 py-2.5 rounded-2xl bg-slate-900 text-white text-xs font-black cursor-pointer hover:bg-slate-800 active:scale-95 transition inline-flex items-center gap-1.5"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4" />
             Add First Config
           </button>
         </div>
@@ -263,7 +263,7 @@ export function AdminUploadConfigDesk() {
                     onClick={() => handleResetLoad(config.id)}
                     disabled={resetLoadMutation.isPending}
                     title="Reset load counter"
-                    className="w-8 h-8 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 flex items-center justify-center transition cursor-pointer disabled:opacity-50"
+                    className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 flex items-center justify-center transition cursor-pointer disabled:opacity-50 active:scale-95"
                   >
                     {resetLoadMutation.isPending ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -275,7 +275,7 @@ export function AdminUploadConfigDesk() {
                     type="button"
                     onClick={() => openEdit(config)}
                     title="Edit"
-                    className="w-8 h-8 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center transition cursor-pointer"
+                    className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center transition cursor-pointer active:scale-95"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
@@ -283,7 +283,7 @@ export function AdminUploadConfigDesk() {
                     type="button"
                     onClick={() => setDeleteConfirmId(config.id)}
                     title="Delete"
-                    className="w-8 h-8 rounded-xl border border-rose-100 hover:bg-rose-50 text-rose-500 flex items-center justify-center transition cursor-pointer"
+                    className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl border border-rose-100 hover:bg-rose-50 text-rose-500 flex items-center justify-center transition cursor-pointer active:scale-95"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -316,7 +316,7 @@ export function AdminUploadConfigDesk() {
                     <button
                       type="button"
                       onClick={() => setDeleteConfirmId(null)}
-                      className="px-3 py-1 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold cursor-pointer hover:bg-slate-50"
+                      className="min-h-[36px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold cursor-pointer hover:bg-slate-50 active:scale-95 transition"
                     >
                       Cancel
                     </button>
@@ -324,7 +324,7 @@ export function AdminUploadConfigDesk() {
                       type="button"
                       onClick={() => handleDelete(config.id)}
                       disabled={deleteMutation.isPending}
-                      className="px-3 py-1 rounded-xl bg-rose-600 text-white text-xs font-black cursor-pointer hover:bg-rose-700 disabled:opacity-50 flex items-center gap-1"
+                      className="min-h-[36px] px-3.5 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-black cursor-pointer hover:bg-rose-700 disabled:opacity-50 flex items-center gap-1 active:scale-95 transition"
                     >
                       {deleteMutation.isPending ? (
                         <Loader2 className="w-3 h-3 animate-spin" />
@@ -349,8 +349,10 @@ export function AdminUploadConfigDesk() {
             role="dialog"
             aria-modal="true"
             aria-label={modalMode === 'edit' ? 'Edit upload config' : 'Add upload config'}
-            className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col p-6 space-y-4"
+            className="relative w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col p-6 space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-6 animate-in slide-in-from-bottom sm:zoom-in-95 duration-200"
           >
+            <div className="w-12 h-1.5 rounded-full bg-slate-200 mx-auto sm:hidden -mt-1 mb-1 shrink-0" />
+
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-sm font-black text-slate-900">
                 {modalMode === 'edit' ? 'Edit Upload Config' : 'Add Upload Config'}
@@ -381,7 +383,7 @@ export function AdminUploadConfigDesk() {
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="e.g. Primary Cloudinary, Backup Account"
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400/20"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400/20"
                 />
               </div>
 
@@ -396,7 +398,7 @@ export function AdminUploadConfigDesk() {
                   placeholder="https://api.cloudinary.com/v1_1/{cloud}/image/upload?upload_preset=xxx"
                   autoFocus
                   required
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-slate-400/20 placeholder:font-sans placeholder:text-slate-400"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-mono focus:outline-none focus:ring-2 focus:ring-slate-400/20 placeholder:font-sans placeholder:text-slate-400"
                 />
               </div>
 
@@ -410,7 +412,7 @@ export function AdminUploadConfigDesk() {
                 <button
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 ${
+                  className={`min-h-[40px] px-3.5 py-2 rounded-xl text-xs font-black transition cursor-pointer shrink-0 active:scale-95 ${
                     form.isActive
                       ? 'bg-emerald-600 text-white'
                       : 'bg-slate-200 text-slate-600'
@@ -423,7 +425,7 @@ export function AdminUploadConfigDesk() {
               <button
                 type="submit"
                 disabled={isMutating}
-                className="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-md shadow-slate-900/10 cursor-pointer disabled:opacity-50"
+                className="w-full min-h-[48px] py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-md shadow-slate-900/10 cursor-pointer disabled:opacity-50 active:scale-95"
               >
                 {isMutating ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

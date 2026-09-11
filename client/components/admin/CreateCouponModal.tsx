@@ -104,13 +104,15 @@ export function CreateCouponModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full sm:max-w-lg bg-white rounded-t-[28px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh]">
-        <div className="w-12 h-1.5 rounded-full bg-slate-200 mx-auto mt-3 mb-1 sm:hidden shrink-0" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div className="relative w-full sm:max-w-lg bg-white rounded-t-[32px] sm:rounded-3xl shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden">
+        <div className="flex justify-center pt-3 pb-1 sm:hidden shrink-0">
+          <div className="w-12 h-1.5 rounded-full bg-slate-200" />
+        </div>
 
-        <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 shrink-0">
+        <div className="flex justify-between items-center px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 sm:w-9 h-8 sm:h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs shrink-0">
               <Tag className="w-4 sm:w-5 h-4 sm:h-5" />
             </div>
             <div className="min-w-0">
@@ -121,22 +123,22 @@ export function CreateCouponModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0"
+            className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 active:scale-95"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-3 sm:space-y-4 flex-1">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-3.5 sm:space-y-4 flex-1 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:pb-6">
           {error && (
-            <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-2.5 text-rose-700 text-xs font-semibold">
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-2.5 text-rose-700 text-xs font-semibold">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <Store className="w-3.5 h-3.5 text-rose-600" />
               <span>Target Restaurant *</span>
             </label>
@@ -145,7 +147,7 @@ export function CreateCouponModal({
               onChange={(e) => setRestaurantId(e.target.value)}
               required
               disabled={isRestaurantsLoading}
-              className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 cursor-pointer"
+              className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 cursor-pointer"
             >
               <option value="">Select a restaurant...</option>
               {restaurants.map((r) => (
@@ -156,65 +158,65 @@ export function CreateCouponModal({
             </select>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1 min-w-0">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">Coupon Code *</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1.5 min-w-0">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Coupon Code *</label>
               <input
                 type="text"
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder="e.g. BURGER20"
                 required
-                className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 font-mono text-xs font-black uppercase focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 font-mono text-base sm:text-xs font-black uppercase focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
               />
             </div>
 
-            <div className="space-y-1 min-w-0">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">Promo Title (Optional)</label>
+            <div className="space-y-1.5 min-w-0">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Promo Title (Optional)</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. 20% Weekend Promo"
-                className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase">Discount Type</label>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Discount Type</label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setDiscountType('PERCENTAGE')}
-                className={`p-2.5 rounded-2xl border text-left transition flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 cursor-pointer ${
+                className={`min-h-[44px] p-2.5 rounded-2xl border text-left transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer active:scale-98 ${
                   discountType === 'PERCENTAGE'
                     ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20'
                     : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <Percent className="w-3.5 sm:w-4 h-3.5 sm:h-4 shrink-0" />
-                <span className="text-xs font-bold truncate">Percentage (%)</span>
+                <Percent className="w-4 h-4 shrink-0" />
+                <span className="text-xs sm:text-sm font-bold truncate">Percentage (%)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setDiscountType('FLAT')}
-                className={`p-2.5 rounded-2xl border text-left transition flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 cursor-pointer ${
+                className={`min-h-[44px] p-2.5 rounded-2xl border text-left transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer active:scale-98 ${
                   discountType === 'FLAT'
                     ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/20'
                     : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <Banknote className="w-3.5 sm:w-4 h-3.5 sm:h-4 shrink-0" />
-                <span className="text-xs font-bold truncate">Flat Amount (৳)</span>
+                <Banknote className="w-4 h-4 shrink-0" />
+                <span className="text-xs sm:text-sm font-bold truncate">Flat Amount (৳)</span>
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 {discountType === 'PERCENTAGE' ? 'Discount Percentage (%) *' : 'Discount Amount (৳) *'}
               </label>
               <input
@@ -224,12 +226,12 @@ export function CreateCouponModal({
                 min="1"
                 max={discountType === 'PERCENTAGE' ? 100 : undefined}
                 required
-                className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Min Order Bill (৳)
               </label>
               <input
@@ -238,15 +240,15 @@ export function CreateCouponModal({
                 onChange={(e) => setMinOrderAmount(e.target.value === '' ? '' : Number(e.target.value))}
                 min="0"
                 placeholder="0 (No minimum)"
-                className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {discountType === 'PERCENTAGE' && (
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Max Discount Cap (৳) (Optional)
                 </label>
                 <input
@@ -255,13 +257,13 @@ export function CreateCouponModal({
                   onChange={(e) => setMaxDiscountAmount(e.target.value === '' ? '' : Number(e.target.value))}
                   min="0"
                   placeholder="e.g. 100 (No cap)"
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
                 />
               </div>
             )}
 
-            <div className={`space-y-1 ${discountType !== 'PERCENTAGE' ? 'sm:col-span-2' : ''}`}>
-              <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
+            <div className={`space-y-1.5 ${discountType !== 'PERCENTAGE' ? 'sm:col-span-2' : ''}`}>
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5 text-slate-400" />
                 <span>Expiration Date (Optional)</span>
               </label>
@@ -269,14 +271,14 @@ export function CreateCouponModal({
                 type="date"
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Total Usage Limit (Optional)
               </label>
               <input
@@ -285,12 +287,12 @@ export function CreateCouponModal({
                 onChange={(e) => setUsageLimit(e.target.value === '' ? '' : Number(e.target.value))}
                 min="1"
                 placeholder="Unlimited"
-                className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Limit Per Customer
               </label>
               <input
@@ -299,7 +301,7 @@ export function CreateCouponModal({
                 onChange={(e) => setUsageLimitPerUser(e.target.value === '' ? '' : Number(e.target.value))}
                 min="1"
                 placeholder="1 (Default)"
-                className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
               />
             </div>
           </div>
@@ -313,14 +315,14 @@ export function CreateCouponModal({
               type="checkbox"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="w-4 h-4 accent-rose-600 rounded cursor-pointer"
+              className="w-5 h-5 accent-rose-600 rounded cursor-pointer"
             />
           </div>
 
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/25 cursor-pointer disabled:opacity-50 mt-2"
+            className="w-full min-h-[48px] py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-98 text-white text-sm font-black transition flex items-center justify-center gap-2 shadow-md shadow-rose-600/25 cursor-pointer disabled:opacity-50 mt-2"
           >
             {createMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />

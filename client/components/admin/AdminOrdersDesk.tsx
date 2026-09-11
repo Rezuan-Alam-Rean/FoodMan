@@ -135,22 +135,22 @@ export function AdminOrdersDesk() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="search order #, address..."
+              placeholder="Search order #, customer, address..."
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-2xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition"
+              className="w-full h-11 sm:h-10 pl-10 pr-3.5 rounded-2xl border border-slate-200 bg-white text-slate-900 text-base sm:text-xs font-bold placeholder:font-medium placeholder:text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 transition"
             />
           </div>
 
           <select
             value={selectedZone}
             onChange={(e) => setSelectedZone(e.target.value)}
-            className="max-w-[110px] truncate px-3 py-2 rounded-2xl border border-slate-200 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-violet-500/20 cursor-pointer shrink-0"
+            className="h-11 sm:h-10 max-w-[140px] truncate px-3 py-2 rounded-2xl border border-slate-200 bg-white text-slate-900 text-base sm:text-xs font-bold focus:outline-hidden focus:ring-2 focus:ring-violet-500/20 cursor-pointer shrink-0"
           >
             <option value="">All Zones</option>
             {zones.map((z) => (
@@ -161,20 +161,21 @@ export function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="w-8 h-8 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-500 transition cursor-pointer shrink-0"
+            className="w-11 h-11 sm:w-10 sm:h-10 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-95 flex items-center justify-center text-slate-500 transition cursor-pointer shrink-0 shadow-2xs"
+            title="Refresh orders"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+      <div className="flex gap-1.5 overflow-x-auto pb-1.5 scrollbar-hide">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.value}
             type="button"
             onClick={() => setActiveTab(tab.value)}
-            className={`px-3 py-1.5 rounded-2xl text-xs font-bold transition whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`min-h-[40px] px-3.5 py-2 rounded-2xl text-xs font-black transition whitespace-nowrap shrink-0 cursor-pointer active:scale-95 ${
               activeTab === tab.value
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'
@@ -196,7 +197,7 @@ export function AdminOrdersDesk() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer"
+            className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold active:scale-95 transition cursor-pointer shadow-xs"
           >
             Try Again
           </button>
@@ -246,23 +247,23 @@ export function AdminOrdersDesk() {
                       <button
                         type="button"
                         onClick={() => openCancelPrompt(order._id)}
-                        title="force cancel this order"
-                        className="w-7 h-7 rounded-xl flex items-center justify-center text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer border border-rose-200 hover:border-rose-400"
+                        title="Force cancel this order"
+                        className="min-w-[38px] min-h-[38px] rounded-2xl flex items-center justify-center text-rose-500 hover:text-rose-700 bg-rose-50 border border-rose-200 hover:border-rose-300 transition cursor-pointer active:scale-95 shadow-2xs"
                       >
-                        <XCircle className="w-4 h-4" />
+                        <XCircle className="w-4.5 h-4.5" />
                       </button>
                     )}
                   </div>
                 </div>
 
                 {isCancelling && (
-                  <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 space-y-2.5">
+                  <div className="p-4 rounded-2xl bg-rose-50/80 border border-rose-200 space-y-3 animate-in fade-in zoom-in-95 duration-150">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-black text-rose-800">force cancel this order?</p>
+                      <p className="text-xs font-black text-rose-900">Force cancel this order?</p>
                       <button
                         type="button"
                         onClick={closeCancelPrompt}
-                        className="text-rose-400 hover:text-rose-600 transition cursor-pointer"
+                        className="w-8 h-8 rounded-xl flex items-center justify-center text-rose-400 hover:text-rose-600 hover:bg-rose-100/50 transition cursor-pointer active:scale-95"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -271,17 +272,17 @@ export function AdminOrdersDesk() {
                       type="text"
                       value={cancelReason}
                       onChange={(e) => setCancelReason(e.target.value)}
-                      placeholder="cancellation reason (optional)"
-                      className="w-full px-3 py-2 rounded-xl border border-rose-200 bg-white text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-400/30 placeholder:text-slate-300"
+                      placeholder="Cancellation reason (e.g. Out of stock, Customer request)..."
+                      className="w-full min-h-[44px] sm:min-h-[40px] px-3.5 py-2.5 rounded-xl border border-rose-200 bg-white text-base sm:text-xs font-bold text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-rose-400/30 placeholder:font-normal placeholder:text-slate-300"
                     />
                     {cancelError && (
-                      <p className="text-[11px] text-rose-700 font-semibold">{cancelError}</p>
+                      <p className="text-xs text-rose-700 font-bold">{cancelError}</p>
                     )}
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={closeCancelPrompt}
-                        className="flex-1 py-2 rounded-2xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                        className="flex-1 min-h-[44px] py-2.5 rounded-2xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition cursor-pointer shadow-2xs"
                       >
                         Keep Order
                       </button>
@@ -289,12 +290,12 @@ export function AdminOrdersDesk() {
                         type="button"
                         disabled={cancelMutation.isPending}
                         onClick={() => handleConfirmCancel(order._id)}
-                        className="flex-1 py-2 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                        className="flex-1 min-h-[44px] py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-xs font-black transition disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 shadow-sm shadow-rose-600/20"
                       >
                         {cancelMutation.isPending ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                          <XCircle className="w-3.5 h-3.5" />
+                          <XCircle className="w-4 h-4" />
                         )}
                         Confirm Cancel
                       </button>
@@ -302,14 +303,14 @@ export function AdminOrdersDesk() {
                   </div>
                 )}
 
-                <div className="flex flex-col gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+                <div className="flex flex-col gap-2.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
                   <div className="space-y-0.5">
-                    <div className="flex items-center gap-1 text-slate-400 font-bold text-[10px] uppercase">
+                    <div className="flex items-center gap-1 text-slate-400 font-bold text-[10px] uppercase tracking-wider">
                       <User className="w-3 h-3" />
                       <span>Customer</span>
                     </div>
-                    <p className="font-bold text-slate-900">{order.customer_id?.name || order.customer_name || 'Guest'}</p>
-                    <div className="text-[11px] text-slate-500">
+                    <p className="font-black text-slate-900">{order.customer_id?.name || order.customer_name || 'Guest'}</p>
+                    <div className="text-[11px] text-slate-500 font-medium">
                       {order.customer_id?.phone_number || order.customer_phone ? (
                         <WhatsAppPhoneLink phone={order.customer_id?.phone_number || order.customer_phone} />
                       ) : (
@@ -319,28 +320,28 @@ export function AdminOrdersDesk() {
                   </div>
 
                   <div className="space-y-0.5">
-                    <div className="flex items-center gap-1 text-slate-400 font-bold text-[10px] uppercase">
+                    <div className="flex items-center gap-1 text-slate-400 font-bold text-[10px] uppercase tracking-wider">
                       <Store className="w-3 h-3" />
                       <span>Restaurant</span>
                     </div>
-                    <p className="font-bold text-slate-900">{order.restaurant_id?.name || '—'}</p>
-                    <p className="text-[11px] text-slate-500 truncate">{order.restaurant_id?.address || '—'}</p>
+                    <p className="font-black text-slate-900">{order.restaurant_id?.name || '—'}</p>
+                    <p className="text-[11px] text-slate-500 font-medium truncate">{order.restaurant_id?.address || '—'}</p>
                     {order.restaurant_id?.phone_number && (
-                      <div className="text-[11px] text-slate-500">
+                      <div className="text-[11px] text-slate-500 font-medium">
                         <WhatsAppPhoneLink phone={order.restaurant_id.phone_number} />
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-0.5">
-                    <div className="flex items-center gap-1 text-slate-400 font-bold text-[10px] uppercase">
+                    <div className="flex items-center gap-1 text-slate-400 font-bold text-[10px] uppercase tracking-wider">
                       <Bike className="w-3 h-3" />
                       <span>Rider Courier</span>
                     </div>
                     {riderUser ? (
                       <>
-                        <p className="font-bold text-slate-900">{riderUser.name}</p>
-                        <div className="text-[11px] text-slate-500">
+                        <p className="font-black text-slate-900">{riderUser.name}</p>
+                        <div className="text-[11px] text-slate-500 font-medium">
                           <WhatsAppPhoneLink phone={riderUser.phone_number} />
                         </div>
                       </>
@@ -351,7 +352,7 @@ export function AdminOrdersDesk() {
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 min-w-0">
                     <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                     <span className="font-medium truncate max-w-xs">{order.delivery_address_text}</span>
                   </div>
@@ -359,7 +360,7 @@ export function AdminOrdersDesk() {
                   <button
                     type="button"
                     onClick={() => setExpandedOrderId(isExpanded ? null : order._id)}
-                    className="text-xs font-bold text-violet-600 hover:text-violet-700 flex items-center gap-1 cursor-pointer transition shrink-0 ml-2"
+                    className="min-h-[38px] px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-violet-700 active:scale-95 flex items-center gap-1.5 cursor-pointer transition shrink-0 ml-2 shadow-2xs"
                   >
                     <span>{isExpanded ? 'Hide items' : `${order.items?.length || 0} items`}</span>
                     {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}

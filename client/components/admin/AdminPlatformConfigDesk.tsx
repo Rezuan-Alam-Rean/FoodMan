@@ -119,7 +119,7 @@ export function AdminPlatformConfigDesk() {
         <p className="text-sm font-bold text-slate-800">Failed to load platform settings</p>
         <button
           onClick={() => refetch()}
-          className="px-4 py-2 bg-rose-600 text-white text-xs font-bold rounded-xl shadow-xs hover:bg-rose-700 transition cursor-pointer"
+          className="min-h-[44px] px-5 py-2.5 bg-rose-600 text-white text-xs font-bold rounded-2xl shadow-xs hover:bg-rose-700 active:scale-95 transition cursor-pointer"
         >
           Try Again
         </button>
@@ -146,7 +146,7 @@ export function AdminPlatformConfigDesk() {
           <button
             type="button"
             onClick={handleResetToDefaults}
-            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
+            className="min-h-[40px] px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Defaults</span>
@@ -192,13 +192,13 @@ export function AdminPlatformConfigDesk() {
                 step="1"
                 value={form.platform_service_fee}
                 onChange={(e) => setForm({ ...form, platform_service_fee: parseFloat(e.target.value) || 0 })}
-                className="w-full pl-8 pr-4 py-2.5 rounded-2xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-sm font-bold text-slate-900 transition"
+                className="w-full pl-8 pr-4 py-2.5 rounded-2xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-base sm:text-sm font-bold text-slate-900 transition"
                 placeholder="10"
                 required
               />
             </div>
             <p className="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1">
-              <Info className="w-3.5 h-3.5 text-slate-400" />
+              <Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <span>Enter 0 if you wish to waive the platform service fee temporarily.</span>
             </p>
           </div>
@@ -216,7 +216,7 @@ export function AdminPlatformConfigDesk() {
               </div>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer select-none">
+            <label className="min-h-[44px] px-3 py-2 rounded-xl hover:bg-slate-50 flex items-center gap-2 cursor-pointer select-none transition">
               <input
                 type="checkbox"
                 checked={form.is_mfs_active}
@@ -236,7 +236,7 @@ export function AdminPlatformConfigDesk() {
                 type="text"
                 value={form.official_mfs_number}
                 onChange={(e) => setForm({ ...form, official_mfs_number: e.target.value })}
-                className="w-full max-w-md px-3.5 py-2.5 rounded-2xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-sm font-mono font-bold text-slate-900 transition"
+                className="w-full max-w-md px-3.5 py-2.5 rounded-2xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-base sm:text-sm font-mono font-bold text-slate-900 transition"
                 placeholder="01700-000000"
                 required
               />
@@ -255,7 +255,7 @@ export function AdminPlatformConfigDesk() {
                   type="text"
                   value={form.official_mfs_provider}
                   onChange={(e) => setForm({ ...form, official_mfs_provider: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-xs font-medium text-slate-900 transition"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-base sm:text-xs font-bold text-slate-900 transition"
                   placeholder="bKash / Nagad / MFS"
                 />
               </div>
@@ -268,7 +268,7 @@ export function AdminPlatformConfigDesk() {
                   type="text"
                   value={form.official_mfs_instructions}
                   onChange={(e) => setForm({ ...form, official_mfs_instructions: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-xs font-medium text-slate-900 transition"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-base sm:text-xs font-bold text-slate-900 transition"
                   placeholder="Manual Send Money"
                 />
               </div>
@@ -280,7 +280,7 @@ export function AdminPlatformConfigDesk() {
           <button
             type="submit"
             disabled={updateMutation.isPending}
-            className="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-md shadow-rose-600/20 transition flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
+            className="min-h-[48px] px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-md shadow-rose-600/20 transition flex items-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
           >
             {updateMutation.isPending ? (
               <>
