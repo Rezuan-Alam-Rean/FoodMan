@@ -51,20 +51,23 @@ export default function RiderRadarPage() {
 
   return (
     <div className="space-y-4 pb-6">
-      <div className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-1.5 items-center flex-1 mr-2">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">
-            Coverage Zones:
-          </span>
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-1.5 items-center flex-1">
+          <div className="flex items-center gap-1.5 mr-2">
+            <MapPin className="w-4 h-4 text-slate-400" />
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+              Coverage Zones
+            </span>
+          </div>
           {assignedZones.length === 0 ? (
-            <span className="text-xs text-amber-600 font-semibold flex items-center gap-1">
-              <ShieldAlert className="w-3.5 h-3.5" /> none assigned, tap to add
+            <span className="text-xs text-amber-600 font-bold flex items-center gap-1">
+              <ShieldAlert className="w-3.5 h-3.5" /> None assigned — tap Edit to add
             </span>
           ) : (
             assignedZones.map((z: any) => (
               <span
                 key={typeof z === 'string' ? z : z._id || z.id}
-                className="px-2.5 py-0.5 rounded-xl bg-slate-100 text-slate-700 text-[11px] font-bold border border-slate-200/60"
+                className="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200/60"
               >
                 {typeof z === 'string' ? 'Zone' : z.name}
               </span>
@@ -75,8 +78,8 @@ export default function RiderRadarPage() {
         <button
           type="button"
           onClick={() => setIsZoneModalOpen(true)}
-          className="p-1.5 px-2.5 rounded-xl border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition flex items-center gap-1 cursor-pointer shrink-0"
-          title="configure operational delivery zones"
+          className="min-h-[44px] h-11 px-3.5 rounded-2xl border border-rose-100 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-black transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer shrink-0 active:scale-[0.98] transition-transform shadow-2xs"
+          title="Configure operational delivery zones"
         >
           <MapPin className="w-3.5 h-3.5 text-rose-600" />
           <span>Edit Zones</span>
@@ -85,26 +88,26 @@ export default function RiderRadarPage() {
       </div>
 
       {hasActiveDelivery && (
-        <div className="p-4 rounded-3xl bg-gradient-to-r from-rose-600 to-rose-500 text-white shadow-md flex items-center justify-between gap-3 animate-in fade-in duration-200">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-              <Bike className="w-5 h-5 text-white" />
+        <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 text-white shadow-lg shadow-rose-600/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 animate-in fade-in duration-200">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 shadow-inner">
+              <Bike className="w-6 h-6 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-black leading-tight">
+              <p className="text-sm font-black leading-tight">
                 {activeDeliveryCount === 1 ? '1 Active Delivery' : `${activeDeliveryCount} Active Deliveries`} in Progress
               </p>
-              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                 {activeDeliveries.slice(0, 3).map((o: any) => (
                   <span
                     key={o._id || o.id}
-                    className="px-2 py-0.5 rounded-lg bg-white/20 text-[10px] font-bold text-white tracking-wide"
+                    className="px-2.5 py-0.5 rounded-lg bg-white/20 text-[10px] font-black text-white tracking-wide"
                   >
                     #{o.order_number}
                   </span>
                 ))}
                 {activeDeliveries.length > 3 && (
-                  <span className="text-[10px] font-bold text-rose-100">
+                  <span className="text-[10px] font-black text-rose-100">
                     +{activeDeliveries.length - 3} more
                   </span>
                 )}
@@ -114,7 +117,7 @@ export default function RiderRadarPage() {
 
           <Link
             href="/rider/trip"
-            className="px-3.5 py-2 rounded-2xl bg-white text-rose-600 hover:bg-rose-50 text-xs font-black transition flex items-center gap-1 shrink-0 shadow-xs cursor-pointer"
+            className="min-h-[44px] h-11 px-4 rounded-2xl bg-white text-rose-600 hover:bg-rose-50 text-xs font-black transition-all duration-150 flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer active:scale-[0.98] transition-transform"
           >
             <span>View Trips</span>
             <ArrowRight className="w-3.5 h-3.5" />

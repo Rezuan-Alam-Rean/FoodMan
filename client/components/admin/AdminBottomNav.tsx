@@ -62,8 +62,8 @@ export function AdminBottomNav() {
   ];
 
   return (
-    <div className="fixed bottom-3 left-0 right-0 z-40 px-3 sm:px-4 pointer-events-none flex justify-center">
-      <nav className="pointer-events-auto w-full max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-full py-1.5 px-3 grid grid-cols-6 items-center shadow-[0_12px_30px_rgb(0,0,0,0.08)]">
+    <div className="fixed bottom-3 left-0 right-0 z-40 px-3 sm:px-4 pointer-events-none flex justify-center pb-[env(safe-area-inset-bottom,0px)]">
+      <nav className="pointer-events-auto w-full max-w-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-3xl py-1.5 px-2 grid grid-cols-6 items-center shadow-[0_12px_30px_rgb(0,0,0,0.12)]">
         {navItems.map((item) => {
           const Icon = item.icon;
 
@@ -71,12 +71,15 @@ export function AdminBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center py-1 rounded-2xl transition group relative cursor-pointer ${
+              className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-2xl group relative cursor-pointer active:scale-[0.98] transition-transform ${
                 item.isActive
-                  ? 'text-rose-600 font-extrabold'
-                  : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium'
+                  ? 'text-rose-600 font-black'
+                  : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-semibold'
               }`}
             >
+              {item.isActive && (
+                <span className="absolute inset-x-1 top-0.5 bottom-0.5 rounded-xl bg-rose-50 -z-10 animate-in fade-in zoom-in-95 duration-150" />
+              )}
               <div className="relative">
                 <Icon
                   className={`w-5 h-5 transition transform ${
@@ -89,7 +92,7 @@ export function AdminBottomNav() {
                   </span>
                 )}
               </div>
-              <span className="text-[10px] tracking-tight mt-0.5">{item.label}</span>
+              <span className="text-[10px] tracking-tight mt-1 leading-none">{item.label}</span>
             </Link>
           );
         })}

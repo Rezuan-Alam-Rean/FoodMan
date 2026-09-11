@@ -127,7 +127,7 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
             setEditingItem(null);
             setIsItemModalOpen(true);
           }}
-          className="px-3.5 py-2 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-rose-600/20 cursor-pointer"
+          className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] transition-transform text-white text-xs sm:text-sm font-black transition flex items-center gap-2 shadow-md shadow-rose-600/25 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>Add Food Item</span>
@@ -149,18 +149,18 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search items by name or description..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+            className="w-full h-12 pl-10 pr-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 text-base sm:text-base font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           <button
             type="button"
             onClick={() => setSelectedCategoryId('ALL')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
+            className={`min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-full text-xs font-bold transition-transform active:scale-[0.98] cursor-pointer shrink-0 ${
               selectedCategoryId === 'ALL'
-                ? 'bg-slate-900 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80'
             }`}
           >
             All Items ({allItems.length})
@@ -181,10 +181,10 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                 key={catId}
                 type="button"
                 onClick={() => setSelectedCategoryId(catId)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
+                className={`min-h-[44px] min-w-[44px] px-3.5 py-2 rounded-full text-xs font-bold transition-transform active:scale-[0.98] cursor-pointer shrink-0 ${
                   selectedCategoryId === catId
-                    ? 'bg-rose-600 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-rose-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80'
                 }`}
               >
                 {cat.name} ({count})
@@ -273,14 +273,19 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                       <button
                         type="button"
                         onClick={() => handleToggleAvailability(item)}
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition cursor-pointer shrink-0 ${
+                        className={`min-h-[44px] px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-wider transition-transform cursor-pointer shrink-0 active:scale-[0.98] flex items-center gap-1.5 shadow-xs ${
                           item.is_available
-                            ? 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-200'
+                            ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300'
                             : 'bg-slate-200 text-slate-600'
                         }`}
-                        title="toggle in-stock / out-of-stock"
+                        title="Toggle in-stock / out-of-stock"
                       >
-                        {item.is_available ? 'In Stock' : 'Sold Out'}
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            item.is_available ? 'bg-emerald-600 animate-pulse' : 'bg-slate-400'
+                          }`}
+                        />
+                        <span>{item.is_available ? 'In Stock' : 'Sold Out'}</span>
                       </button>
                     </div>
 
@@ -307,34 +312,34 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
+                <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => {
                         setEditingItem(item);
                         setIsItemModalOpen(true);
                       }}
-                      className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                      className="min-h-[44px] px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-[0.98] transition-transform text-slate-700 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Edit2 className="w-3.5 h-3.5 text-slate-500" />
                       <span>Edit</span>
                     </button>
 
                     {isDeleting ? (
-                      <div className="flex items-center gap-1 animate-in fade-in">
+                      <div className="flex items-center gap-1.5 animate-in fade-in">
                         <button
                           type="button"
                           disabled={deleteItemMutation.isPending}
                           onClick={() => handleDeleteItem(itemId)}
-                          className="px-2.5 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition cursor-pointer"
+                          className="min-h-[44px] px-3.5 py-2 rounded-xl bg-rose-600 text-white text-xs font-black hover:bg-rose-700 active:scale-[0.98] transition-transform cursor-pointer shadow-xs"
                         >
                           Confirm
                         </button>
                         <button
                           type="button"
                           onClick={() => setDeleteConfirmId(null)}
-                          className="px-2 py-1.5 rounded-xl border border-slate-200 text-slate-500 text-xs font-bold hover:bg-slate-100 cursor-pointer"
+                          className="min-h-[44px] px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 active:scale-[0.98] transition-transform cursor-pointer"
                         >
                           No
                         </button>
@@ -343,8 +348,8 @@ export function VendorMenuManager({ restaurant }: VendorMenuManagerProps) {
                       <button
                         type="button"
                         onClick={() => setDeleteConfirmId(itemId)}
-                        className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                        title="delete food item"
+                        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 active:scale-[0.98] transition-transform flex items-center justify-center cursor-pointer"
+                        title="Delete food item"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

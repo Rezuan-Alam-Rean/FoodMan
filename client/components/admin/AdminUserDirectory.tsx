@@ -84,43 +84,43 @@ export function AdminUserDirectory() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            <div className="relative flex-1">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="search name, phone, email..."
+                placeholder="Search name, phone, email..."
                 value={search}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition"
+                className="w-full h-11 sm:h-10 pl-10 pr-4 rounded-2xl border border-slate-200 bg-white text-slate-900 text-base sm:text-xs font-bold placeholder:font-medium placeholder:text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition"
               />
             </div>
 
             <button
               type="button"
               onClick={() => setIsCreateOpen(true)}
-              className="px-3.5 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-rose-600/20 shrink-0 cursor-pointer"
+              className="min-h-[44px] px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] transition-transform text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-rose-600/20 shrink-0 cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-4 h-4" />
               <span>Add User</span>
             </button>
           </div>
         </div>
 
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {TABS.map((tab) => (
             <button
               key={tab.value}
               type="button"
               onClick={() => setActiveTab(tab.value)}
-              className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
+              className={`min-h-[44px] px-3.5 py-2.5 rounded-2xl text-xs font-black transition flex items-center gap-2 shrink-0 cursor-pointer active:scale-[0.98] transition-transform ${
                 activeTab === tab.value
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
               {tab.icon}
-              {tab.label}
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>
@@ -136,7 +136,7 @@ export function AdminUserDirectory() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer"
+            className="min-h-[44px] px-4 py-2 rounded-2xl bg-rose-600 text-white text-xs font-bold cursor-pointer active:scale-[0.98] transition-transform"
           >
             Try Again
           </button>

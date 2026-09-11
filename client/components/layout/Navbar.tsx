@@ -116,7 +116,7 @@ export function Navbar() {
 
                     <Link
             href="/cart"
-            className="relative flex items-center gap-2 p-2 sm:px-3.5 sm:py-2 rounded-xl bg-slate-900 dark:bg-rose-600 text-white font-bold text-xs shadow-xs hover:bg-slate-800 dark:hover:bg-rose-700 transition active:scale-95"
+            className="relative flex items-center gap-2 min-h-[44px] px-3 py-2 sm:px-3.5 sm:py-2 rounded-xl bg-slate-900 dark:bg-rose-600 text-white font-bold text-xs shadow-xs hover:bg-slate-800 dark:hover:bg-rose-700 active:scale-[0.98] transition-transform"
             title="View Cart"
           >
             <ShoppingBag className="w-4 h-4" />

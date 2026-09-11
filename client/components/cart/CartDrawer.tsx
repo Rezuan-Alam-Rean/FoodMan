@@ -164,7 +164,7 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={() => setIsCartOpen(false)}
-                className="w-full mt-3 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md transition active:scale-[0.99]"
+                className="w-full mt-3 min-h-[48px] flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md active:scale-[0.98] transition-transform"
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="w-4 h-4" />

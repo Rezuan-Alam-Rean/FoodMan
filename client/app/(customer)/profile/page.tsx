@@ -26,13 +26,12 @@ import {
   Sparkles,
   Plus,
   Trash2,
-  Edit2,
-  CheckCircle2,
   Home,
   Briefcase,
   Navigation,
   Lock,
   AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 
 export default function CustomerProfilePage() {
@@ -79,18 +78,18 @@ export default function CustomerProfilePage() {
   if (!isAuthenticated || !user) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6 space-y-4 max-w-sm mx-auto">
-        <div className="w-16 h-16 rounded-3xl bg-rose-50 flex items-center justify-center text-rose-600 shadow-xs">
+        <div className="w-16 h-16 rounded-3xl bg-rose-50 flex items-center justify-center text-rose-600 shadow-xs border border-rose-100">
           <User className="w-8 h-8" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-lg font-black text-slate-900 tracking-tight">Sign in to your account</h2>
+          <h2 className="text-xl font-black text-slate-900 tracking-tight">Sign in to your account</h2>
           <p className="text-xs text-slate-500">
             Access your profile, saved addresses, and active orders.
           </p>
         </div>
         <Link
           href="/auth/login"
-          className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-2xl text-xs shadow-md shadow-rose-600/20 transition active:scale-95"
+          className="w-full min-h-[48px] py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl text-sm shadow-md shadow-rose-600/20 active:scale-[0.98] transition-transform flex items-center justify-center cursor-pointer"
         >
           Sign In
         </Link>
@@ -157,70 +156,71 @@ export default function CustomerProfilePage() {
   const activeAddZone = zones.find((z) => (z.id || z._id) === (newZoneId || zones[0]?.id || zones[0]?._id)) || zones[0];
 
   return (
-    <div className="space-y-4 pb-20 w-full max-w-4xl mx-auto">
+    <div className="space-y-4 sm:space-y-5 pb-36 w-full max-w-4xl mx-auto">
       <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 space-y-4 shadow-xs">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-800 text-white flex items-center justify-center font-black text-xl shadow-xs shrink-0">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-800 text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-xs shrink-0">
             {(user.name || user.phone_number || 'U').charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg font-black text-slate-900 tracking-tight truncate">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight truncate">
                 {user.name || 'FoodMan Customer'}
               </h1>
-              <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-100">
+              <span className="text-[10px] sm:text-xs font-black uppercase px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 shadow-2xs">
                 {role || 'Customer'}
               </span>
             </div>
-            <div className="text-xs font-mono font-medium text-slate-500 mt-0.5">
+            <div className="text-xs sm:text-sm font-mono font-medium text-slate-500 mt-0.5">
               <WhatsAppPhoneLink phone={user.phone_number} />
             </div>
           </div>
         </div>
 
-        <div className="divide-y divide-slate-100 pt-3 border-t border-slate-100 text-xs">
-          <div className="py-2.5 flex items-center justify-between">
+        <div className="divide-y divide-slate-100 pt-3 border-t border-slate-100 text-xs sm:text-sm">
+          <div className="py-3 flex items-center justify-between">
             <span className="text-slate-500 flex items-center gap-2">
-              <User className="w-3.5 h-3.5 text-slate-400" />
+              <User className="w-4 h-4 text-slate-400" />
               <span>Full Name</span>
             </span>
-            <span className="font-bold text-slate-800">{user.name || 'Not specified'}</span>
+            <span className="font-bold text-slate-900">{user.name || 'Not specified'}</span>
           </div>
 
-          <div className="py-2.5 flex items-center justify-between">
+          <div className="py-3 flex items-center justify-between">
             <span className="text-slate-500 flex items-center gap-2">
-              <Phone className="w-3.5 h-3.5 text-slate-400" />
+              <Phone className="w-4 h-4 text-slate-400" />
               <span>Mobile Number</span>
             </span>
-            <WhatsAppPhoneLink phone={user.phone_number} className="font-mono font-bold text-slate-800" />
+            <WhatsAppPhoneLink phone={user.phone_number} className="font-mono font-bold text-slate-900" />
           </div>
 
           {user.email ? (
-            <div className="py-2.5 flex items-center justify-between">
+            <div className="py-3 flex items-center justify-between">
               <span className="text-slate-500 flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
+                <Mail className="w-4 h-4 text-slate-400" />
                 <span>Email Address</span>
               </span>
-              <span className="font-bold text-slate-800">{user.email}</span>
+              <span className="font-bold text-slate-900">{user.email}</span>
             </div>
           ) : null}
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-5 space-y-3.5 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-              <MapPin className="w-4 h-4" />
+      <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 space-y-4 shadow-xs">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100 shadow-2xs">
+              <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-black text-slate-900 text-xs tracking-tight">Saved Delivery Addresses</h3>
-              <p className="text-[11px] text-slate-400">Stored in your account database for fast checkout</p>
+              <h3 className="font-black text-slate-900 text-sm sm:text-base tracking-tight">Saved Delivery Addresses</h3>
+              <p className="text-xs text-slate-400">Stored in your account database for fast checkout</p>
             </div>
           </div>
 
           {!isAddingAddress && (
             <button
+              type="button"
               onClick={() => {
                 setIsAddingAddress(true);
                 if (zones.length > 0 && !newZoneId) {
@@ -231,34 +231,34 @@ export default function CustomerProfilePage() {
                   }
                 }
               }}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-[11px] transition active:scale-95 cursor-pointer"
+              className="min-h-[44px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs transition-transform active:scale-[0.98] cursor-pointer shadow-2xs"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add New</span>
+              <Plus className="w-4 h-4" />
+              <span>Add New Address</span>
             </button>
           )}
         </div>
 
         {isAddingAddress && (
-          <form onSubmit={handleCreateAddress} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+          <form onSubmit={handleCreateAddress} className="p-4 sm:p-5 rounded-3xl bg-slate-50/80 border border-slate-200 space-y-3.5 animate-in fade-in duration-150">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-slate-900">Add New Delivery Address</span>
+              <span className="font-black text-sm text-slate-900">Add New Delivery Address</span>
               <button
                 type="button"
                 onClick={() => setIsAddingAddress(false)}
-                className="text-xs text-slate-400 hover:text-slate-600 font-bold cursor-pointer"
+                className="min-h-[44px] min-w-[44px] px-3 py-2 inline-flex items-center justify-center text-xs text-slate-500 hover:text-slate-800 font-bold cursor-pointer transition-transform active:scale-[0.98]"
               >
                 Cancel
               </button>
             </div>
 
             {formError && (
-              <p className="text-[11px] text-rose-600 font-semibold">{formError}</p>
+              <p className="text-xs text-rose-600 font-bold bg-rose-50 p-2.5 rounded-xl border border-rose-200">{formError}</p>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Delivery Zone *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Delivery Zone *</label>
                 <select
                   value={newZoneId || (zones[0]?.id || zones[0]?._id || '')}
                   onChange={(e) => {
@@ -270,7 +270,7 @@ export default function CustomerProfilePage() {
                       setNewSubzoneId('');
                     }
                   }}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:outline-hidden cursor-pointer"
+                  className="w-full h-12 px-3.5 rounded-2xl border border-slate-200 bg-white text-base sm:text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/30 cursor-pointer shadow-2xs transition"
                 >
                   {zones.map((z) => (
                     <option key={z.id || z._id} value={z.id || z._id}>
@@ -281,11 +281,11 @@ export default function CustomerProfilePage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Subzone (Area / Sector) *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Subzone (Area / Sector) *</label>
                 <select
                   value={newSubzoneId || (activeAddZone?.subzones?.[0]?.id || activeAddZone?.subzones?.[0]?._id || '')}
                   onChange={(e) => setNewSubzoneId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-medium focus:outline-hidden cursor-pointer"
+                  className="w-full h-12 px-3.5 rounded-2xl border border-slate-200 bg-white text-base sm:text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/30 cursor-pointer shadow-2xs transition"
                 >
                   {activeAddZone?.subzones?.map((s) => (
                     <option key={s.id || s._id} value={s.id || s._id}>
@@ -297,33 +297,33 @@ export default function CustomerProfilePage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">Detailed Street Address *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">Detailed Street Address *</label>
               <textarea
                 rows={2}
                 value={newDetailedAddress}
                 onChange={(e) => setNewDetailedAddress(e.target.value)}
                 placeholder="e.g. Flat 3B, House 12, Road 4, Sector 7"
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs focus:outline-hidden resize-none"
+                className="w-full p-3.5 rounded-2xl border border-slate-200 bg-white text-base sm:text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/30 resize-none shadow-2xs transition"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">Address Label</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">Address Label</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['HOME', 'WORK', 'OTHER'] as const).map((l) => (
                   <button
                     key={l}
                     type="button"
                     onClick={() => setNewLabel(l)}
-                    className={`py-1.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                    className={`min-h-[44px] py-2.5 rounded-2xl border text-xs font-bold transition-transform flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98] ${
                       newLabel === l
-                        ? 'border-rose-600 bg-rose-50 text-rose-600'
-                        : 'border-slate-200 bg-white text-slate-600'
+                        ? 'border-rose-600 bg-rose-50 text-rose-600 shadow-2xs'
+                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'
                     }`}
                   >
-                    {l === 'HOME' && <Home className="w-3.5 h-3.5" />}
-                    {l === 'WORK' && <Briefcase className="w-3.5 h-3.5" />}
-                    {l === 'OTHER' && <Sparkles className="w-3.5 h-3.5" />}
+                    {l === 'HOME' && <Home className="w-4 h-4" />}
+                    {l === 'WORK' && <Briefcase className="w-4 h-4" />}
+                    {l === 'OTHER' && <Sparkles className="w-4 h-4" />}
                     <span>{l}</span>
                   </button>
                 ))}
@@ -333,22 +333,29 @@ export default function CustomerProfilePage() {
             <button
               type="submit"
               disabled={createAddressMutation.isPending}
-              className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-xs transition disabled:opacity-50 cursor-pointer"
+              className="w-full min-h-[48px] py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-sm shadow-md shadow-rose-600/20 transition-transform active:scale-[0.98] disabled:opacity-50 cursor-pointer"
             >
-              {createAddressMutation.isPending ? 'Saving...' : 'Save to Address Book'}
+              {createAddressMutation.isPending ? (
+                <span className="inline-flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving to Address Book...</span>
+                </span>
+              ) : (
+                'Save to Address Book'
+              )}
             </button>
           </form>
         )}
 
         {addresses.length === 0 && !isAddingAddress ? (
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center space-y-1.5">
-            <p className="text-xs font-bold text-slate-700">No saved addresses yet</p>
-            <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
+          <div className="p-5 sm:p-6 rounded-3xl bg-slate-50 border border-slate-100 text-center space-y-2">
+            <p className="text-sm font-bold text-slate-700">No saved addresses yet</p>
+            <p className="text-xs text-slate-400 max-w-xs mx-auto">
               Add your delivery address above, or it will be automatically saved to your account when you place your first order.
             </p>
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {addresses.map((addr) => {
               const zoneName = typeof addr.zone_id === 'object' ? addr.zone_id?.name : 'Dhaka';
               const subzoneName = typeof addr.subzone_id === 'object' ? addr.subzone_id?.name : '';
@@ -357,55 +364,58 @@ export default function CustomerProfilePage() {
               return (
                 <div
                   key={addr.id || addr._id}
-                  className={`p-3.5 rounded-2xl border transition flex items-start justify-between gap-3 ${
+                  className={`p-4 rounded-3xl border transition-all flex items-start justify-between gap-3 ${
                     addr.is_default
-                      ? 'border-rose-300 bg-rose-50/40 ring-1 ring-rose-300/60'
-                      : 'border-slate-200 bg-white hover:bg-slate-50/70'
+                      ? 'border-rose-300 bg-rose-50/40 ring-1 ring-rose-300/60 shadow-xs'
+                      : 'border-slate-200 bg-white hover:bg-slate-50/70 shadow-2xs'
                   }`}
                 >
-                  <div className="space-y-1 flex-1 min-w-0">
+                  <div className="space-y-1.5 flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-slate-900 text-white">
+                      <span className="text-[10px] sm:text-xs font-black uppercase px-2.5 py-0.5 rounded-lg bg-slate-900 text-white">
                         {addr.address_label || 'HOME'}
                       </span>
                       {addr.is_default && (
-                        <span className="text-[10px] font-extrabold text-rose-600 bg-rose-100 px-2 py-0.5 rounded-md">
+                        <span className="text-[10px] sm:text-xs font-black text-rose-600 bg-rose-100 px-2.5 py-0.5 rounded-lg">
                           Default
                         </span>
                       )}
                       <span className="text-xs font-bold text-slate-700 flex items-center gap-1">
-                        <Navigation className="w-3 h-3 text-rose-500" />
+                        <Navigation className="w-3.5 h-3.5 text-rose-500" />
                         {zoneName} {subzoneName ? `• ${subzoneName}` : ''} {typeof zoneFee === 'number' && Number.isFinite(zoneFee) && `(৳${zoneFee})`}
                       </span>
                     </div>
 
-                    <p className="text-xs font-semibold text-slate-900 truncate">
+                    <p className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2">
                       {addr.detailed_address}
                     </p>
 
-                    <p className="text-[11px] text-slate-500 font-mono flex items-center gap-1.5 flex-wrap">
+                    <p className="text-xs text-slate-500 font-mono flex items-center gap-1.5 flex-wrap">
                       <span>{addr.contact_person_name}</span>
                       <span>•</span>
                       <WhatsAppPhoneLink phone={addr.contact_phone} />
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     {!addr.is_default && (
                       <button
+                        type="button"
                         onClick={() => handleMakeDefault(addr.id || addr._id)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 text-[11px] font-bold transition cursor-pointer"
+                        className="min-h-[44px] px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-600 text-xs font-bold transition-transform active:scale-[0.98] cursor-pointer inline-flex items-center justify-center"
                         title="Set as default address"
                       >
                         Set Default
                       </button>
                     )}
                     <button
+                      type="button"
                       onClick={() => handleDeleteAddress(addr.id || addr._id)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 flex items-center justify-center transition-transform active:scale-[0.98] cursor-pointer shrink-0"
                       title="Delete address"
+                      aria-label="Delete address"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -415,16 +425,16 @@ export default function CustomerProfilePage() {
         )}
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200/90 p-5 space-y-3 shadow-xs">
-        <h3 className="font-bold text-slate-900 text-xs uppercase tracking-wider">Account Settings</h3>
+      <div className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 space-y-3.5 shadow-xs">
+        <h3 className="font-black text-slate-900 text-xs uppercase tracking-wider">Account Settings</h3>
 
-        <div className="grid grid-cols-1 gap-2">
+        <div className="grid grid-cols-1 gap-2.5">
           <button
             type="button"
             onClick={() => setIsPasswordModalOpen(true)}
-            className="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 transition flex items-center justify-between text-xs font-bold text-slate-800 cursor-pointer"
+            className="min-h-[52px] p-4 rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-[0.98] transition-transform flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800 cursor-pointer"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <Lock className="w-4 h-4 text-rose-600" />
               <span>{user?.has_password ? 'Change Password' : 'Set Account Password'}</span>
             </div>
@@ -433,9 +443,9 @@ export default function CustomerProfilePage() {
 
           <Link
             href="/orders"
-            className="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 transition flex items-center justify-between text-xs font-bold text-slate-800"
+            className="min-h-[52px] p-4 rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-[0.98] transition-transform flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <ReceiptText className="w-4 h-4 text-rose-600" />
               <span>Order History & Receipts</span>
             </div>
@@ -445,28 +455,29 @@ export default function CustomerProfilePage() {
       </div>
 
       {user?.has_password === false && (
-        <div className="p-4 sm:p-5 rounded-3xl bg-amber-50 border border-amber-200/80 space-y-2.5 shadow-xs">
-          <div className="flex items-center gap-2 text-amber-900 font-black text-xs">
+        <div className="p-4 sm:p-5 rounded-3xl bg-amber-50 border border-amber-200/80 space-y-3 shadow-xs">
+          <div className="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
             <span>Guest Account Notice</span>
           </div>
-          <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
+          <p className="text-xs text-amber-800 leading-relaxed font-medium">
             This account was automatically created during guest checkout and does not have a password set yet. If you log out now without setting a password, you won&apos;t be able to sign in directly (you would have to place another order via checkout with this phone number to access this account).
           </p>
           <button
             type="button"
             onClick={() => setIsPasswordModalOpen(true)}
-            className="w-full py-2.5 px-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs shadow-xs transition active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+            className="w-full min-h-[48px] py-3 px-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm shadow-xs active:scale-[0.98] transition-transform cursor-pointer flex items-center justify-center gap-2"
           >
-            <Lock className="w-3.5 h-3.5" />
+            <Lock className="w-4 h-4" />
             <span>Set a Password Now</span>
           </button>
         </div>
       )}
 
       <button
+        type="button"
         onClick={() => logout(() => router.push('/auth/login'))}
-        className="w-full py-3 rounded-2xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer"
+        className="w-full min-h-[48px] py-3.5 rounded-2xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-black text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2 cursor-pointer"
       >
         <LogOut className="w-4 h-4" />
         <span>Log Out</span>
