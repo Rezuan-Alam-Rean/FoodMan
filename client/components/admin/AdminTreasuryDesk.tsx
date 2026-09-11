@@ -62,7 +62,6 @@ export function AdminTreasuryDesk() {
   return (
     <>
       <div className="space-y-4">
-        {/* Header */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -85,7 +84,6 @@ export function AdminTreasuryDesk() {
           </button>
         </div>
 
-        {/* Platform Net Profit Hero Card */}
         <div className="bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-5 text-white shadow-xl space-y-4">
           <div className="flex items-start justify-between">
             <div>
@@ -135,7 +133,6 @@ export function AdminTreasuryDesk() {
           </div>
         </div>
 
-        {/* Cash Inflow vs Outflow Overview Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
@@ -182,7 +179,6 @@ export function AdminTreasuryDesk() {
           </div>
         </div>
 
-        {/* Partner Wallet Balances Breakdown (All Restaurants & All Riders) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50/70 via-white to-amber-50/30 border border-amber-200/80 shadow-xs space-y-1.5 flex items-center justify-between">
             <div className="space-y-1">
@@ -245,7 +241,6 @@ export function AdminTreasuryDesk() {
           </div>
         </div>
 
-        {/* Tab switcher */}
         <div className="flex rounded-2xl overflow-hidden border border-slate-200">
           {(['wallets', 'history'] as const).map((tab) => (
             <button

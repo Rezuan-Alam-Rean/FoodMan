@@ -446,7 +446,6 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                   </div>
                 </div>
 
-                {/* Settlement Status Banner */}
                 <div className="flex items-center justify-between p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-900">
                   <div className="flex items-center gap-1.5 font-bold">
                     <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />

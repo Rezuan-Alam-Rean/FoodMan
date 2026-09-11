@@ -237,7 +237,6 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={role === 'CUSTOMER' ? 'Optional (min 6 chars)' : 'Min 6 chars'} className="w-full px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" />
             </div>
 
-            {/* Rider Specific Fields */}
             {role === 'RIDER' && (
               <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 space-y-3">
                 <p className="text-xs font-black text-indigo-950 flex items-center gap-1.5">

@@ -124,7 +124,7 @@ export function NotificationBell() {
           stopAlarmSound();
           setIsOpen(true);
         }}
-        className="relative p-2 rounded-2xl bg-white/80 hover:bg-slate-100 border border-slate-200/80 text-slate-700 transition cursor-pointer shadow-xs focus:outline-none"
+        className="relative w-11 h-11 flex items-center justify-center rounded-2xl bg-white/90 hover:bg-slate-100 active:scale-95 border border-slate-200/80 text-slate-700 transition cursor-pointer shadow-xs focus:outline-none"
         title="View notifications"
         aria-label="Notifications"
       >

@@ -88,7 +88,6 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Main Outlet Info Card */}
         <div className="lg:col-span-2 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs space-y-4 flex flex-col justify-between">
           <div className="space-y-4">
             {restaurant.cover_image_url ? (
@@ -225,7 +224,6 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
           </div>
         </div>
 
-        {/* Partner Account Details Card */}
         <div className="lg:col-span-1 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs space-y-4 flex flex-col justify-between">
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">

@@ -111,7 +111,6 @@ export function VendorCancelledOrders() {
                   </div>
                 </div>
 
-                {/* Cancellation Reason Notice */}
                 {order.cancellation_reason ? (
                   <div className="p-2.5 rounded-xl bg-rose-50/90 border border-rose-200 text-xs text-rose-900 flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />

@@ -135,7 +135,6 @@ export function CreateCouponModal({
             </div>
           )}
 
-          {/* Restaurant Selector */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
               <Store className="w-3.5 h-3.5 text-rose-600" />
@@ -157,7 +156,6 @@ export function CreateCouponModal({
             </select>
           </div>
 
-          {/* Code & Title */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1 min-w-0">
               <label className="text-[10px] font-bold text-slate-400 uppercase">Coupon Code *</label>
@@ -183,7 +181,6 @@ export function CreateCouponModal({
             </div>
           </div>
 
-          {/* Discount Type Toggle */}
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-slate-400 uppercase">Discount Type</label>
             <div className="grid grid-cols-2 gap-2">
@@ -215,7 +212,6 @@ export function CreateCouponModal({
             </div>
           </div>
 
-          {/* Discount Value & Min Bill */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase">
@@ -247,7 +243,6 @@ export function CreateCouponModal({
             </div>
           </div>
 
-          {/* Max Cap (if percentage) & Expiry Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {discountType === 'PERCENTAGE' && (
               <div className="space-y-1">
@@ -279,7 +274,6 @@ export function CreateCouponModal({
             </div>
           </div>
 
-          {/* Usage Limits */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase">
@@ -310,7 +304,6 @@ export function CreateCouponModal({
             </div>
           </div>
 
-          {/* Active Switch */}
           <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
             <div>
               <p className="text-xs font-bold text-slate-900">Activate Immediately</p>

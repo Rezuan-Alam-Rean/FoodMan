@@ -72,7 +72,6 @@ export function AdminCouponsDesk() {
 
   return (
     <div className="space-y-4">
-      {/* Header with Stats & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs">
@@ -98,7 +97,6 @@ export function AdminCouponsDesk() {
         </button>
       </div>
 
-      {/* Metrics Row */}
       <div className="grid grid-cols-3 gap-2.5">
         <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
@@ -122,7 +120,6 @@ export function AdminCouponsDesk() {
         </div>
       </div>
 
-      {/* Filters & Search */}
       <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1">
@@ -168,7 +165,6 @@ export function AdminCouponsDesk() {
         </div>
       </div>
 
-      {/* Coupons List */}
       {isLoading ? (
         <div className="py-12 flex flex-col items-center justify-center gap-2 text-slate-400">
           <Loader2 className="w-6 h-6 animate-spin text-rose-600" />
@@ -259,7 +255,6 @@ export function AdminCouponsDesk() {
                     </div>
                   </div>
 
-                  {/* Action buttons */}
                   <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
                     <button
                       type="button"
@@ -307,7 +302,6 @@ export function AdminCouponsDesk() {
                   </div>
                 </div>
 
-                {/* Rules & Limits Row */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2.5 border-t border-slate-100 text-[11px]">
                   <div className="bg-slate-50 p-2 rounded-xl">
                     <span className="text-[9px] font-bold text-slate-400 uppercase block">Min Bill</span>
@@ -345,14 +339,12 @@ export function AdminCouponsDesk() {
         </div>
       )}
 
-      {/* Create Coupon Modal */}
       <CreateCouponModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         preselectedRestaurantId={selectedRestaurantId}
       />
 
-      {/* Edit Coupon Modal */}
       <EditCouponModal
         coupon={editingCoupon}
         isOpen={Boolean(editingCoupon)}
