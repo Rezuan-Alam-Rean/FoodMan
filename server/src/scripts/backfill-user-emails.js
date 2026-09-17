@@ -22,16 +22,17 @@ async function backfillEmails() {
   await mongoose.connect(mongoUri);
   console.log('Connected to MongoDB.');
 
-  // Find all users where email is not set, null, or empty
+  // Find all users where email is not set, null, empty, or uses the old foodman.com placeholder
   const usersWithoutEmail = await User.find({
     $or: [
       { email: { $exists: false } },
       { email: null },
       { email: '' },
+      { email: /@foodman\.com$/ },
     ],
   });
 
-  console.log(`Found ${usersWithoutEmail.length} users without email.`);
+  console.log(`Found ${usersWithoutEmail.length} users needing valid placeholder emails.`);
 
   if (usersWithoutEmail.length === 0) {
     console.log('All users already have emails set. Nothing to update.');
@@ -55,7 +56,8 @@ async function backfillEmails() {
       baseHandle = `user.${phoneSuffix}`;
     }
 
-    let candidateEmail = `${baseHandle}@foodman.com`;
+    // Use non-deliverable reserved domain (RFC 2606) so it never bounces or delivers to third parties
+    let candidateEmail = `${baseHandle}@foodman.invalid`;
 
     // Ensure uniqueness
     let isUnique = false;
@@ -73,9 +75,9 @@ async function backfillEmails() {
         attempt += 1;
         if (attempt === 1 && user.phone_number) {
           const suffix = user.phone_number.slice(-4);
-          candidateEmail = `${baseHandle}.${suffix}@foodman.com`;
+          candidateEmail = `${baseHandle}.${suffix}@foodman.invalid`;
         } else {
-          candidateEmail = `${baseHandle}.${attempt}@foodman.com`;
+          candidateEmail = `${baseHandle}.${attempt}@foodman.invalid`;
         }
       }
     }

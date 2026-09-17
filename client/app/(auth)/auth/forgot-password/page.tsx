@@ -128,7 +128,7 @@ export default function ForgotPasswordPage() {
       {
         email: values.email.trim(),
         code: values.code.trim(),
-        new_password: values.new_password.trim(),
+        new_password: values.new_password,
       },
       {
         onSuccess: () => {

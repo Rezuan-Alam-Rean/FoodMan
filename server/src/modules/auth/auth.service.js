@@ -47,9 +47,21 @@ export const resolveGuestCheckoutAuth = async ({
       throw ApiError.unauthorized('an account with this mobile number already exists; please sign in to complete your order');
     }
 
+    const isPlaceholderEmail = !user.email || user.email.endsWith('.invalid');
+
     // Require authentication before changing email; do not allow replacing email via guest flow
-    if (user.email && user.email.toLowerCase() !== cleanEmail) {
+    if (!isPlaceholderEmail && user.email.toLowerCase() !== cleanEmail) {
       throw ApiError.badRequest('the provided mobile number is registered with a different email address; please sign in to your account');
+    }
+
+    // backfill email for legacy accounts created before email became mandatory or with placeholder email
+    if (isPlaceholderEmail && user.email !== cleanEmail) {
+      const emailTaken = await User.findOne({ email: cleanEmail, _id: { $ne: user._id } });
+      if (emailTaken) {
+        throw ApiError.conflict('a user with this email address already exists; please sign in or use a different email');
+      }
+      user.email = cleanEmail;
+      await user.save();
     }
 
     // update customer name if provided
@@ -327,24 +339,26 @@ export const requestPasswordResetCode = async ({ email }) => {
     throw ApiError.badRequest('please provide a valid email address');
   }
 
-  // find user by email
+  // find user by email (ignore placeholder domains)
   const user = await User.findOne({ email: cleanEmail });
-  if (!user) {
+  if (!user || cleanEmail.endsWith('.invalid')) {
     return {
       success: true,
       message: 'If an account exists with this email, a 6-digit reset code has been sent.',
     };
   }
 
-  // rate limit check: 60s cooldown
+  // rate limit check: 60s cooldown (do not leak existence through error message)
   const recentCode = await PasswordResetCode.findOne({
     user_id: user._id,
     createdAt: { $gte: new Date(Date.now() - 60 * 1000) },
   });
 
   if (recentCode) {
-    const secondsRemaining = Math.max(1, Math.ceil((recentCode.createdAt.getTime() + 60 * 1000 - Date.now()) / 1000));
-    throw ApiError.badRequest(`please wait ${secondsRemaining} seconds before requesting a new code`);
+    return {
+      success: true,
+      message: 'If an account exists with this email, a 6-digit reset code has been sent.',
+    };
   }
 
   // generate 6-digit random code
@@ -400,7 +414,7 @@ export const resetPasswordWithCode = async ({ email, code, new_password }) => {
   if (!code || typeof code !== 'string' || !code.trim()) {
     throw ApiError.badRequest('6-digit verification code is required');
   }
-  if (!new_password || typeof new_password !== 'string' || new_password.trim().length < 6) {
+  if (!new_password || typeof new_password !== 'string' || new_password.length < 6) {
     throw ApiError.badRequest('new password must be at least 6 characters');
   }
 
@@ -439,7 +453,7 @@ export const resetPasswordWithCode = async ({ email, code, new_password }) => {
   }
 
   const salt = await bcrypt.genSalt(10);
-  user.password_hash = await bcrypt.hash(new_password.trim(), salt);
+  user.password_hash = await bcrypt.hash(new_password, salt);
   await user.save();
 
   // invalidate all codes for this user

@@ -1,24 +1,35 @@
 // email delivery service using nodemailer and smtp credentials
 import nodemailer from 'nodemailer';
 
+let cachedTransporter = null;
+
 /**
- * create and return nodemailer transporter
+ * create and return nodemailer transporter with bounded timeouts
  * @returns {import('nodemailer').Transporter}
  */
-const createTransporter = () => {
+const getTransporter = () => {
+  if (cachedTransporter) {
+    return cachedTransporter;
+  }
+
   const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = Number(process.env.SMTP_PORT) || 465;
   const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
 
-  return nodemailer.createTransport({
+  cachedTransporter = nodemailer.createTransport({
     host,
     port,
     secure: isSecure,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
     auth: {
       user: process.env.SMTP_USERNAME,
       pass: process.env.SMTP_PASSWORD,
     },
   });
+
+  return cachedTransporter;
 };
 
 /**
@@ -30,7 +41,7 @@ const createTransporter = () => {
  * @returns {Promise<object>}
  */
 export const sendPasswordResetCodeEmail = async ({ to, name, code }) => {
-  const transporter = createTransporter();
+  const transporter = getTransporter();
   const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USERNAME || 'noreply@foodman.com';
   const replyTo = process.env.SMTP_REPLY_TO || fromAddress;
 
