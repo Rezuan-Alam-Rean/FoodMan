@@ -18,6 +18,7 @@ import { USER_ROLES } from '../../constants/index.js';
 export const resolveGuestCheckoutAuth = async ({
   name,
   phone_number,
+  email,
   zone_id,
   subzone_id,
   detailed_address,
@@ -27,19 +28,41 @@ export const resolveGuestCheckoutAuth = async ({
     throw ApiError.badRequest('invalid bangladesh mobile number format');
   }
 
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw ApiError.badRequest('email is required for guest checkout');
+  }
+  const cleanEmail = email.toLowerCase().trim();
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(cleanEmail)) {
+    throw ApiError.badRequest('please provide a valid email address');
+  }
+
   let user = await User.findOne({ phone_number: normalizedPhone });
 
   if (user) {
     // update customer name if provided
     if (name && name.trim() && user.name !== name.trim()) {
       user.name = name.trim();
-      await user.save();
     }
+    if (!user.email || user.email !== cleanEmail) {
+      const existingEmail = await User.findOne({ email: cleanEmail, _id: { $ne: user._id } });
+      if (existingEmail) {
+        throw ApiError.conflict('a user with this email already exists');
+      }
+      user.email = cleanEmail;
+    }
+    await user.save();
   } else {
+    const existingEmail = await User.findOne({ email: cleanEmail });
+    if (existingEmail) {
+      throw ApiError.conflict('a user with this email already exists');
+    }
+
     // create new customer account automatically
     user = await User.create({
       name: name?.trim() || `Customer-${normalizedPhone.slice(-4)}`,
       phone_number: normalizedPhone,
+      email: cleanEmail,
       role: USER_ROLES.CUSTOMER,
     });
   }
@@ -116,28 +139,32 @@ export const registerUser = async ({
     throw ApiError.badRequest('invalid bangladesh mobile number format');
   }
 
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw ApiError.badRequest('email is required');
+  }
+  const cleanEmail = email.toLowerCase().trim();
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(cleanEmail)) {
+    throw ApiError.badRequest('please provide a valid email address');
+  }
+
   const existingPhone = await User.findOne({ phone_number: normalizedPhone });
   if (existingPhone) {
     throw ApiError.conflict('a user with this phone number already exists');
   }
 
-  if (email) {
-    const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
-    if (existingEmail) {
-      throw ApiError.conflict('a user with this email already exists');
-    }
+  const existingEmail = await User.findOne({ email: cleanEmail });
+  if (existingEmail) {
+    throw ApiError.conflict('a user with this email already exists');
   }
 
   // all public self-registrations are strictly created as CUSTOMER
   const userData = {
     name: name.trim(),
     phone_number: normalizedPhone,
+    email: cleanEmail,
     role: USER_ROLES.CUSTOMER,
   };
-
-  if (email) {
-    userData.email = email.toLowerCase().trim();
-  }
 
   if (password) {
     const salt = await bcrypt.genSalt(10);

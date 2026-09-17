@@ -19,7 +19,7 @@ export const registerSchema = z.object({
     .min(11, 'mobile number must be at least 11 digits')
     .max(15, 'mobile number too long')
     .regex(/^\+?[0-9]{11,15}$/, 'mobile number must contain valid digits'),
-  email: z.string().email('invalid email address').optional().or(z.literal('')),
+  email: z.string().min(1, 'email is required').email('please enter a valid email address'),
   password: z.string().min(6, 'password must be at least 6 characters'),
   role: z.enum(['CUSTOMER', 'RESTAURANT_OWNER', 'RIDER', 'ADMIN']),
 });

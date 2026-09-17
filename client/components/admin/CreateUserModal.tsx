@@ -107,6 +107,15 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
       setError('mobile number is required');
       return;
     }
+    if (!email.trim()) {
+      setError('email address is required');
+      return;
+    }
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('please enter a valid email address');
+      return;
+    }
     const trimmedPassword = password.trim();
     if (trimmedPassword.length < 6) {
       setError('password must be at least 6 characters');
@@ -132,7 +141,7 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
       {
         name: name.trim(),
         phone_number: phoneNumber.trim(),
-        email: email.trim() || undefined,
+        email: email.trim(),
         password: trimmedPassword,
         role,
         vehicle_type: role === 'RIDER' ? vehicleType : undefined,
@@ -244,12 +253,13 @@ export function CreateUserModal({ isOpen, onClose }: CreateUserModalProps) {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email (Optional)</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address *</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="john@example.com"
+                  required
                   className="w-full min-h-[44px] px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
                 />
               </div>

@@ -91,7 +91,7 @@ export function RiderProfileCard({ rider }: RiderProfileCardProps) {
             </div>
             <div className="min-w-0">
               <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Email Address</span>
-              <span className="font-black text-slate-900 text-xs truncate block">{user?.email || 'rider@foodman.com'}</span>
+              <span className="font-black text-slate-900 text-xs truncate block">{user?.email || 'N/A'}</span>
             </div>
           </div>
         </div>

@@ -63,7 +63,7 @@ export default function RegisterPage() {
       {
         name: values.name.trim(),
         phone_number: values.phone_number.trim(),
-        email: values.email?.trim() || undefined,
+        email: values.email.trim(),
         password: values.password.trim(),
         role: 'CUSTOMER',
       },
@@ -320,7 +320,7 @@ export default function RegisterPage() {
 
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">
-            Email (Optional)
+            Email Address *
           </label>
           <div className="relative">
             <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />

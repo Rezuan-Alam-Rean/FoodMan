@@ -492,12 +492,17 @@ export const createAdminUser = async ({
     throw ApiError.conflict('a user with this phone number already exists');
   }
 
-  if (email && typeof email === 'string' && email.trim()) {
-    const cleanEmail = email.toLowerCase().trim();
-    const existingEmail = await User.findOne({ email: cleanEmail });
-    if (existingEmail) {
-      throw ApiError.conflict('a user with this email already exists');
-    }
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw ApiError.badRequest('email is required');
+  }
+  const cleanEmail = email.toLowerCase().trim();
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(cleanEmail)) {
+    throw ApiError.badRequest('please provide a valid email address');
+  }
+  const existingEmail = await User.findOne({ email: cleanEmail });
+  if (existingEmail) {
+    throw ApiError.conflict('a user with this email already exists');
   }
 
   if (!password || typeof password !== 'string' || password.length < 6) {
@@ -530,14 +535,11 @@ export const createAdminUser = async ({
   const userData = {
     name: name.trim(),
     phone_number: normalizedPhone,
+    email: cleanEmail,
     role,
     password_hash,
     status: 'ACTIVE',
   };
-
-  if (email && typeof email === 'string' && email.trim()) {
-    userData.email = email.toLowerCase().trim();
-  }
 
   const user = await User.create(userData);
 
@@ -636,17 +638,20 @@ export const updateAdminUser = async (userId, payload = {}) => {
 
   // update email
   if (payload.email !== undefined) {
-    if (payload.email && typeof payload.email === 'string' && payload.email.trim()) {
-      const cleanEmail = payload.email.toLowerCase().trim();
-      if (cleanEmail !== user.email) {
-        const existingEmail = await User.findOne({ email: cleanEmail, _id: { $ne: user._id } });
-        if (existingEmail) {
-          throw ApiError.conflict('a user with this email already exists');
-        }
-        user.email = cleanEmail;
+    if (!payload.email || typeof payload.email !== 'string' || !payload.email.trim()) {
+      throw ApiError.badRequest('email cannot be empty');
+    }
+    const cleanEmail = payload.email.toLowerCase().trim();
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      throw ApiError.badRequest('please provide a valid email address');
+    }
+    if (cleanEmail !== user.email) {
+      const existingEmail = await User.findOne({ email: cleanEmail, _id: { $ne: user._id } });
+      if (existingEmail) {
+        throw ApiError.conflict('a user with this email already exists');
       }
-    } else {
-      user.email = undefined;
+      user.email = cleanEmail;
     }
   }
 

@@ -96,6 +96,7 @@ export default function CheckoutPage() {
     defaultValues: {
       customer_name: user?.name || '',
       customer_phone: user?.phone_number || '',
+      customer_email: user?.email || '',
       delivery_zone_id: selectedZone?.id || selectedZone?._id || '',
       delivery_subzone_id: selectedSubzone?.id || selectedSubzone?._id || '',
       delivery_address_text: '',
@@ -251,6 +252,7 @@ export default function CheckoutPage() {
       hasInitializedUser.current = true;
       if (user.name) setValue('customer_name', user.name);
       if (user.phone_number) setValue('customer_phone', user.phone_number);
+      if (user.email) setValue('customer_email', user.email);
     }
   }, [user, setValue]);
 
@@ -329,6 +331,7 @@ export default function CheckoutPage() {
       const orderPayload = {
         customer_name: values.customer_name.trim(),
         customer_phone: values.customer_phone.trim(),
+        customer_email: values.customer_email.trim(),
         delivery_zone_id: values.delivery_zone_id,
         delivery_subzone_id: values.delivery_subzone_id || null,
         delivery_address_text: values.delivery_address_text.trim(),
@@ -430,16 +433,33 @@ export default function CheckoutPage() {
                     errors.customer_phone ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700'
                   }`}
                 />
-                {errors.customer_phone ? (
+                {errors.customer_phone && (
                   <p className="text-[11px] text-rose-600 font-semibold mt-1">
                     {errors.customer_phone.message}
                   </p>
-                ) : (
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    {isAuthenticated ? 'Authenticated Account' : 'Guest checkout auto-creates account'}
-                  </p>
                 )}
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Email Address *</label>
+              <input
+                type="email"
+                {...register('customer_email')}
+                placeholder="your@email.com"
+                className={`w-full h-12 px-4 rounded-2xl border bg-white dark:bg-slate-800 text-base sm:text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition ${
+                  errors.customer_email ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700'
+                }`}
+              />
+              {errors.customer_email ? (
+                <p className="text-[11px] text-rose-600 font-semibold mt-1">
+                  {errors.customer_email.message}
+                </p>
+              ) : (
+                <p className="text-[11px] text-slate-400 mt-1">
+                  {isAuthenticated ? 'Associated with your active account' : 'Used for order receipts and account password reset'}
+                </p>
+              )}
             </div>
           </div>
 
