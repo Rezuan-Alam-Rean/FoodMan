@@ -18,4 +18,5 @@ export { default as UploadConfig } from './upload/uploadConfig.model.js';
 export { Notification } from './notification/notification.model.js';
 export { SystemSetting } from './setting/setting.model.js';
 export { Coupon } from './coupon/coupon.model.js';
+export { PasswordResetCode } from './auth/passwordReset.model.js';
 

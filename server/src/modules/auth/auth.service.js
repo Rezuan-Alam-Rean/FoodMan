@@ -1,6 +1,7 @@
-// authentication business logic and guest checkout account resolution
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { User } from '../user/user.model.js';
+import { PasswordResetCode } from './passwordReset.model.js';
 import { Wallet } from '../wallet/wallet.model.js';
 import { Rider } from '../rider/rider.model.js';
 import { UserAddress } from '../address/address.model.js';
@@ -9,6 +10,7 @@ import { normalizePhoneNumber } from '../../utils/phone.js';
 import { signToken } from '../../utils/jwt.js';
 import { ApiError } from '../../utils/apiError.js';
 import { USER_ROLES } from '../../constants/index.js';
+import { sendPasswordResetCodeEmail } from '../../utils/email.service.js';
 
 /**
  * resolve or create customer account during guest checkout
@@ -307,3 +309,145 @@ export const setUserPassword = async (userId, { current_password, new_password }
     message: 'password updated successfully',
   };
 };
+
+/**
+ * request 6-digit password reset verification code via email
+ * @param {object} payload
+ * @param {string} payload.email
+ * @returns {Promise<object>}
+ */
+export const requestPasswordResetCode = async ({ email }) => {
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw ApiError.badRequest('email address is required');
+  }
+
+  const cleanEmail = email.toLowerCase().trim();
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(cleanEmail)) {
+    throw ApiError.badRequest('please provide a valid email address');
+  }
+
+  // find user by email
+  const user = await User.findOne({ email: cleanEmail });
+  if (!user) {
+    return {
+      success: true,
+      message: 'If an account exists with this email, a 6-digit reset code has been sent.',
+    };
+  }
+
+  // rate limit check: 60s cooldown
+  const recentCode = await PasswordResetCode.findOne({
+    user_id: user._id,
+    createdAt: { $gte: new Date(Date.now() - 60 * 1000) },
+  });
+
+  if (recentCode) {
+    const secondsRemaining = Math.max(1, Math.ceil((recentCode.createdAt.getTime() + 60 * 1000 - Date.now()) / 1000));
+    throw ApiError.badRequest(`please wait ${secondsRemaining} seconds before requesting a new code`);
+  }
+
+  // generate 6-digit random code
+  const codeNumber = crypto.randomInt(100000, 999999);
+  const codeString = codeNumber.toString();
+
+  // hash code using bcrypt
+  const salt = await bcrypt.genSalt(10);
+  const code_hash = await bcrypt.hash(codeString, salt);
+
+  // remove previous codes for this user
+  await PasswordResetCode.deleteMany({ user_id: user._id });
+
+  // save code with 10-minute expiry
+  await PasswordResetCode.create({
+    user_id: user._id,
+    email: cleanEmail,
+    code_hash,
+    expires_at: new Date(Date.now() + 10 * 60 * 1000),
+    attempts: 0,
+  });
+
+  // dispatch email via SMTP
+  try {
+    await sendPasswordResetCodeEmail({
+      to: cleanEmail,
+      name: user.name,
+      code: codeString,
+    });
+  } catch (err) {
+    console.error('Failed to dispatch password reset email:', err);
+    throw ApiError.internal('failed to send password reset email. Please try again later.');
+  }
+
+  return {
+    success: true,
+    message: 'A 6-digit password reset code has been sent to your email.',
+  };
+};
+
+/**
+ * reset user password using verified 6-digit code
+ * @param {object} payload
+ * @param {string} payload.email
+ * @param {string} payload.code
+ * @param {string} payload.new_password
+ * @returns {Promise<object>}
+ */
+export const resetPasswordWithCode = async ({ email, code, new_password }) => {
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw ApiError.badRequest('email address is required');
+  }
+  if (!code || typeof code !== 'string' || !code.trim()) {
+    throw ApiError.badRequest('6-digit verification code is required');
+  }
+  if (!new_password || typeof new_password !== 'string' || new_password.trim().length < 6) {
+    throw ApiError.badRequest('new password must be at least 6 characters');
+  }
+
+  const cleanEmail = email.toLowerCase().trim();
+  const cleanCode = code.trim();
+
+  // find active reset code
+  const resetRecord = await PasswordResetCode.findOne({
+    email: cleanEmail,
+    expires_at: { $gt: new Date() },
+  }).sort({ createdAt: -1 });
+
+  if (!resetRecord) {
+    throw ApiError.badRequest('invalid or expired reset code. Please request a new one.');
+  }
+
+  // check maximum attempts
+  if (resetRecord.attempts >= 5) {
+    await PasswordResetCode.deleteMany({ email: cleanEmail });
+    throw ApiError.badRequest('maximum verification attempts exceeded. Please request a new reset code.');
+  }
+
+  // verify code
+  const isMatch = await bcrypt.compare(cleanCode, resetRecord.code_hash);
+  if (!isMatch) {
+    resetRecord.attempts += 1;
+    await resetRecord.save();
+    const remainingAttempts = 5 - resetRecord.attempts;
+    throw ApiError.badRequest(`invalid reset code. ${remainingAttempts} attempts remaining.`);
+  }
+
+  // find user and update password
+  const user = await User.findById(resetRecord.user_id).select('+password_hash');
+  if (!user) {
+    throw ApiError.notFound('user account not found');
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  user.password_hash = await bcrypt.hash(new_password.trim(), salt);
+  await user.save();
+
+  // invalidate all codes for this user
+  await PasswordResetCode.deleteMany({ user_id: user._id });
+
+  return {
+    success: true,
+    message: 'Your password has been reset successfully. You can now sign in.',
+  };
+};
+

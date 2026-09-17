@@ -6,6 +6,8 @@ import {
   handleLogin,
   handleGetMe,
   handleSetPassword,
+  handleRequestPasswordResetCode,
+  handleResetPasswordWithCode,
 } from './auth.controller.js';
 import { authenticate } from '../../middlewares/auth.js';
 
@@ -15,6 +17,8 @@ const router = Router();
 router.post('/guest-auth', handleGuestCheckoutAuth);
 router.post('/register', handleRegister);
 router.post('/login', handleLogin);
+router.post('/forgot-password', handleRequestPasswordResetCode);
+router.post('/reset-password', handleResetPasswordWithCode);
 
 // protected user profile routes
 router.get('/me', authenticate, handleGetMe);
