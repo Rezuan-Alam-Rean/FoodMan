@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useInfiniteFoodItemsQuery, useCategoriesQuery } from '@/hooks/queries/use-menu-queries';
 import { useInfiniteRestaurantsQuery } from '@/hooks/queries/use-restaurant-queries';
 import { useCart } from '@/hooks/use-cart';
@@ -48,7 +47,6 @@ type SortOption = 'newest' | 'price_asc' | 'price_desc';
 type PriceFilter = 'all' | 'under_200' | '200_500' | 'above_500';
 
 export default function CustomerHomePage() {
-  const router = useRouter();
   const { addItem, itemCount, grandTotal } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
@@ -513,8 +511,7 @@ export default function CustomerHomePage() {
                 return (
                   <div
                     key={item.id || item._id}
-                    onClick={() => router.push(`/restaurants/${restSlug}`)}
-                    className={`group bg-white rounded-3xl border p-2.5 sm:p-3 flex flex-col justify-between space-y-2.5 shadow-xs transition-all duration-150 cursor-pointer active:scale-[0.98] ${isAvailable
+                    className={`group relative bg-white rounded-3xl border p-2.5 sm:p-3 flex flex-col justify-between space-y-2.5 shadow-xs transition-all duration-150 ${isAvailable
                         ? 'border-slate-200/80 hover:border-rose-200 hover:shadow-md'
                         : 'border-slate-200/50 bg-slate-50/40 opacity-90'
                       }`}
@@ -563,7 +560,12 @@ export default function CustomerHomePage() {
                     <div className="space-y-1.5 px-0.5 flex-1 flex flex-col justify-between min-w-0">
                       <div>
                         <h3 className="font-black text-slate-900 text-xs sm:text-sm line-clamp-2 leading-snug group-hover:text-rose-600 transition min-h-[32px] sm:min-h-[36px]">
-                          {item.name}
+                          <Link
+                            href={`/restaurants/${restSlug}`}
+                            className="focus:outline-none focus-visible:underline after:content-[''] after:absolute after:inset-0 after:rounded-3xl"
+                          >
+                            {item.name}
+                          </Link>
                         </h3>
                         <p className="text-[11px] text-slate-400 line-clamp-1 font-medium mt-0.5 flex items-center gap-1">
                           <Store className="w-3 h-3 text-slate-400 shrink-0" />
@@ -596,15 +598,19 @@ export default function CustomerHomePage() {
                               e.stopPropagation();
                               handleOpenCustomization(item, restObj);
                             }}
-                            className="inline-flex items-center gap-0.5 px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white text-xs font-bold transition-all shrink-0 shadow-xs cursor-pointer active:scale-95"
+                            className="relative z-10 inline-flex items-center gap-0.5 px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white text-xs font-bold transition-all shrink-0 shadow-xs cursor-pointer active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                           >
                             <span>Order</span>
                             <ChevronRight className="w-3 h-3" />
                           </button>
                         ) : (
-                          <span className="inline-flex items-center text-xs font-bold text-slate-400 group-hover:text-slate-600 transition shrink-0">
-                            View <ChevronRight className="w-3 h-3 ml-0.5" />
-                          </span>
+                          <Link
+                            href={`/restaurants/${restSlug}`}
+                            className="relative z-10 inline-flex items-center text-xs font-bold text-slate-400 group-hover:text-slate-600 hover:text-rose-600 transition shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-md"
+                          >
+                            <span>View</span>
+                            <ChevronRight className="w-3 h-3 ml-0.5" />
+                          </Link>
                         )}
                       </div>
                     </div>
