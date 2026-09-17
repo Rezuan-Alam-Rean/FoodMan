@@ -6,7 +6,11 @@ import Link from 'next/link';
 import { useRiderAvailableOrdersQuery } from '@/hooks/queries/use-rider-queries';
 import { useRiderAcceptOrderMutation } from '@/hooks/queries/use-order-queries';
 import type { Order } from '@/types';
-import { formatBDT } from '@/lib/utils';
+import {
+  formatBDT,
+  formatOrderTime,
+  formatOrderDateTime,
+} from '@/lib/utils';
 import {
   Radar,
   Store,
@@ -148,9 +152,21 @@ export function AvailableOrdersRadar({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1 min-w-0">
-                    <span className="text-[10px] font-mono font-black text-slate-400 block">
-                      #{order.order_number}
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-mono font-black text-slate-400">
+                        #{order.order_number}
+                      </span>
+                      {order.createdAt && (
+                        <span
+                          suppressHydrationWarning
+                          className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/60"
+                          title={`Order placed at ${new Date(order.createdAt).toLocaleString()}`}
+                        >
+                          <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span>Placed: {formatOrderTime(order.createdAt)}</span>
+                        </span>
+                      )}
+                    </div>
                     <h4 className="text-base font-black text-slate-900 leading-tight truncate">
                       {order.restaurant_id?.name || 'Restaurant'}
                     </h4>
@@ -167,7 +183,18 @@ export function AvailableOrdersRadar({
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs">
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 space-y-2 text-xs">
+                  {order.createdAt && (
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                      <span suppressHydrationWarning className="truncate">
+                        Order Placed:{' '}
+                        <strong className="text-slate-800 font-bold">
+                          {formatOrderDateTime(order.createdAt)}
+                        </strong>
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-slate-800">
                     <MapPin className="w-4 h-4 text-rose-500 shrink-0" />
                     <span className="font-bold truncate">

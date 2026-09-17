@@ -62,3 +62,82 @@ export function calculateDiscountPercentage(basePrice: number, discountPrice?: n
   if (!discountPrice || discountPrice >= basePrice || basePrice <= 0) return 0;
   return Math.round(((basePrice - discountPrice) / basePrice) * 100);
 }
+
+// format relative time (e.g. 'Just now', '5m ago', '2h ago', '3d ago')
+export function formatRelativeTime(dateStr?: string | Date | null): string {
+  if (!dateStr) return '';
+  try {
+    const now = Date.now();
+    const d = new Date(dateStr);
+    const timestamp = d.getTime();
+    if (isNaN(timestamp)) return '';
+    const diffSec = Math.floor((now - timestamp) / 1000);
+    if (diffSec < 60) return 'Just now';
+    if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+    if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+    const days = Math.floor(diffSec / 86400);
+    return `${days}d ago`;
+  } catch {
+    return '';
+  }
+}
+
+// format order time (e.g. '12:35 PM' if today, or '05 Sep, 12:35 PM' if other day)
+export function formatOrderTime(dateStr?: string | Date | null): string {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+
+    const now = new Date();
+    const isSameDay =
+      d.getDate() === now.getDate() &&
+      d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear();
+
+    const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+
+    if (isSameDay) {
+      return timeStr;
+    }
+
+    const dateStrFormatted = d.toLocaleDateString([], {
+      day: '2-digit',
+      month: 'short',
+    });
+    return `${dateStrFormatted}, ${timeStr}`;
+  } catch {
+    return '';
+  }
+}
+
+// format explicit order date and time (e.g. 'Today at 12:35 PM' or '05 Sep 2026, 12:35 PM')
+export function formatOrderDateTime(dateStr?: string | Date | null): string {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+
+    const now = new Date();
+    const isSameDay =
+      d.getDate() === now.getDate() &&
+      d.getMonth() === now.getMonth() &&
+      d.getFullYear() === now.getFullYear();
+
+    const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+
+    if (isSameDay) {
+      return `Today, ${timeStr}`;
+    }
+
+    const fullDate = d.toLocaleDateString([], {
+      day: '2-digit',
+      month: 'short',
+      year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+    });
+    return `${fullDate}, ${timeStr}`;
+  } catch {
+    return '';
+  }
+}
+

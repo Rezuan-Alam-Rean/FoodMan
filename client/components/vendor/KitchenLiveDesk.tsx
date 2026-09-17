@@ -9,7 +9,12 @@ import {
   useRestaurantCancelOrderMutation,
 } from '@/hooks/queries/use-order-queries';
 import type { Restaurant, Order, OrderItem } from '@/types';
-import { formatBDT, getWhatsAppUrl } from '@/lib/utils';
+import {
+  formatBDT,
+  getWhatsAppUrl,
+  formatOrderTime,
+  formatOrderDateTime,
+} from '@/lib/utils';
 import { WhatsAppPhoneLink, WhatsAppIcon } from '@/components/ui/WhatsAppPhoneLink';
 import {
   UtensilsCrossed,
@@ -327,6 +332,16 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                       <span className="text-xs font-black text-slate-900">
                         #{order.order_number}
                       </span>
+                      {order.createdAt && (
+                        <span
+                          suppressHydrationWarning
+                          className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200/60"
+                          title={`Order placed at ${new Date(order.createdAt).toLocaleString()}`}
+                        >
+                          <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span>Placed: {formatOrderTime(order.createdAt)}</span>
+                        </span>
+                      )}
                       <span
                         className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
                           isOutForDelivery
@@ -370,6 +385,14 @@ export function KitchenLiveDesk({ restaurant }: KitchenLiveDeskProps) {
                       Customer: <strong className="text-slate-700">{order.customer_name}</strong> •{' '}
                       {order.delivery_address_text}
                     </p>
+                    {order.createdAt && (
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span suppressHydrationWarning>
+                          Order Placed: <strong className="text-slate-800">{formatOrderDateTime(order.createdAt)}</strong>
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="text-right shrink-0">
