@@ -1,23 +1,21 @@
 // active delivery trip execution page on /rider/trip supporting multiple concurrent deliveries
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useRiderProfileQuery } from '@/hooks/queries/use-rider-queries';
 import { ActiveDeliveryCard } from '@/components/rider/ActiveDeliveryCard';
 import type { RiderActiveOrder } from '@/types';
-import { formatBDT, formatOrderTime } from '@/lib/utils';
+import { formatBDT } from '@/lib/utils';
 import {
   Radar,
   Loader2,
   Package,
   Plus,
-  Clock,
 } from 'lucide-react';
 
 export default function RiderTripPage() {
   const { data: profileData, isLoading: isProfileLoading } = useRiderProfileQuery();
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const rider = profileData?.rider;
   const activeDeliveries: RiderActiveOrder[] = useMemo(() => {
@@ -26,18 +24,6 @@ export default function RiderTripPage() {
       (profileData?.active_delivery ? [profileData.active_delivery] : [])
     );
   }, [profileData?.active_deliveries, profileData?.active_delivery]);
-
-  // Determine currently selected order, falling back to first active delivery
-  const currentSelectedOrder = useMemo(() => {
-    if (activeDeliveries.length === 0) return null;
-    if (selectedOrderId) {
-      const found = activeDeliveries.find(
-        (o) => (o.id || o._id) === selectedOrderId
-      );
-      if (found) return found;
-    }
-    return activeDeliveries[0];
-  }, [activeDeliveries, selectedOrderId]);
 
   // Batch earnings
   const totalBatchEarnings = useMemo(() => {
@@ -89,7 +75,7 @@ export default function RiderTripPage() {
 
   return (
     <div className="space-y-4 pb-6">
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-4">
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-xs">
         <div className="flex items-center justify-between gap-3">
           <div className="space-y-0.5 min-w-0">
             <div className="flex items-center gap-2">
@@ -121,93 +107,16 @@ export default function RiderTripPage() {
             </span>
           </div>
         </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              Select Active Task
-            </span>
-          </div>
-
-          <div className="flex gap-2.5 overflow-x-auto pb-1.5 pt-0.5 scrollbar-none -mx-1 px-1">
-            {activeDeliveries.map((order) => {
-              const orderId = order.id || order._id;
-              const isSelected = (currentSelectedOrder?.id || currentSelectedOrder?._id) === orderId;
-
-              const isPickedUp = order.status === 'PICKED_UP';
-              const isFoodReady = order.status === 'READY_FOR_PICKUP';
-              const isPreparing = order.status === 'PREPARING';
-
-              const statusBadgeLabel = isPickedUp
-                ? 'On Way'
-                : isFoodReady
-                ? 'Ready'
-                : isPreparing
-                ? 'Cooking'
-                : 'Assigned';
-
-              const statusBadgeClass = isPickedUp
-                ? 'bg-blue-100 text-blue-800'
-                : isFoodReady
-                ? 'bg-emerald-100 text-emerald-800'
-                : isPreparing
-                ? 'bg-amber-100 text-amber-800'
-                : 'bg-slate-200 text-slate-700';
-
-              return (
-                <button
-                  key={orderId}
-                  type="button"
-                  onClick={() => setSelectedOrderId(orderId)}
-                  className={`shrink-0 text-left p-3 rounded-2xl border cursor-pointer min-w-[160px] sm:min-w-[175px] active:scale-[0.98] transition-transform ${
-                    isSelected
-                      ? 'bg-rose-50/70 border-rose-500 ring-2 ring-rose-500/20 shadow-xs'
-                      : 'bg-slate-50/90 hover:bg-slate-100/80 border-slate-200 text-slate-600'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-1.5 mb-1">
-                    <span
-                      className={`text-xs font-mono font-black ${
-                        isSelected ? 'text-rose-600' : 'text-slate-900'
-                      }`}
-                    >
-                      #{order.order_number}
-                    </span>
-                    <span
-                      className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider shrink-0 ${statusBadgeClass}`}
-                    >
-                      {statusBadgeLabel}
-                    </span>
-                  </div>
-
-                  <p className="text-xs font-black text-slate-800 truncate leading-tight">
-                    {order.restaurant_id?.name || 'Restaurant'}
-                  </p>
-                  <p className="text-[11px] text-slate-400 font-medium truncate leading-tight mt-0.5">
-                    {order.customer_name || 'Customer'}
-                  </p>
-                  {order.createdAt && (
-                    <div
-                      suppressHydrationWarning
-                      className="flex items-center gap-1 text-[10px] text-slate-400 font-medium mt-1.5"
-                    >
-                      <Clock className="w-3 h-3 text-slate-400 shrink-0" />
-                      <span>{formatOrderTime(order.createdAt)}</span>
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
 
-      {currentSelectedOrder && (
-        <ActiveDeliveryCard
-          key={currentSelectedOrder.id || currentSelectedOrder._id}
-          order={currentSelectedOrder}
-        />
-      )}
+      <div className="space-y-4">
+        {activeDeliveries.map((order) => (
+          <ActiveDeliveryCard
+            key={order.id || order._id}
+            order={order}
+          />
+        ))}
+      </div>
     </div>
   );
 }
