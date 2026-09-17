@@ -84,7 +84,7 @@ async function backfillEmails() {
     user.email = candidateEmail;
     await user.save();
     updatedCount += 1;
-    console.log(`[${updatedCount}/${usersWithoutEmail.length}] Updated User: "${user.name}" (${user.phone_number}, Role: ${user.role}) -> ${candidateEmail}`);
+    console.log(`[${updatedCount}/${usersWithoutEmail.length}] Updated user`);
   }
 
   console.log(`Successfully backfilled email for ${updatedCount} users.`);

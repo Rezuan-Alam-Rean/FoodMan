@@ -37,25 +37,28 @@ export const resolveGuestCheckoutAuth = async ({
     throw ApiError.badRequest('please provide a valid email address');
   }
 
-  let user = await User.findOne({ phone_number: normalizedPhone });
+  let user = await User.findOne({ phone_number: normalizedPhone }).select('+password_hash');
 
   if (user) {
+    // If account has a password set, require sign-in to protect account credentials
+    if (user.password_hash) {
+      throw ApiError.unauthorized('an account with this mobile number already exists; please sign in to complete your order');
+    }
+
+    // Require authentication before changing email; do not allow replacing email via guest flow
+    if (user.email && user.email.toLowerCase() !== cleanEmail) {
+      throw ApiError.badRequest('the provided mobile number is registered with a different email address; please sign in to your account');
+    }
+
     // update customer name if provided
     if (name && name.trim() && user.name !== name.trim()) {
       user.name = name.trim();
+      await user.save();
     }
-    if (!user.email || user.email !== cleanEmail) {
-      const existingEmail = await User.findOne({ email: cleanEmail, _id: { $ne: user._id } });
-      if (existingEmail) {
-        throw ApiError.conflict('a user with this email already exists');
-      }
-      user.email = cleanEmail;
-    }
-    await user.save();
   } else {
     const existingEmail = await User.findOne({ email: cleanEmail });
     if (existingEmail) {
-      throw ApiError.conflict('a user with this email already exists');
+      throw ApiError.conflict('a user with this email address already exists; please sign in or use a different email');
     }
 
     // create new customer account automatically
@@ -112,9 +115,8 @@ export const resolveGuestCheckoutAuth = async ({
     phone_number: user.phone_number,
   });
 
-  const userWithPassword = await User.findById(user._id).select('+password_hash');
   const userObj = user.toJSON();
-  userObj.has_password = Boolean(userWithPassword?.password_hash);
+  userObj.has_password = Boolean(user.password_hash);
 
   return {
     user: userObj,
