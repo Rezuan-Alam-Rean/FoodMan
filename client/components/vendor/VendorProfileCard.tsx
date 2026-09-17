@@ -249,12 +249,10 @@ export function VendorProfileCard({ restaurant }: VendorProfileCardProps) {
                 )}
               </div>
 
-              {user?.email && (
-                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Email Address</span>
-                  <p className="font-bold text-slate-900 truncate">{user.email}</p>
-                </div>
-              )}
+              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Email Address</span>
+                <p className="font-bold text-slate-900 truncate">{user?.email || 'N/A'}</p>
+              </div>
             </div>
           </div>
 

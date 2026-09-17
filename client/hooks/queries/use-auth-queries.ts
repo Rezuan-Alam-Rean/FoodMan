@@ -94,3 +94,28 @@ export function useSetPasswordMutation() {
     },
   });
 }
+
+export function useForgotPasswordMutation() {
+  return useMutation({
+    mutationFn: async (payload: { email: string }) => {
+      const data = await apiClient.post<any, { success: boolean; message: string }>(
+        '/auth/forgot-password',
+        payload
+      );
+      return data;
+    },
+  });
+}
+
+export function useResetPasswordMutation() {
+  return useMutation({
+    mutationFn: async (payload: { email: string; code: string; new_password: string }) => {
+      const data = await apiClient.post<any, { success: boolean; message: string }>(
+        '/auth/reset-password',
+        payload
+      );
+      return data;
+    },
+  });
+}
+

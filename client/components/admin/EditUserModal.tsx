@@ -127,6 +127,15 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
       setError('phone number is required');
       return;
     }
+    if (!email.trim()) {
+      setError('email address is required');
+      return;
+    }
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('please enter a valid email address');
+      return;
+    }
     if (password.trim() && password.trim().length < 6) {
       setError('new password must be at least 6 characters');
       return;
@@ -250,7 +259,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
-                  Email (Optional)
+                  Email Address *
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -259,6 +268,7 @@ export function EditUserModal({ isOpen, onClose, userData }: EditUserModalProps)
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="user@example.com"
+                    required
                     className="w-full min-h-[44px] pl-10 pr-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-base sm:text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400"
                   />
                 </div>

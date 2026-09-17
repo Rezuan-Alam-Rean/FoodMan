@@ -5,6 +5,8 @@ import {
   loginUser,
   getCurrentUserProfile,
   setUserPassword,
+  requestPasswordResetCode,
+  resetPasswordWithCode,
 } from './auth.service.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
@@ -56,6 +58,26 @@ export const handleSetPassword = catchAsync(async (req, res) => {
   return ApiResponse.success(res, {
     statusCode: HTTP_STATUS.OK,
     message: 'password updated successfully',
+    data: result,
+  });
+});
+
+export const handleRequestPasswordResetCode = catchAsync(async (req, res) => {
+  const result = await requestPasswordResetCode(req.body);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: result.message,
+    data: result,
+  });
+});
+
+export const handleResetPasswordWithCode = catchAsync(async (req, res) => {
+  const result = await resetPasswordWithCode(req.body);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: result.message,
     data: result,
   });
 });

@@ -222,9 +222,14 @@ export const createNewOrder = async (payload = {}, authenticatedUser = null) => 
 
   // resolve guest user if not authenticated
   if (!customerUser) {
+    if (!payload.customer_email || typeof payload.customer_email !== 'string' || !payload.customer_email.trim()) {
+      throw ApiError.badRequest('customer email is required');
+    }
+
     authResult = await resolveGuestCheckoutAuth({
       name: payload.customer_name,
       phone_number: payload.customer_phone,
+      email: payload.customer_email.trim(),
       zone_id: payload.delivery_zone_id,
       subzone_id: payload.delivery_subzone_id,
       detailed_address: payload.delivery_address_text,

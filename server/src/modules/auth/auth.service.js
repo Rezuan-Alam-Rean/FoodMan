@@ -1,6 +1,7 @@
-// authentication business logic and guest checkout account resolution
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { User } from '../user/user.model.js';
+import { PasswordResetCode } from './passwordReset.model.js';
 import { Wallet } from '../wallet/wallet.model.js';
 import { Rider } from '../rider/rider.model.js';
 import { UserAddress } from '../address/address.model.js';
@@ -9,6 +10,7 @@ import { normalizePhoneNumber } from '../../utils/phone.js';
 import { signToken } from '../../utils/jwt.js';
 import { ApiError } from '../../utils/apiError.js';
 import { USER_ROLES } from '../../constants/index.js';
+import { sendPasswordResetCodeEmail } from '../../utils/email.service.js';
 
 /**
  * resolve or create customer account during guest checkout
@@ -18,6 +20,7 @@ import { USER_ROLES } from '../../constants/index.js';
 export const resolveGuestCheckoutAuth = async ({
   name,
   phone_number,
+  email,
   zone_id,
   subzone_id,
   detailed_address,
@@ -27,19 +30,56 @@ export const resolveGuestCheckoutAuth = async ({
     throw ApiError.badRequest('invalid bangladesh mobile number format');
   }
 
-  let user = await User.findOne({ phone_number: normalizedPhone });
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw ApiError.badRequest('email is required for guest checkout');
+  }
+  const cleanEmail = email.toLowerCase().trim();
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(cleanEmail)) {
+    throw ApiError.badRequest('please provide a valid email address');
+  }
+
+  let user = await User.findOne({ phone_number: normalizedPhone }).select('+password_hash');
 
   if (user) {
+    // If account has a password set, require sign-in to protect account credentials
+    if (user.password_hash) {
+      throw ApiError.unauthorized('an account with this mobile number already exists; please sign in to complete your order');
+    }
+
+    const isPlaceholderEmail = !user.email || user.email.endsWith('.invalid');
+
+    // Require authentication before changing email; do not allow replacing email via guest flow
+    if (!isPlaceholderEmail && user.email.toLowerCase() !== cleanEmail) {
+      throw ApiError.badRequest('the provided mobile number is registered with a different email address; please sign in to your account');
+    }
+
+    // backfill email for legacy accounts created before email became mandatory or with placeholder email
+    if (isPlaceholderEmail && user.email !== cleanEmail) {
+      const emailTaken = await User.findOne({ email: cleanEmail, _id: { $ne: user._id } });
+      if (emailTaken) {
+        throw ApiError.conflict('a user with this email address already exists; please sign in or use a different email');
+      }
+      user.email = cleanEmail;
+      await user.save();
+    }
+
     // update customer name if provided
     if (name && name.trim() && user.name !== name.trim()) {
       user.name = name.trim();
       await user.save();
     }
   } else {
+    const existingEmail = await User.findOne({ email: cleanEmail });
+    if (existingEmail) {
+      throw ApiError.conflict('a user with this email address already exists; please sign in or use a different email');
+    }
+
     // create new customer account automatically
     user = await User.create({
       name: name?.trim() || `Customer-${normalizedPhone.slice(-4)}`,
       phone_number: normalizedPhone,
+      email: cleanEmail,
       role: USER_ROLES.CUSTOMER,
     });
   }
@@ -89,9 +129,8 @@ export const resolveGuestCheckoutAuth = async ({
     phone_number: user.phone_number,
   });
 
-  const userWithPassword = await User.findById(user._id).select('+password_hash');
   const userObj = user.toJSON();
-  userObj.has_password = Boolean(userWithPassword?.password_hash);
+  userObj.has_password = Boolean(user.password_hash);
 
   return {
     user: userObj,
@@ -116,28 +155,32 @@ export const registerUser = async ({
     throw ApiError.badRequest('invalid bangladesh mobile number format');
   }
 
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw ApiError.badRequest('email is required');
+  }
+  const cleanEmail = email.toLowerCase().trim();
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(cleanEmail)) {
+    throw ApiError.badRequest('please provide a valid email address');
+  }
+
   const existingPhone = await User.findOne({ phone_number: normalizedPhone });
   if (existingPhone) {
     throw ApiError.conflict('a user with this phone number already exists');
   }
 
-  if (email) {
-    const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
-    if (existingEmail) {
-      throw ApiError.conflict('a user with this email already exists');
-    }
+  const existingEmail = await User.findOne({ email: cleanEmail });
+  if (existingEmail) {
+    throw ApiError.conflict('a user with this email already exists');
   }
 
   // all public self-registrations are strictly created as CUSTOMER
   const userData = {
     name: name.trim(),
     phone_number: normalizedPhone,
+    email: cleanEmail,
     role: USER_ROLES.CUSTOMER,
   };
-
-  if (email) {
-    userData.email = email.toLowerCase().trim();
-  }
 
   if (password) {
     const salt = await bcrypt.genSalt(10);
@@ -278,3 +321,147 @@ export const setUserPassword = async (userId, { current_password, new_password }
     message: 'password updated successfully',
   };
 };
+
+/**
+ * request 6-digit password reset verification code via email
+ * @param {object} payload
+ * @param {string} payload.email
+ * @returns {Promise<object>}
+ */
+export const requestPasswordResetCode = async ({ email }) => {
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw ApiError.badRequest('email address is required');
+  }
+
+  const cleanEmail = email.toLowerCase().trim();
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(cleanEmail)) {
+    throw ApiError.badRequest('please provide a valid email address');
+  }
+
+  // find user by email (ignore placeholder domains)
+  const user = await User.findOne({ email: cleanEmail });
+  if (!user || cleanEmail.endsWith('.invalid')) {
+    return {
+      success: true,
+      message: 'If an account exists with this email, a 6-digit reset code has been sent.',
+    };
+  }
+
+  // rate limit check: 60s cooldown (do not leak existence through error message)
+  const recentCode = await PasswordResetCode.findOne({
+    user_id: user._id,
+    createdAt: { $gte: new Date(Date.now() - 60 * 1000) },
+  });
+
+  if (recentCode) {
+    return {
+      success: true,
+      message: 'If an account exists with this email, a 6-digit reset code has been sent.',
+    };
+  }
+
+  // generate 6-digit random code
+  const codeNumber = crypto.randomInt(100000, 999999);
+  const codeString = codeNumber.toString();
+
+  // hash code using bcrypt
+  const salt = await bcrypt.genSalt(10);
+  const code_hash = await bcrypt.hash(codeString, salt);
+
+  // remove previous codes for this user
+  await PasswordResetCode.deleteMany({ user_id: user._id });
+
+  // save code with 10-minute expiry
+  await PasswordResetCode.create({
+    user_id: user._id,
+    email: cleanEmail,
+    code_hash,
+    expires_at: new Date(Date.now() + 10 * 60 * 1000),
+    attempts: 0,
+  });
+
+  // dispatch email via SMTP
+  try {
+    await sendPasswordResetCodeEmail({
+      to: cleanEmail,
+      name: user.name,
+      code: codeString,
+    });
+  } catch (err) {
+    console.error('Failed to dispatch password reset email:', err);
+    throw ApiError.internal('failed to send password reset email. Please try again later.');
+  }
+
+  return {
+    success: true,
+    message: 'A 6-digit password reset code has been sent to your email.',
+  };
+};
+
+/**
+ * reset user password using verified 6-digit code
+ * @param {object} payload
+ * @param {string} payload.email
+ * @param {string} payload.code
+ * @param {string} payload.new_password
+ * @returns {Promise<object>}
+ */
+export const resetPasswordWithCode = async ({ email, code, new_password }) => {
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    throw ApiError.badRequest('email address is required');
+  }
+  if (!code || typeof code !== 'string' || !code.trim()) {
+    throw ApiError.badRequest('6-digit verification code is required');
+  }
+  if (!new_password || typeof new_password !== 'string' || new_password.length < 6) {
+    throw ApiError.badRequest('new password must be at least 6 characters');
+  }
+
+  const cleanEmail = email.toLowerCase().trim();
+  const cleanCode = code.trim();
+
+  // find active reset code
+  const resetRecord = await PasswordResetCode.findOne({
+    email: cleanEmail,
+    expires_at: { $gt: new Date() },
+  }).sort({ createdAt: -1 });
+
+  if (!resetRecord) {
+    throw ApiError.badRequest('invalid or expired reset code. Please request a new one.');
+  }
+
+  // check maximum attempts
+  if (resetRecord.attempts >= 5) {
+    await PasswordResetCode.deleteMany({ email: cleanEmail });
+    throw ApiError.badRequest('maximum verification attempts exceeded. Please request a new reset code.');
+  }
+
+  // verify code
+  const isMatch = await bcrypt.compare(cleanCode, resetRecord.code_hash);
+  if (!isMatch) {
+    resetRecord.attempts += 1;
+    await resetRecord.save();
+    const remainingAttempts = 5 - resetRecord.attempts;
+    throw ApiError.badRequest(`invalid reset code. ${remainingAttempts} attempts remaining.`);
+  }
+
+  // find user and update password
+  const user = await User.findById(resetRecord.user_id).select('+password_hash');
+  if (!user) {
+    throw ApiError.notFound('user account not found');
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  user.password_hash = await bcrypt.hash(new_password, salt);
+  await user.save();
+
+  // invalidate all codes for this user
+  await PasswordResetCode.deleteMany({ user_id: user._id });
+
+  return {
+    success: true,
+    message: 'Your password has been reset successfully. You can now sign in.',
+  };
+};
+

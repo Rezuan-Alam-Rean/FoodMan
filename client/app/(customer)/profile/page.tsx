@@ -194,15 +194,13 @@ export default function CustomerProfilePage() {
             <WhatsAppPhoneLink phone={user.phone_number} className="font-mono font-bold text-slate-900" />
           </div>
 
-          {user.email ? (
-            <div className="py-3 flex items-center justify-between">
-              <span className="text-slate-500 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-slate-400" />
-                <span>Email Address</span>
-              </span>
-              <span className="font-bold text-slate-900">{user.email}</span>
-            </div>
-          ) : null}
+          <div className="py-3 flex items-center justify-between">
+            <span className="text-slate-500 flex items-center gap-2">
+              <Mail className="w-4 h-4 text-slate-400" />
+              <span>Email Address</span>
+            </span>
+            <span className="font-bold text-slate-900">{user.email || 'N/A'}</span>
+          </div>
         </div>
       </div>
 
