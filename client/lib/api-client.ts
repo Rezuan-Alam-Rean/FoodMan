@@ -1,34 +1,10 @@
 // centralized axios api client configuration
 import axios, { AxiosError } from 'axios';
 
-/**
- * Resolve the API base URL:
- * - When running in the browser:
- *   - Using relative '/api/v1' delegates to Next.js rewrites.
- *     This avoids cross-domain DNS failures on Bangladeshi mobile carriers (GP, Robi, Banglalink, Teletalk)
- *     and eliminates CORS preflight (OPTIONS) roundtrips for maximum mobile speed.
- *   - In local development with explicit localhost URL, connects directly.
- * - When running server-side (SSR): Uses full URL.
- */
-const getBaseURL = (): string => {
-  if (typeof window !== 'undefined') {
-    if (
-      process.env.NODE_ENV === 'development' &&
-      process.env.NEXT_PUBLIC_API_URL?.startsWith('http://localhost')
-    ) {
-      return process.env.NEXT_PUBLIC_API_URL;
-    }
-    return '/api/v1';
-  }
-  return (
-    process.env.INTERNAL_API_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    'http://localhost:5001/api/v1'
-  );
-};
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const apiClient = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
