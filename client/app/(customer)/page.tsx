@@ -3,8 +3,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useInfiniteFoodItemsQuery, useCategoriesQuery } from '@/hooks/queries/use-menu-queries';
 import { useInfiniteRestaurantsQuery } from '@/hooks/queries/use-restaurant-queries';
+import { useCart } from '@/hooks/use-cart';
+import { CustomizationModal } from '@/components/cart/CustomizationModal';
 import { useZoneStore } from '@/lib/store/zone-store';
 import { formatBDT, hasValidDiscount } from '@/lib/utils';
 import {
@@ -23,7 +26,7 @@ import {
   Leaf,
   X,
 } from 'lucide-react';
-import type { Restaurant } from '@/types';
+import type { Restaurant, FoodItem, CartItem } from '@/types';
 
 // icon helper for dynamic category badges
 const getCategoryIcon = (name: string) => {
@@ -45,6 +48,8 @@ type SortOption = 'newest' | 'price_asc' | 'price_desc';
 type PriceFilter = 'all' | 'under_200' | '200_500' | 'above_500';
 
 export default function CustomerHomePage() {
+  const router = useRouter();
+  const { addItem, itemCount, grandTotal } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [activeTab, setActiveTab] = useState<'FOODS' | 'KITCHENS'>('FOODS');
@@ -52,7 +57,49 @@ export default function CustomerHomePage() {
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all');
   const [isVegOnly, setIsVegOnly] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [selectedFoodForCustomization, setSelectedFoodForCustomization] = useState<{
+    item: FoodItem;
+    restaurant: Restaurant;
+  } | null>(null);
   const { selectedZone } = useZoneStore();
+
+  const handleOpenCustomization = (item: FoodItem, restObj: Restaurant | null) => {
+    const restaurantForCart: Restaurant = (restObj && (restObj.id || restObj._id))
+      ? {
+        ...restObj,
+        id: restObj.id || restObj._id,
+        _id: restObj._id || restObj.id,
+        name: restObj.name || 'Kitchen',
+        slug: restObj.slug || restObj.id || restObj._id || '',
+        description: restObj.description || '',
+        address: restObj.address || '',
+        owner_id: restObj.owner_id || '',
+        zone_id: restObj.zone_id || '',
+        commission_rate: restObj.commission_rate || 0,
+        is_open: restObj.is_open !== false,
+        rating_avg: restObj.rating_avg || 5.0,
+        total_ratings: restObj.total_ratings || 0,
+      }
+      : {
+        id: typeof item.restaurant_id === 'string' ? item.restaurant_id : item.id,
+        _id: typeof item.restaurant_id === 'string' ? item.restaurant_id : item._id,
+        name: 'Kitchen',
+        slug: typeof item.restaurant_id === 'string' ? item.restaurant_id : '',
+        description: '',
+        address: '',
+        owner_id: '',
+        zone_id: '',
+        commission_rate: 0,
+        is_open: true,
+        rating_avg: 5.0,
+        total_ratings: 0,
+      };
+
+    setSelectedFoodForCustomization({
+      item,
+      restaurant: restaurantForCart,
+    });
+  };
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -209,11 +256,10 @@ export default function CustomerHomePage() {
               setSelectedCategoryId('');
               setActiveTab('FOODS');
             }}
-            className={`flex flex-col items-center justify-start gap-1.5 p-2.5 rounded-2xl w-[76px] min-w-[76px] sm:w-[82px] sm:min-w-[82px] transition-transform cursor-pointer border shrink-0 snap-start active:scale-[0.98] ${
-              !selectedCategoryId && activeTab === 'FOODS'
+            className={`flex flex-col items-center justify-start gap-1.5 p-2.5 rounded-2xl w-[76px] min-w-[76px] sm:w-[82px] sm:min-w-[82px] transition-transform cursor-pointer border shrink-0 snap-start active:scale-[0.98] ${!selectedCategoryId && activeTab === 'FOODS'
                 ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/25'
                 : 'bg-white border-slate-200/80 text-slate-700 hover:bg-slate-50'
-            }`}
+              }`}
           >
             <div className="w-11 h-11 rounded-xl bg-slate-50 flex items-center justify-center text-xl shadow-inner shrink-0">
               🍽️
@@ -233,11 +279,10 @@ export default function CustomerHomePage() {
                   setSelectedCategoryId(catId);
                   setActiveTab('FOODS');
                 }}
-                className={`flex flex-col items-center justify-start gap-1.5 p-2.5 rounded-2xl w-[76px] min-w-[76px] sm:w-[82px] sm:min-w-[82px] transition-transform cursor-pointer border shrink-0 snap-start active:scale-[0.98] ${
-                  isSelected
+                className={`flex flex-col items-center justify-start gap-1.5 p-2.5 rounded-2xl w-[76px] min-w-[76px] sm:w-[82px] sm:min-w-[82px] transition-transform cursor-pointer border shrink-0 snap-start active:scale-[0.98] ${isSelected
                     ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/25'
                     : 'bg-white border-slate-200/80 text-slate-700 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 <div className="w-11 h-11 rounded-xl bg-slate-50 flex items-center justify-center text-xl shadow-inner shrink-0">
                   {cat.emoji || getCategoryIcon(cat.name)}
@@ -255,21 +300,19 @@ export default function CustomerHomePage() {
         <div className="flex items-center text-xs sm:text-sm font-bold text-slate-500">
           <button
             onClick={() => setActiveTab('FOODS')}
-            className={`min-h-[44px] flex items-center px-4 relative transition-transform cursor-pointer active:scale-[0.98] ${
-              activeTab === 'FOODS'
+            className={`min-h-[44px] flex items-center px-4 relative transition-transform cursor-pointer active:scale-[0.98] ${activeTab === 'FOODS'
                 ? 'text-rose-600 font-extrabold after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-rose-600 after:rounded-full'
                 : 'hover:text-slate-900'
-            }`}
+              }`}
           >
             Foods
           </button>
           <button
             onClick={() => setActiveTab('KITCHENS')}
-            className={`min-h-[44px] flex items-center px-4 relative transition-transform cursor-pointer active:scale-[0.98] ${
-              activeTab === 'KITCHENS'
+            className={`min-h-[44px] flex items-center px-4 relative transition-transform cursor-pointer active:scale-[0.98] ${activeTab === 'KITCHENS'
                 ? 'text-rose-600 font-extrabold after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-rose-600 after:rounded-full'
                 : 'hover:text-slate-900'
-            }`}
+              }`}
           >
             Kitchens
           </button>
@@ -278,11 +321,10 @@ export default function CustomerHomePage() {
         {activeTab === 'FOODS' && (
           <button
             onClick={() => setShowFilterMenu(!showFilterMenu)}
-            className={`min-h-[44px] flex items-center gap-1.5 px-3.5 py-1.5 mb-1.5 rounded-full text-xs font-bold transition-transform cursor-pointer border active:scale-[0.98] ${
-              showFilterMenu || activeFilterCount > 0
+            className={`min-h-[44px] flex items-center gap-1.5 px-3.5 py-1.5 mb-1.5 rounded-full text-xs font-bold transition-transform cursor-pointer border active:scale-[0.98] ${showFilterMenu || activeFilterCount > 0
                 ? 'bg-rose-50 text-rose-600 border-rose-200 shadow-xs'
                 : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-            }`}
+              }`}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>Sort & Filter</span>
@@ -317,22 +359,20 @@ export default function CustomerHomePage() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setSortBy('newest')}
-              className={`flex-1 sm:flex-none justify-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
-                sortBy === 'newest'
+              className={`flex-1 sm:flex-none justify-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${sortBy === 'newest'
                   ? 'bg-rose-600 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
-              }`}
+                }`}
             >
               <span>⚡ Popular / Newest</span>
             </button>
 
             <button
               onClick={() => setSortBy('price_asc')}
-              className={`flex-1 sm:flex-none justify-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
-                sortBy === 'price_asc'
+              className={`flex-1 sm:flex-none justify-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${sortBy === 'price_asc'
                   ? 'bg-rose-600 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
-              }`}
+                }`}
             >
               <ArrowUp className="w-3.5 h-3.5" />
               <span>Price: Low to High</span>
@@ -340,11 +380,10 @@ export default function CustomerHomePage() {
 
             <button
               onClick={() => setSortBy('price_desc')}
-              className={`flex-1 sm:flex-none justify-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
-                sortBy === 'price_desc'
+              className={`flex-1 sm:flex-none justify-center min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${sortBy === 'price_desc'
                   ? 'bg-rose-600 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80'
-              }`}
+                }`}
             >
               <ArrowDown className="w-3.5 h-3.5" />
               <span>Price: High to Low</span>
@@ -354,11 +393,10 @@ export default function CustomerHomePage() {
           <div className="flex flex-wrap items-center gap-2 pt-2.5 border-t border-slate-100">
             <button
               onClick={() => setIsVegOnly(!isVegOnly)}
-              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${
-                isVegOnly
+              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer flex items-center gap-1.5 active:scale-[0.98] ${isVegOnly
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
-              }`}
+                }`}
             >
               <Leaf className="w-3.5 h-3.5" />
               <span>Veg Only</span>
@@ -366,33 +404,30 @@ export default function CustomerHomePage() {
 
             <button
               onClick={() => setPriceFilter(priceFilter === 'under_200' ? 'all' : 'under_200')}
-              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${
-                priceFilter === 'under_200'
+              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${priceFilter === 'under_200'
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
+                }`}
             >
               Under ৳200
             </button>
 
             <button
               onClick={() => setPriceFilter(priceFilter === '200_500' ? 'all' : '200_500')}
-              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${
-                priceFilter === '200_500'
+              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${priceFilter === '200_500'
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
+                }`}
             >
               ৳200 - ৳500
             </button>
 
             <button
               onClick={() => setPriceFilter(priceFilter === 'above_500' ? 'all' : 'above_500')}
-              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${
-                priceFilter === 'above_500'
+              className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition-transform cursor-pointer active:scale-[0.98] ${priceFilter === 'above_500'
                   ? 'bg-slate-900 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
+                }`}
             >
               ৳500+
             </button>
@@ -452,8 +487,8 @@ export default function CustomerHomePage() {
                   {activeFilterCount > 0
                     ? 'No dishes match your active search and filter criteria.'
                     : selectedCategoryId
-                    ? 'No available dishes in this category.'
-                    : 'Try searching with different keywords.'}
+                      ? 'No available dishes in this category.'
+                      : 'Try searching with different keywords.'}
                 </p>
               </div>
               {activeFilterCount > 0 && (
@@ -476,14 +511,13 @@ export default function CustomerHomePage() {
                 const isAvailable = item.is_available !== false;
 
                 return (
-                  <Link
+                  <div
                     key={item.id || item._id}
-                    href={`/restaurants/${restSlug}`}
-                    className={`group bg-white rounded-3xl border p-2.5 sm:p-3 flex flex-col justify-between space-y-2.5 shadow-xs transition-all duration-150 active:scale-[0.98] ${
-                      isAvailable
+                    onClick={() => router.push(`/restaurants/${restSlug}`)}
+                    className={`group bg-white rounded-3xl border p-2.5 sm:p-3 flex flex-col justify-between space-y-2.5 shadow-xs transition-all duration-150 cursor-pointer active:scale-[0.98] ${isAvailable
                         ? 'border-slate-200/80 hover:border-rose-200 hover:shadow-md'
                         : 'border-slate-200/50 bg-slate-50/40 opacity-90'
-                    }`}
+                      }`}
                   >
                     <div className={`relative h-32 sm:h-36 rounded-2xl overflow-hidden bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 flex items-center justify-center border border-rose-100/60 ${!isAvailable ? 'grayscale-40' : ''}`}>
                       {item.image_url ? (
@@ -555,9 +589,18 @@ export default function CustomerHomePage() {
                           )}
                         </div>
                         {isAvailable ? (
-                          <span className="inline-flex items-center gap-0.5 px-2.5 py-1 rounded-xl bg-rose-50 text-rose-600 text-xs font-bold group-hover:bg-rose-600 group-hover:text-white transition shrink-0 shadow-xs">
-                            Order <ChevronRight className="w-3 h-3" />
-                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleOpenCustomization(item, restObj);
+                            }}
+                            className="inline-flex items-center gap-0.5 px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white text-xs font-bold transition-all shrink-0 shadow-xs cursor-pointer active:scale-95"
+                          >
+                            <span>Order</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
                         ) : (
                           <span className="inline-flex items-center text-xs font-bold text-slate-400 group-hover:text-slate-600 transition shrink-0">
                             View <ChevronRight className="w-3 h-3 ml-0.5" />
@@ -565,7 +608,7 @@ export default function CustomerHomePage() {
                         )}
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
@@ -660,6 +703,38 @@ export default function CustomerHomePage() {
           )}
         </div>
       </div>
+
+
+      {itemCount > 0 && (
+        <div className="fixed bottom-20 sm:bottom-16 left-0 right-0 z-40 px-4 flex justify-center pointer-events-none animate-in slide-in-from-bottom-5 duration-200">
+          <Link
+            href="/cart"
+            className="pointer-events-auto w-full max-w-sm bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 active:scale-[0.98] transition-all text-white p-3.5 px-5 rounded-2xl shadow-xl shadow-rose-600/30 flex items-center justify-between font-bold text-xs sm:text-sm cursor-pointer ring-2 ring-rose-300/50"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="w-6 h-6 rounded-full bg-white text-rose-600 flex items-center justify-center text-xs font-black shadow-xs">
+                {itemCount}
+              </span>
+              <span>View Cart Order</span>
+            </div>
+            <span className="text-sm sm:text-base font-black font-mono">{formatBDT(grandTotal)}</span>
+          </Link>
+        </div>
+      )}
+
+
+      {selectedFoodForCustomization && (
+        <CustomizationModal
+          item={selectedFoodForCustomization.item}
+          restaurant={selectedFoodForCustomization.restaurant}
+          isOpen={true}
+          onClose={() => setSelectedFoodForCustomization(null)}
+          onAddToCart={(cartItem: CartItem) => {
+            addItem(cartItem, selectedFoodForCustomization.restaurant);
+            setSelectedFoodForCustomization(null);
+          }}
+        />
+      )}
     </div>
   );
 }
