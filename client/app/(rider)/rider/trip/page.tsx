@@ -6,12 +6,13 @@ import Link from 'next/link';
 import { useRiderProfileQuery } from '@/hooks/queries/use-rider-queries';
 import { ActiveDeliveryCard } from '@/components/rider/ActiveDeliveryCard';
 import type { RiderActiveOrder } from '@/types';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, formatOrderTime } from '@/lib/utils';
 import {
   Radar,
   Loader2,
   Package,
   Plus,
+  Clock,
 } from 'lucide-react';
 
 export default function RiderTripPage() {
@@ -185,6 +186,15 @@ export default function RiderTripPage() {
                   <p className="text-[11px] text-slate-400 font-medium truncate leading-tight mt-0.5">
                     {order.customer_name || 'Customer'}
                   </p>
+                  {order.createdAt && (
+                    <div
+                      suppressHydrationWarning
+                      className="flex items-center gap-1 text-[10px] text-slate-400 font-medium mt-1.5"
+                    >
+                      <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                      <span>{formatOrderTime(order.createdAt)}</span>
+                    </div>
+                  )}
                 </button>
               );
             })}

@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { useMyOrdersQuery } from '@/hooks/queries/use-order-queries';
 import type { Order } from '@/types';
-import { formatBDT } from '@/lib/utils';
+import { formatBDT, formatOrderTime } from '@/lib/utils';
 import { WhatsAppPhoneLink } from '@/components/ui/WhatsAppPhoneLink';
 import {
   PackageCheck,
@@ -104,9 +104,16 @@ export function VendorCompletedOrders() {
                         Delivered
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                      <Clock className="w-3 h-3" />
-                      <span>{formattedDate}</span>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium flex-wrap">
+                      <span suppressHydrationWarning className="flex items-center gap-1 text-slate-600">
+                        <Clock className="w-3 h-3 text-emerald-600 shrink-0" />
+                        Delivered: {formattedDate}
+                      </span>
+                      {order.createdAt && (
+                        <span suppressHydrationWarning className="text-slate-400">
+                          • Ordered: {formatOrderTime(order.createdAt)}
+                        </span>
+                      )}
                     </div>
                   </div>
 
