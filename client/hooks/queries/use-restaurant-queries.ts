@@ -128,6 +128,60 @@ export function useToggleRestaurantStatusMutation() {
   });
 }
 
+export function useBulkToggleRestaurantStatusMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: {
+      updates?: { restaurantId: string; is_open: boolean }[];
+      restaurantIds?: string[];
+      is_open?: boolean;
+      action?: 'toggle' | 'open' | 'close';
+    }) => {
+      try {
+        const data = await apiClient.put<unknown, { modifiedCount: number }>(
+          '/restaurants/bulk-status',
+          payload
+        );
+        return data;
+      } catch (err: unknown) {
+        // Fallback to parallel single PUT requests if bulk-status returns 404 or fails
+        if (payload.updates && payload.updates.length > 0) {
+          await Promise.all(
+            payload.updates.map((u) =>
+              apiClient.put(`/restaurants/${u.restaurantId}/status`, {
+                is_open: u.is_open,
+              })
+            )
+          );
+          return { modifiedCount: payload.updates.length };
+        }
+        if (payload.restaurantIds && typeof payload.is_open === 'boolean') {
+          await Promise.all(
+            payload.restaurantIds.map((id) =>
+              apiClient.put(`/restaurants/${id}/status`, {
+                is_open: payload.is_open,
+              })
+            )
+          );
+          return { modifiedCount: payload.restaurantIds.length };
+        }
+        throw err;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: RESTAURANT_KEYS.myRestaurant });
+      queryClient.invalidateQueries({ queryKey: ['restaurant'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurants-infinite'] });
+      queryClient.invalidateQueries({ queryKey: ['food-items'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'user'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'restaurant'] });
+    },
+  });
+}
+
 export function useCreateRestaurantMutation() {
   const queryClient = useQueryClient();
   return useMutation({

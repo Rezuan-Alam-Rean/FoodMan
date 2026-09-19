@@ -4,6 +4,7 @@ import {
   getRestaurantDetails,
   createRestaurant,
   toggleRestaurantStatus,
+  bulkToggleRestaurantStatus,
   getMyRestaurant,
   updateRestaurantProfile,
 } from './restaurant.service.js';
@@ -75,6 +76,16 @@ export const handleToggleRestaurantStatus = catchAsync(async (req, res) => {
     statusCode: HTTP_STATUS.OK,
     message: `restaurant is now ${restaurant.is_open ? 'open' : 'closed'}`,
     data: restaurant,
+  });
+});
+
+export const handleBulkToggleRestaurantStatus = catchAsync(async (req, res) => {
+  const result = await bulkToggleRestaurantStatus(req.body, req.user);
+
+  return ApiResponse.success(res, {
+    statusCode: HTTP_STATUS.OK,
+    message: 'restaurant statuses updated successfully',
+    data: result,
   });
 });
 

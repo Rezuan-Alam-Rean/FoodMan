@@ -6,6 +6,7 @@ import {
   handleGetMyRestaurant,
   handleCreateRestaurant,
   handleToggleRestaurantStatus,
+  handleBulkToggleRestaurantStatus,
   handleUpdateRestaurantProfile,
 } from './restaurant.controller.js';
 import { authenticate, authorize, optionalAuthenticate } from '../../middlewares/auth.js';
@@ -31,6 +32,14 @@ router.post(
   authenticate,
   authorize(USER_ROLES.RESTAURANT_OWNER, USER_ROLES.ADMIN),
   handleCreateRestaurant
+);
+
+// admin bulk restaurant status update (must precede /:id)
+router.put(
+  '/bulk-status',
+  authenticate,
+  authorize(USER_ROLES.ADMIN),
+  handleBulkToggleRestaurantStatus
 );
 
 router.put(

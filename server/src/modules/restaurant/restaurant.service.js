@@ -228,6 +228,71 @@ export const toggleRestaurantStatus = async (restaurantId, isOpen, user) => {
 };
 
 /**
+ * bulk toggle or update restaurant open/closed status (admin only)
+ * @param {object} payload - { updates, restaurantIds, is_open, action }
+ * @param {object} user - authenticated user
+ * @returns {object}
+ */
+export const bulkToggleRestaurantStatus = async (
+  { updates, restaurantIds, is_open, action = 'toggle' } = {},
+  user
+) => {
+  if (user.role !== USER_ROLES.ADMIN) {
+    throw ApiError.forbidden('only administrators can bulk update restaurant status');
+  }
+
+  // 1. Array of individual updates: [{ restaurantId, is_open }]
+  if (Array.isArray(updates) && updates.length > 0) {
+    const validUpdates = updates.filter(
+      (u) => u && u.restaurantId && typeof u.is_open === 'boolean'
+    );
+    if (validUpdates.length === 0) {
+      throw ApiError.badRequest('updates array must contain valid { restaurantId, is_open } items');
+    }
+
+    const bulkOps = validUpdates.map((u) => ({
+      updateOne: {
+        filter: { _id: u.restaurantId },
+        update: { $set: { is_open: u.is_open } },
+      },
+    }));
+
+    const result = await Restaurant.bulkWrite(bulkOps);
+    return { modifiedCount: result.modifiedCount ?? validUpdates.length };
+  }
+
+  // 2. Array of restaurantIds
+  if (Array.isArray(restaurantIds) && restaurantIds.length > 0) {
+    // If explicit is_open is provided: set all to this value
+    if (typeof is_open === 'boolean') {
+      const result = await Restaurant.updateMany(
+        { _id: { $in: restaurantIds } },
+        { $set: { is_open } }
+      );
+      return { modifiedCount: result.modifiedCount };
+    }
+
+    // If action is toggle: flip each restaurant's status
+    if (action === 'toggle') {
+      const existing = await Restaurant.find({ _id: { $in: restaurantIds } }).select('_id is_open');
+      if (existing.length === 0) {
+        return { modifiedCount: 0 };
+      }
+      const bulkOps = existing.map((r) => ({
+        updateOne: {
+          filter: { _id: r._id },
+          update: { $set: { is_open: !r.is_open } },
+        },
+      }));
+      const result = await Restaurant.bulkWrite(bulkOps);
+      return { modifiedCount: result.modifiedCount ?? existing.length };
+    }
+  }
+
+  throw ApiError.badRequest('please provide updates or restaurantIds to update');
+};
+
+/**
  * get restaurant managed by authenticated owner
  * @param {string} ownerId
  * @returns {object}
