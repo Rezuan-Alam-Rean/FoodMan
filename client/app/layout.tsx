@@ -5,6 +5,7 @@ import './globals.css';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { AuthSplashProvider } from '@/components/providers/auth-splash-provider';
 import { NotificationProvider } from '@/components/providers/notification-provider';
+import { PwaInit } from '@/components/pwa/PwaInit';
 
 const fontSans = Plus_Jakarta_Sans({
   variable: '--font-sans',
@@ -28,6 +29,24 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'FoodMan — Food Delivery in Bangladesh',
   description: 'Order authentic feast, biryani, burgers, and delicious dishes from top restaurants with fixed zone delivery fees in Dhaka.',
+  applicationName: 'FoodMan',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'FoodMan',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -52,6 +71,7 @@ export default function RootLayout({
         <QueryProvider>
           <AuthSplashProvider>
             <NotificationProvider>
+              <PwaInit />
               {children}
             </NotificationProvider>
           </AuthSplashProvider>

@@ -121,7 +121,7 @@ Most users hold phones with one hand and navigate with the thumb:
 <button
   className="w-full min-h-[48px] px-5 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 active:bg-rose-800 active:scale-[0.98] text-white font-bold text-sm sm:text-base shadow-md shadow-rose-500/20 transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
 >
-  {/* icon + text */}
+  
 </button>
 ```
 - Always provide active press animation (`active:scale-[0.98]`).
