@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { ArrowLeft, UtensilsCrossed } from 'lucide-react';
+import { PwaInstallButton } from '@/components/layout/PwaInstallButton';
 
 export default function AuthLayout({
   children,
@@ -53,13 +54,16 @@ export default function AuthLayout({
             </div>
           </Link>
 
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200/80 shadow-xs transition hover:bg-slate-50"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <PwaInstallButton />
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200/80 shadow-xs transition hover:bg-slate-50"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back</span>
+            </Link>
+          </div>
         </div>
       </header>
 

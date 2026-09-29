@@ -5,6 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { UtensilsCrossed } from 'lucide-react';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { PwaInstallButton } from '@/components/layout/PwaInstallButton';
 
 export function CustomerHeader() {
   return (
@@ -25,6 +26,7 @@ export function CustomerHeader() {
         </Link>
 
         <div className="flex items-center gap-2">
+          <PwaInstallButton />
           <NotificationBell />
         </div>
       </div>

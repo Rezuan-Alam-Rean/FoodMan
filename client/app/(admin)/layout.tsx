@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { AdminBottomNav } from '@/components/admin/AdminBottomNav';
+import { PwaInstallButton } from '@/components/layout/PwaInstallButton';
 import { UtensilsCrossed, LogOut } from 'lucide-react';
 
 export default function AdminLayout({
@@ -63,6 +64,7 @@ export default function AdminLayout({
           </Link>
 
           <div className="flex items-center gap-3">
+            <PwaInstallButton />
             <button
               onClick={() => logout(() => router.push('/auth/login'))}
               className="min-h-[44px] px-3.5 py-2 rounded-2xl border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 active:scale-[0.98] transition-transform text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"

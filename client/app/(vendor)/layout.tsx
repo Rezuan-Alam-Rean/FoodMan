@@ -11,6 +11,7 @@ import {
 } from '@/hooks/queries/use-restaurant-queries';
 import { VendorBottomNav } from '@/components/vendor/VendorBottomNav';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { PwaInstallButton } from '@/components/layout/PwaInstallButton';
 import { UtensilsCrossed, Power, Loader2 } from 'lucide-react';
 
 export default function VendorLayout({
@@ -81,6 +82,7 @@ export default function VendorLayout({
           </Link>
 
           <div className="flex items-center gap-2.5">
+            <PwaInstallButton />
             <NotificationBell />
             {restaurant && (
               <button

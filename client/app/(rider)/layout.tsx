@@ -9,6 +9,7 @@ import { useRiderProfileQuery, useToggleRiderStatusMutation } from '@/hooks/quer
 import { UtensilsCrossed, Loader2 } from 'lucide-react';
 import { RiderBottomNav } from '@/components/rider/RiderBottomNav';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { PwaInstallButton } from '@/components/layout/PwaInstallButton';
 
 export default function RiderLayout({
   children,
@@ -72,6 +73,7 @@ export default function RiderLayout({
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <PwaInstallButton />
             <NotificationBell />
             <button
               type="button"

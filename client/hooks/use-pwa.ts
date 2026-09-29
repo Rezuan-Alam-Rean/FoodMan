@@ -34,9 +34,23 @@ function getStandaloneSnapshot(): boolean {
   );
 }
 
+let globalDeferredPrompt: BeforeInstallPromptEvent | null = null;
+let globalIsInstalled = false;
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    globalDeferredPrompt = e as BeforeInstallPromptEvent;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    globalIsInstalled = true;
+    globalDeferredPrompt = null;
+  });
+}
+
 export function usePwa() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalledAfterPrompt, setIsInstalledAfterPrompt] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(() => globalDeferredPrompt);
+  const [isInstalledAfterPrompt, setIsInstalledAfterPrompt] = useState(() => globalIsInstalled);
 
   // Safely detect client-side mount without cascading renders
   const isMounted = useSyncExternalStore(
@@ -69,12 +83,22 @@ export function usePwa() {
   );
 
   useEffect(() => {
+    if (globalDeferredPrompt && !deferredPrompt) {
+      setDeferredPrompt(globalDeferredPrompt);
+    }
+    if (globalIsInstalled && !isInstalledAfterPrompt) {
+      setIsInstalledAfterPrompt(true);
+    }
+
     const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
+      // Do not prevent default so that Chrome's ambient float prompt remains visible
+      globalDeferredPrompt = e as BeforeInstallPromptEvent;
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     const handleAppInstalled = () => {
+      globalIsInstalled = true;
+      globalDeferredPrompt = null;
       setIsInstalledAfterPrompt(true);
       setDeferredPrompt(null);
     };
@@ -86,19 +110,22 @@ export function usePwa() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
+  }, [deferredPrompt, isInstalledAfterPrompt]);
 
-  const isInstallable = Boolean(deferredPrompt);
+  const isInstallable = Boolean(deferredPrompt || globalDeferredPrompt);
 
   const promptInstall = useCallback(async (): Promise<boolean> => {
-    if (!deferredPrompt) {
+    const activePrompt = deferredPrompt || globalDeferredPrompt;
+    if (!activePrompt) {
       return false;
     }
 
     try {
-      await deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
-      if (choiceResult.outcome === 'accepted') {
+      await activePrompt.prompt();
+      const choiceResult = await activePrompt.userChoice;
+      if (choiceResult?.outcome === 'accepted') {
+        globalIsInstalled = true;
+        globalDeferredPrompt = null;
         setIsInstalledAfterPrompt(true);
         setDeferredPrompt(null);
         return true;
